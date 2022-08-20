@@ -1,7 +1,7 @@
 import Foundation
 
 public protocol HTTPClient {
-    func get(url: URL)
+    func get(from url: URL)
 }
 
 public final class RemoteFeedLoader {
@@ -14,6 +14,6 @@ public final class RemoteFeedLoader {
     }
 
     public func load() {
-        client.get(url: url)
+        client.get(from: url)
     }
 }
