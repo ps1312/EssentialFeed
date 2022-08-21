@@ -13,7 +13,7 @@ class RemoteFeedLoaderTests: XCTestCase {
         let expectedURL = URL(string: "https://www.expected-url.com")!
         let (sut, httpClientSpy) = makeSUT(url: expectedURL)
 
-        sut.load()
+        sut.load { _ in }
 
         XCTAssertEqual(httpClientSpy.requestedURLs, [expectedURL])
 
@@ -23,10 +23,21 @@ class RemoteFeedLoaderTests: XCTestCase {
         let expectedURL = URL(string: "https://www.expected-url.com")!
         let (sut, httpClientSpy) = makeSUT(url: expectedURL)
 
-        sut.load()
-        sut.load()
+        sut.load { _ in }
+        sut.load { _ in }
 
         XCTAssertEqual(httpClientSpy.requestedURLs, [expectedURL, expectedURL])
+    }
+
+    func testLoadDeliversErrorOnClientError() {
+        let (sut, httpClientSpy) = makeSUT()
+
+        var capturedError: RemoteFeedLoader.Error?
+        sut.load { capturedError = $0 }
+
+        httpClientSpy.completeWith(error: NSError(domain: "test domain error", code: 0))
+
+        XCTAssertEqual(capturedError, .connectivity)
     }
 
     // MARK: - Helpers
@@ -40,9 +51,17 @@ class RemoteFeedLoaderTests: XCTestCase {
 
     private class HTTPClientSpy: HTTPClient {
         var requestedURLs = [URL]()
+        var error: Error?
 
-        func get(from url: URL) {
+        var completions = [(Error) -> Void]()
+
+        func get(from url: URL, completion: @escaping (Error) -> Void) {
             requestedURLs.append(url)
+            completions.append(completion)
+        }
+
+        func completeWith(error: Error) {
+            completions[0](error)
         }
     }
 
