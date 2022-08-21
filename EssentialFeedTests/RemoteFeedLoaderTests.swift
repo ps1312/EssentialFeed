@@ -43,7 +43,7 @@ class RemoteFeedLoaderTests: XCTestCase {
         let samples = [199, 201, 300, 400, 500]
         samples.enumerated().forEach { index, statusCode in
             assert(sut, toCompleteWith: [.failure(.invalidData)], when: {
-                let validData = Data("{\"items\":/[]".utf8)
+                let validData = Data("{\"items\":[]}".utf8)
                 httpClientSpy.completeWith(statusCode: statusCode, data: validData, at: index)
             })
         }
@@ -58,6 +58,15 @@ class RemoteFeedLoaderTests: XCTestCase {
         })
     }
 
+    func testLoadDeliversEmptyListOnStatusCode200AndValidJSON() {
+        let (sut, httpClientSpy) = makeSUT()
+
+        assert(sut, toCompleteWith: [.success([])], when: {
+            let validJSON = Data("{\"items\":[]}".utf8)
+            httpClientSpy.completeWith(statusCode: 200, data: validJSON)
+        })
+    }
+
     // MARK: - Helpers
 
     private func makeSUT(url: URL = URL(string: "https://www.any-url.com")!) -> (RemoteFeedLoader, HTTPClientSpy) {
@@ -67,14 +76,19 @@ class RemoteFeedLoaderTests: XCTestCase {
         return (sut, httpClientSpy)
     }
 
-    private func assert(_ sut: RemoteFeedLoader, toCompleteWith expectedResult: [RemoteFeedLoader.Result], when action: () -> Void) {
-
+    private func assert(
+        _ sut: RemoteFeedLoader,
+        toCompleteWith expectedResult: [RemoteFeedLoader.Result],
+        when action: () -> Void,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) {
         var capturedResult = [RemoteFeedLoader.Result]()
         sut.load { capturedResult.append($0) }
 
         action()
 
-        XCTAssertEqual(capturedResult, expectedResult)
+        XCTAssertEqual(capturedResult, expectedResult, file: file, line: line)
     }
 
     private class HTTPClientSpy: HTTPClient {
@@ -96,7 +110,7 @@ class RemoteFeedLoaderTests: XCTestCase {
                 httpVersion: nil,
                 headerFields: nil
             )!
-            messages[index].completion(.success(response))
+            messages[index].completion(.success((data, response)))
         }
     }
 
