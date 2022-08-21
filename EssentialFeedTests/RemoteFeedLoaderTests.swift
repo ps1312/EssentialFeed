@@ -43,8 +43,7 @@ class RemoteFeedLoaderTests: XCTestCase {
         let samples = [199, 201, 300, 400, 500]
         samples.enumerated().forEach { index, statusCode in
             assert(sut, toCompleteWith: [.failure(.invalidData)], when: {
-                let validData = Data("{\"items\":[]}".utf8)
-                httpClientSpy.completeWith(statusCode: statusCode, data: validData, at: index)
+                httpClientSpy.completeWith(statusCode: statusCode, data: makeItemsJSON([]), at: index)
             })
         }
     }
@@ -62,42 +61,29 @@ class RemoteFeedLoaderTests: XCTestCase {
         let (sut, httpClientSpy) = makeSUT()
 
         assert(sut, toCompleteWith: [.success([])], when: {
-            let validJSON = Data("{\"items\":[]}".utf8)
-            httpClientSpy.completeWith(statusCode: 200, data: validJSON)
+            httpClientSpy.completeWith(statusCode: 200, data: makeItemsJSON([]))
         })
     }
 
     func testLoadDeliversFeedItemsListOnStatusCode200AndValidJSON() {
-        let feedItem1 = FeedItem(
+        let (sut, httpClientSpy) = makeSUT()
+
+        let (model1, json1) = makeFeedItem(
             id: UUID(),
             description: "a description",
             location: "a location",
             imageURL: URL(string: "https://www.a-image-url.com")!
         )
-        let feedItem1JSON = [
-            "id": feedItem1.id.uuidString,
-            "description": feedItem1.description,
-            "location": feedItem1.location,
-            "image": feedItem1.imageURL.absoluteString,
-        ]
-        let feedItem2 = FeedItem(
+        let (model2, json2) = makeFeedItem(
             id: UUID(),
             description: nil,
             location: nil,
             imageURL: URL(string: "https://www.a-image-url.com")!
         )
-        let feedItem2JSON = [
-            "id": feedItem2.id.uuidString,
-            "image": feedItem2.imageURL.absoluteString,
-        ]
 
-        let itemsJSON = [ "items": [feedItem1JSON, feedItem2JSON] ]
-
-        let (sut, httpClientSpy) = makeSUT()
-
-        assert(sut, toCompleteWith: [.success([feedItem1, feedItem2])], when: {
-            let validJSON = try! JSONSerialization.data(withJSONObject: itemsJSON)
-            httpClientSpy.completeWith(statusCode: 200, data: validJSON)
+        assert(sut, toCompleteWith: [.success([model1, model2])], when: {
+            let itemsJSON = makeItemsJSON([json1, json2])
+            httpClientSpy.completeWith(statusCode: 200, data: itemsJSON)
         })
     }
 
@@ -108,6 +94,27 @@ class RemoteFeedLoaderTests: XCTestCase {
         let sut = RemoteFeedLoader(url: url, client: httpClientSpy)
 
         return (sut, httpClientSpy)
+    }
+
+    private func makeFeedItem(id: UUID, description: String?, location: String?, imageURL: URL) -> (FeedItem, [String: Any]) {
+        let model = FeedItem(
+            id: id,
+            description: description,
+            location: location,
+            imageURL: imageURL
+        )
+        let json = [
+            "id": id.uuidString,
+            "description": description,
+            "location": location,
+            "image": imageURL.absoluteString
+        ].compactMapValues { $0 }
+
+        return (model, json)
+    }
+
+    private func makeItemsJSON(_ feedItemsJSON: [[String: Any]]) -> Data {
+        return try! JSONSerialization.data(withJSONObject: ["items": feedItemsJSON])
     }
 
     private func assert(
