@@ -32,7 +32,7 @@ class RemoteFeedLoaderTests: XCTestCase {
     func testLoadDeliversConnectivityErrorOnClientError() {
         let (sut, httpClientSpy) = makeSUT()
 
-        assert(sut, toCompleteWith: [.connectivity], when: {
+        assert(sut, toCompleteWith: [.failure(.connectivity)], when: {
             httpClientSpy.completeWith(error: NSError(domain: "test domain error", code: 0))
         })
     }
@@ -42,7 +42,7 @@ class RemoteFeedLoaderTests: XCTestCase {
 
         let samples = [199, 201, 300, 400, 500]
         samples.enumerated().forEach { index, statusCode in
-            assert(sut, toCompleteWith: [.invalidData], when: {
+            assert(sut, toCompleteWith: [.failure(.invalidData)], when: {
                 let validData = Data("{\"items\":/[]".utf8)
                 httpClientSpy.completeWith(statusCode: statusCode, data: validData, at: index)
             })
@@ -52,7 +52,7 @@ class RemoteFeedLoaderTests: XCTestCase {
     func testLoadDeliversInvalidDataErrorWhenStatusCode200AndInvalidJSON() {
         let (sut, httpClientSpy) = makeSUT()
 
-        assert(sut, toCompleteWith: [.invalidData], when: {
+        assert(sut, toCompleteWith: [.failure(.invalidData)], when: {
             let invalidJSON = Data("invalid json".utf8)
             httpClientSpy.completeWith(statusCode: 200, data: invalidJSON)
         })
@@ -67,14 +67,14 @@ class RemoteFeedLoaderTests: XCTestCase {
         return (sut, httpClientSpy)
     }
 
-    private func assert(_ sut: RemoteFeedLoader, toCompleteWith expectedError: [RemoteFeedLoader.Error], when action: () -> Void) {
+    private func assert(_ sut: RemoteFeedLoader, toCompleteWith expectedResult: [RemoteFeedLoader.Result], when action: () -> Void) {
 
-        var capturedError = [RemoteFeedLoader.Error]()
-        sut.load { capturedError.append($0) }
+        var capturedResult = [RemoteFeedLoader.Result]()
+        sut.load { capturedResult.append($0) }
 
         action()
 
-        XCTAssertEqual(capturedError, expectedError)
+        XCTAssertEqual(capturedResult, expectedResult)
     }
 
     private class HTTPClientSpy: HTTPClient {
