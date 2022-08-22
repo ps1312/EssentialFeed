@@ -99,19 +99,19 @@ class URLSessionHTTPClientTests: XCTestCase {
     }
 
     func testGetDeliverUnexpectedErrorWhenRequestCompletesWithUnexpectedValues() {
-        assertError(data: nil, response: nil, error: nil)
-        assertError(data: makeData(), response: nil, error: nil)
-        assertError(data: nil, response: makeURLResponse(), error: nil)
-        assertError(data: nil, response: nil, error: makeError())
-        assertError(data: nil, response: makeHTTPURLResponse(), error: makeError())
-        assertError(data: nil, response: makeURLResponse(), error: makeError())
-        assertError(data: makeData(), response: nil, error: makeError())
-        assertError(data: makeData(), response: makeHTTPURLResponse(), error: makeError())
-        assertError(data: makeData(), response: makeURLResponse(), error: makeError())
-        assertError(data: makeData(), response: makeURLResponse(), error: nil)
+        assertInvalidValuesError(data: nil, response: nil, error: nil)
+        assertInvalidValuesError(data: makeData(), response: nil, error: nil)
+        assertInvalidValuesError(data: nil, response: makeURLResponse(), error: nil)
+        assertInvalidValuesError(data: nil, response: nil, error: makeError())
+        assertInvalidValuesError(data: nil, response: makeHTTPURLResponse(), error: makeError())
+        assertInvalidValuesError(data: nil, response: makeURLResponse(), error: makeError())
+        assertInvalidValuesError(data: makeData(), response: nil, error: makeError())
+        assertInvalidValuesError(data: makeData(), response: makeHTTPURLResponse(), error: makeError())
+        assertInvalidValuesError(data: makeData(), response: makeURLResponse(), error: makeError())
+        assertInvalidValuesError(data: makeData(), response: makeURLResponse(), error: nil)
     }
 
-    private func assertError(data: Data?, response: URLResponse?, error: Error?, file: StaticString = #filePath, line: UInt = #line) {
+    private func assertInvalidValuesError(data: Data?, response: URLResponse?, error: Error?, file: StaticString = #filePath, line: UInt = #line) {
         let exp = expectation(description: "Wait for request observation")
         let sut = URLSessionHTTPClient()
 
