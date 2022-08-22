@@ -30,7 +30,7 @@ class URLSessionHTTPClientTests: XCTestCase {
     }
 
     func testGetDeliversErrorOnRequestFailure() {
-        let exp = expectation(description: "Wait for request observation")
+        let exp = expectation(description: "Wait for request completion")
         let sut = makeSUT()
 
         let expectedError = makeError()
@@ -51,8 +51,27 @@ class URLSessionHTTPClientTests: XCTestCase {
         wait(for: [exp], timeout: 0.1)
     }
 
+    func testGetCompletesWithEmptyDataWhenResponseHasNoData() {
+        let exp = expectation(description: "Wait for request completion")
+        let sut = makeSUT()
+
+        URLProtocolStub.setStub(data: nil, response: makeHTTPURLResponse(), error: nil)
+
+        sut.get(from: makeURL()) { receivedResult in
+            switch (receivedResult) {
+            case .success(let (data,_)):
+                XCTAssertEqual(data, Data())
+            default:
+                XCTFail("Expected request to succeed, instead it failed with \(receivedResult)")
+            }
+            exp.fulfill()
+        }
+
+        wait(for: [exp], timeout: 0.1)
+    }
+
     func testGetDeliversDataAndResponseWhenRequestSucceeds() {
-        let exp = expectation(description: "Wait for request observation")
+        let exp = expectation(description: "Wait for request completion")
         let sut = makeSUT()
 
         let expectedData = makeData()
@@ -97,7 +116,7 @@ class URLSessionHTTPClientTests: XCTestCase {
     }
 
     private func assertInvalidValuesError(data: Data?, response: URLResponse?, error: Error?, file: StaticString = #filePath, line: UInt = #line) {
-        let exp = expectation(description: "Wait for request observation")
+        let exp = expectation(description: "Wait for request completion")
         let sut = URLSessionHTTPClient()
 
         URLProtocolStub.setStub(data: data, response: response, error: error)
