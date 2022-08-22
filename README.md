@@ -125,4 +125,4 @@ GET /feed
 
 ## App Architecture
 
-![](architecture.png)
+![](app_architecture.png)
