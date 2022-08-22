@@ -7,13 +7,19 @@ class URLSessionHTTPClient {
         case unexpected
     }
 
+    typealias Result = Swift.Result<(Data, HTTPURLResponse), Error>
+
     init (session: URLSession = .shared) {
         self.session = session
     }
 
-    func get(from url: URL, completion: @escaping (Error) -> Void) {
-        session.dataTask(with: url) { _, _, _ in
-            completion(.unexpected)
+    func get(from url: URL, completion: @escaping (Result) -> Void) {
+        session.dataTask(with: url) { data, response, error in
+            guard let data = data, let response = response as? HTTPURLResponse else {
+                return completion(.failure(.unexpected))
+            }
+
+            completion(.success((data, response)))
         }.resume()
     }
 }
@@ -48,17 +54,61 @@ class URLSessionHTTPClientTests: XCTestCase {
         let exp = expectation(description: "Wait for request observation")
         let sut = URLSessionHTTPClient()
 
-        sut.get(from: URL(string: "https://www.a-url.com")!) { receivedError in
-            XCTAssertEqual(receivedError, .unexpected)
+        URLProtocolStub.setStub(data: nil, response: nil, error: makeError())
+
+        sut.get(from: URL(string: "https://www.a-url.com")!) { receivedResult in
+            switch (receivedResult) {
+            case .failure(let receivedError):
+                XCTAssertEqual(receivedError, .unexpected)
+            default:
+                XCTFail("Expected request to fail, instead it succeeds with \(receivedResult)")
+            }
+
             exp.fulfill()
         }
 
         wait(for: [exp], timeout: 0.1)
     }
+
+    func testGetDeliversDataAndResponseWhenRequestSucceeds() {
+        let exp = expectation(description: "Wait for request observation")
+        let sut = URLSessionHTTPClient()
+
+        let expectedData = Data("{}".utf8)
+        let expectedResponse = HTTPURLResponse(url: URL(string: "https://www.a-url.com")!, statusCode: 200, httpVersion: nil, headerFields: nil)
+        URLProtocolStub.setStub(data: expectedData, response: expectedResponse, error: nil)
+
+        sut.get(from: URL(string: "https://www.a-url.com")!) { receivedResult in
+            switch (receivedResult) {
+            case .success(let (data, response)):
+                XCTAssertEqual(data, expectedData)
+                XCTAssertEqual(response.statusCode, expectedResponse?.statusCode)
+                XCTAssertEqual(response.url, expectedResponse?.url)
+            default:
+                XCTFail("Expected request to succeed, instead it failed with \(receivedResult)")
+            }
+
+            exp.fulfill()
+        }
+
+        wait(for: [exp], timeout: 0.1)
+
+    }
 }
 
 class URLProtocolStub: URLProtocol {
+    struct Stub {
+        var data: Data?
+        var response: URLResponse?
+        var error: Error?
+    }
+
     static var observeRequest: ((URLRequest) -> Void)? = nil
+    static var stub: Stub? = nil
+
+    static func setStub(data: Data?, response: URLResponse?, error: Error?) {
+        URLProtocolStub.stub = Stub(data: data, response: response, error: error)
+    }
 
     override class func canInit(with request: URLRequest) -> Bool { return true }
 
@@ -67,7 +117,18 @@ class URLProtocolStub: URLProtocol {
     override func startLoading() {
         URLProtocolStub.observeRequest?(request)
 
-        client?.urlProtocol(self, didFailWithError: makeError())
+        if let data = URLProtocolStub.stub?.data {
+            client?.urlProtocol(self, didLoad: data)
+        }
+
+        if let response = URLProtocolStub.stub?.response {
+            client?.urlProtocol(self, didReceive: response, cacheStoragePolicy: .notAllowed)
+        }
+
+        if let error = URLProtocolStub.stub?.error {
+            client?.urlProtocol(self, didFailWithError: error)
+        }
+
         client?.urlProtocolDidFinishLoading(self)
     }
 
