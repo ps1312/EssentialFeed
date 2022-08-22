@@ -15,6 +15,7 @@
 		3AC4F9DF28B3C6F70067CE4C /* HTTPClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AC4F9DE28B3C6F70067CE4C /* HTTPClient.swift */; };
 		3AC4F9E128B3C72A0067CE4C /* FeedItemsMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AC4F9E028B3C72A0067CE4C /* FeedItemsMapper.swift */; };
 		3AC4F9E328B3EF570067CE4C /* URLSessionHTTPClientTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AC4F9E228B3EF570067CE4C /* URLSessionHTTPClientTests.swift */; };
+		3AC4F9E528B3FDEC0067CE4C /* Shared.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AC4F9E428B3FDEC0067CE4C /* Shared.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -38,6 +39,7 @@
 		3AC4F9DE28B3C6F70067CE4C /* HTTPClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HTTPClient.swift; sourceTree = "<group>"; };
 		3AC4F9E028B3C72A0067CE4C /* FeedItemsMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedItemsMapper.swift; sourceTree = "<group>"; };
 		3AC4F9E228B3EF570067CE4C /* URLSessionHTTPClientTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = URLSessionHTTPClientTests.swift; sourceTree = "<group>"; };
+		3AC4F9E428B3FDEC0067CE4C /* Shared.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Shared.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -100,6 +102,7 @@
 		3A6EE46C28B16B33001AC8C2 /* EssentialFeedTests */ = {
 			isa = PBXGroup;
 			children = (
+				3AC4F9E428B3FDEC0067CE4C /* Shared.swift */,
 				3A44CB1428B1A1F3006EE8DB /* RemoteFeedLoaderTests.swift */,
 				3AC4F9E228B3EF570067CE4C /* URLSessionHTTPClientTests.swift */,
 			);
@@ -237,6 +240,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3AC4F9E528B3FDEC0067CE4C /* Shared.swift in Sources */,
 				3A44CB1528B1A1F3006EE8DB /* RemoteFeedLoaderTests.swift in Sources */,
 				3AC4F9E328B3EF570067CE4C /* URLSessionHTTPClientTests.swift in Sources */,
 			);

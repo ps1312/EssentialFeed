@@ -19,9 +19,15 @@ class URLSessionHTTPClient {
 }
 
 class URLSessionHTTPClientTests: XCTestCase {
+    override func setUp() {
+        URLProtocol.registerClass(URLProtocolStub.self)
+    }
+
+    override func tearDown() {
+        URLProtocol.unregisterClass(URLProtocolStub.self)
+    }
 
     func testGetMakesAGetRequestWithProvidedURL() {
-        URLProtocol.registerClass(URLProtocolStub.self)
         let exp = expectation(description: "Wait for request observation")
 
         let expectedURL = URL(string: "https://www.a-url.com")!
@@ -36,11 +42,9 @@ class URLSessionHTTPClientTests: XCTestCase {
         sut.get(from: expectedURL) { _ in }
 
         wait(for: [exp], timeout: 0.1)
-        URLProtocol.unregisterClass(URLProtocolStub.self)
     }
 
     func testGetDeliversUnexpectedErrorOnRequestFailure() {
-        URLProtocol.registerClass(URLProtocolStub.self)
         let exp = expectation(description: "Wait for request observation")
         let sut = URLSessionHTTPClient()
 
@@ -50,8 +54,6 @@ class URLSessionHTTPClientTests: XCTestCase {
         }
 
         wait(for: [exp], timeout: 0.1)
-        URLProtocol.unregisterClass(URLProtocolStub.self)
-
     }
 }
 
@@ -65,7 +67,7 @@ class URLProtocolStub: URLProtocol {
     override func startLoading() {
         URLProtocolStub.observeRequest?(request)
 
-        client?.urlProtocol(self, didFailWithError: NSError(domain: "Test", code: 1))
+        client?.urlProtocol(self, didFailWithError: makeError())
         client?.urlProtocolDidFinishLoading(self)
     }
 
