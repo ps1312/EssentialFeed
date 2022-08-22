@@ -12,6 +12,7 @@
 		3A6EE46928B16B33001AC8C2 /* EssentialFeed.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3A6EE46028B16B32001AC8C2 /* EssentialFeed.framework */; };
 		3A6EE47928B16B70001AC8C2 /* FeedItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A6EE47828B16B70001AC8C2 /* FeedItem.swift */; };
 		3A6EE47B28B16BC4001AC8C2 /* FeedLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A6EE47A28B16BC4001AC8C2 /* FeedLoader.swift */; };
+		3AC4F9DF28B3C6F70067CE4C /* HTTPClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AC4F9DE28B3C6F70067CE4C /* HTTPClient.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -32,6 +33,7 @@
 		3A6EE47828B16B70001AC8C2 /* FeedItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedItem.swift; sourceTree = "<group>"; };
 		3A6EE47A28B16BC4001AC8C2 /* FeedLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedLoader.swift; sourceTree = "<group>"; };
 		3A6EE47D28B19767001AC8C2 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
+		3AC4F9DE28B3C6F70067CE4C /* HTTPClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HTTPClient.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -57,6 +59,7 @@
 			isa = PBXGroup;
 			children = (
 				3A44CB1728B1A9EA006EE8DB /* RemoteFeedLoader.swift */,
+				3AC4F9DE28B3C6F70067CE4C /* HTTPClient.swift */,
 			);
 			path = "Feed API";
 			sourceTree = "<group>";
@@ -218,6 +221,7 @@
 			files = (
 				3A6EE47B28B16BC4001AC8C2 /* FeedLoader.swift in Sources */,
 				3A44CB1828B1A9EA006EE8DB /* RemoteFeedLoader.swift in Sources */,
+				3AC4F9DF28B3C6F70067CE4C /* HTTPClient.swift in Sources */,
 				3A6EE47928B16B70001AC8C2 /* FeedItem.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
