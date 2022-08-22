@@ -60,7 +60,8 @@ class URLSessionHTTPClientTests: XCTestCase {
         sut.get(from: makeURL()) { receivedResult in
             switch (receivedResult) {
             case .success(let (data,_)):
-                XCTAssertEqual(data, Data())
+                let emptyData = Data()
+                XCTAssertEqual(data, emptyData)
             default:
                 XCTFail("Expected request to succeed, instead it failed with \(receivedResult)")
             }
