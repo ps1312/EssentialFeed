@@ -32,7 +32,7 @@ class RemoteFeedLoaderTests: XCTestCase {
     func testLoadDeliversConnectivityErrorOnClientError() {
         let (sut, httpClientSpy) = makeSUT()
 
-        assert(sut, toCompleteWith: [.failure(.connectivity)], when: {
+        assert(sut, toCompleteWith: .failure(RemoteFeedLoader.Error.connectivity), when: {
             httpClientSpy.completeWith(error: NSError(domain: "test domain error", code: 0))
         })
     }
@@ -42,7 +42,7 @@ class RemoteFeedLoaderTests: XCTestCase {
 
         let samples = [199, 201, 300, 400, 500]
         samples.enumerated().forEach { index, statusCode in
-            assert(sut, toCompleteWith: [.failure(.invalidData)], when: {
+            assert(sut, toCompleteWith: .failure(RemoteFeedLoader.Error.invalidData), when: {
                 httpClientSpy.completeWith(statusCode: statusCode, data: makeItemsJSON([]), at: index)
             })
         }
@@ -51,7 +51,7 @@ class RemoteFeedLoaderTests: XCTestCase {
     func testLoadDeliversInvalidDataErrorWhenStatusCode200AndInvalidJSON() {
         let (sut, httpClientSpy) = makeSUT()
 
-        assert(sut, toCompleteWith: [.failure(.invalidData)], when: {
+        assert(sut, toCompleteWith: .failure(RemoteFeedLoader.Error.invalidData), when: {
             let invalidJSON = Data("invalid json".utf8)
             httpClientSpy.completeWith(statusCode: 200, data: invalidJSON)
         })
@@ -60,7 +60,7 @@ class RemoteFeedLoaderTests: XCTestCase {
     func testLoadDeliversEmptyListOnStatusCode200AndValidJSON() {
         let (sut, httpClientSpy) = makeSUT()
 
-        assert(sut, toCompleteWith: [.success([])], when: {
+        assert(sut, toCompleteWith: .success([]), when: {
             httpClientSpy.completeWith(statusCode: 200, data: makeItemsJSON([]))
         })
     }
@@ -81,7 +81,7 @@ class RemoteFeedLoaderTests: XCTestCase {
             imageURL: URL(string: "https://www.a-image-url.com")!
         )
 
-        assert(sut, toCompleteWith: [.success([model1, model2])], when: {
+        assert(sut, toCompleteWith: .success([model1, model2]), when: {
             let itemsJSON = makeItemsJSON([json1, json2])
             httpClientSpy.completeWith(statusCode: 200, data: itemsJSON)
         })
@@ -128,17 +128,31 @@ class RemoteFeedLoaderTests: XCTestCase {
 
     private func assert(
         _ sut: RemoteFeedLoader,
-        toCompleteWith expectedResult: [RemoteFeedLoader.Result],
+        toCompleteWith expectedResult: RemoteFeedLoader.Result,
         when action: () -> Void,
         file: StaticString = #filePath,
         line: UInt = #line
     ) {
-        var capturedResult = [RemoteFeedLoader.Result]()
-        sut.load { capturedResult.append($0) }
+        let exp = expectation(description: "wait for load to complete")
+
+        sut.load { receivedResult in
+            switch (receivedResult, expectedResult) {
+            case (.success(let receivedItems), .success(let expectedItems)):
+                XCTAssertEqual(receivedItems, expectedItems)
+
+            case (.failure(let receivedError as RemoteFeedLoader.Error), .failure(let expectedError as RemoteFeedLoader.Error)):
+                XCTAssertEqual(receivedError, expectedError)
+
+            default:
+                XCTFail("Expected results to be both successes or failures, instead got \(receivedResult) and \(expectedResult)", file: file, line: line)
+            }
+
+            exp.fulfill()
+        }
 
         action()
 
-        XCTAssertEqual(capturedResult, expectedResult, file: file, line: line)
+        wait(for: [exp], timeout: 0.1)
     }
 
     private class HTTPClientSpy: HTTPClient {

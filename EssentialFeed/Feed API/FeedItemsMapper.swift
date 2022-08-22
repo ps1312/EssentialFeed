@@ -20,7 +20,7 @@ class FeedItemsMapper {
             let feedItems = root.items.map { FeedItem(id: $0.id, description: $0.description, location: $0.location, imageURL: $0.image) }
             return .success(feedItems)
         } catch {
-            return .failure(.invalidData)
+            return .failure(RemoteFeedLoader.Error.invalidData)
         }
     }
 }
