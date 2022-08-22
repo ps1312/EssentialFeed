@@ -39,7 +39,7 @@ class URLSessionHTTPClientTests: XCTestCase {
         let exp = expectation(description: "Wait for request observation")
 
         let expectedURL = URL(string: "https://www.a-specific-url.com")!
-        let sut = URLSessionHTTPClient()
+        let sut = makeSUT()
 
         URLProtocolStub.setStub(url: expectedURL, data: nil, response: nil, error: nil)
 
@@ -56,7 +56,7 @@ class URLSessionHTTPClientTests: XCTestCase {
 
     func testGetDeliversErrorOnRequestFailure() {
         let exp = expectation(description: "Wait for request observation")
-        let sut = URLSessionHTTPClient()
+        let sut = makeSUT()
 
         let expectedError = makeError()
         URLProtocolStub.setStub(data: nil, response: nil, error: makeError())
@@ -78,7 +78,7 @@ class URLSessionHTTPClientTests: XCTestCase {
 
     func testGetDeliversDataAndResponseWhenRequestSucceeds() {
         let exp = expectation(description: "Wait for request observation")
-        let sut = URLSessionHTTPClient()
+        let sut = makeSUT()
 
         let expectedData = makeData()
         let expectedResponse = makeHTTPURLResponse()
@@ -111,6 +111,14 @@ class URLSessionHTTPClientTests: XCTestCase {
         assertInvalidValuesError(data: makeData(), response: makeHTTPURLResponse(), error: makeError())
         assertInvalidValuesError(data: makeData(), response: makeURLResponse(), error: makeError())
         assertInvalidValuesError(data: makeData(), response: makeURLResponse(), error: nil)
+    }
+
+    private func makeSUT(file: StaticString = #filePath, line: UInt = #line) -> URLSessionHTTPClient {
+        let sut = URLSessionHTTPClient()
+
+        testMemoryLeak(sut, file: file, line: line)
+
+        return sut
     }
 
     private func assertInvalidValuesError(data: Data?, response: URLResponse?, error: Error?, file: StaticString = #filePath, line: UInt = #line) {
