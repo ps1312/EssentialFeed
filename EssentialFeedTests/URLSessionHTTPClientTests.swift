@@ -96,7 +96,42 @@ class URLSessionHTTPClientTests: XCTestCase {
         }
 
         wait(for: [exp], timeout: 0.1)
+    }
 
+    func testGetDeliverUnexpectedErrorWhenRequestCompletesWithUnexpectedValues() {
+        let anyHTTPURLResponse = HTTPURLResponse(url: makeURL(), statusCode: 1, httpVersion: nil, headerFields: nil)
+        let anyURLReponse = URLResponse(url: makeURL(), mimeType: nil, expectedContentLength: 0, textEncodingName: nil)
+
+        assertError(data: nil, response: nil, error: nil)
+        assertError(data: makeData(), response: nil, error: nil)
+        assertError(data: nil, response: anyURLReponse, error: nil)
+        assertError(data: nil, response: nil, error: makeError())
+        assertError(data: nil, response: anyHTTPURLResponse, error: makeError())
+        assertError(data: nil, response: anyURLReponse, error: makeError())
+        assertError(data: makeData(), response: nil, error: makeError())
+        assertError(data: makeData(), response: anyHTTPURLResponse, error: makeError())
+        assertError(data: makeData(), response: anyURLReponse, error: makeError())
+        assertError(data: makeData(), response: anyURLReponse, error: nil)
+    }
+
+    private func assertError(data: Data?, response: URLResponse?, error: Error?, file: StaticString = #filePath, line: UInt = #line) {
+        let exp = expectation(description: "Wait for request observation")
+        let sut = URLSessionHTTPClient()
+
+        URLProtocolStub.setStub(data: data, response: response, error: error)
+
+        sut.get(from: URL(string: "https://www.a-url.com")!) { receivedResult in
+            switch (receivedResult) {
+            case .failure(let receivedError):
+                XCTAssertNotNil(receivedError)
+            default:
+                XCTFail("Expected request to fail, instead it got \(receivedResult)", file: file, line: line)
+            }
+
+            exp.fulfill()
+        }
+
+        wait(for: [exp], timeout: 0.1)
     }
 }
 
