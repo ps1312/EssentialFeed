@@ -3,11 +3,9 @@ import XCTest
 class URLSessionHTTPClient {
     private let session: URLSession
 
-    enum Error: Swift.Error {
-        case unexpected
-    }
-
     typealias Result = Swift.Result<(Data, HTTPURLResponse), Error>
+
+    struct UnexpectedResultValues: Error {}
 
     init (session: URLSession = .shared) {
         self.session = session
@@ -15,8 +13,12 @@ class URLSessionHTTPClient {
 
     func get(from url: URL, completion: @escaping (Result) -> Void) {
         session.dataTask(with: url) { data, response, error in
+            if let error = error {
+                return completion(.failure(error))
+            }
+
             guard let data = data, let response = response as? HTTPURLResponse else {
-                return completion(.failure(.unexpected))
+                return completion(.failure(UnexpectedResultValues()))
             }
 
             completion(.success((data, response)))
@@ -50,16 +52,18 @@ class URLSessionHTTPClientTests: XCTestCase {
         wait(for: [exp], timeout: 0.1)
     }
 
-    func testGetDeliversUnexpectedErrorOnRequestFailure() {
+    func testGetDeliversErrorOnRequestFailure() {
         let exp = expectation(description: "Wait for request observation")
         let sut = URLSessionHTTPClient()
 
+        let expectedError = makeError()
         URLProtocolStub.setStub(data: nil, response: nil, error: makeError())
 
         sut.get(from: URL(string: "https://www.a-url.com")!) { receivedResult in
             switch (receivedResult) {
-            case .failure(let receivedError):
-                XCTAssertEqual(receivedError, .unexpected)
+            case .failure(let receivedError as NSError):
+                XCTAssertEqual(receivedError.code, expectedError.code)
+                XCTAssertEqual(receivedError.domain, expectedError.domain)
             default:
                 XCTFail("Expected request to fail, instead it succeeds with \(receivedResult)")
             }
