@@ -45,12 +45,13 @@ class URLSessionHTTPClientTests: XCTestCase {
     }
 
     func testGetDeliversDataAndResponseWhenRequestSucceeds() {
+        let expectedStatusCode = 999
         let expectedData = makeData()
-        let expectedResponse = makeHTTPURLResponse()
-        let result = resultValuesFor(data: makeData(), response: makeHTTPURLResponse(), error: nil)
+        let expectedResponse = makeHTTPURLResponse(statusCode: expectedStatusCode)
+        let result = resultValuesFor(data: expectedData, response: expectedResponse, error: nil)
 
         XCTAssertEqual(result?.data, expectedData)
-        XCTAssertEqual(result?.response.statusCode, expectedResponse.statusCode)
+        XCTAssertEqual(result?.response.statusCode, expectedStatusCode)
         XCTAssertEqual(result?.response.url, expectedResponse.url)
     }
 
@@ -115,8 +116,8 @@ class URLSessionHTTPClientTests: XCTestCase {
         }
     }
 
-    private func makeHTTPURLResponse() -> HTTPURLResponse {
-        return HTTPURLResponse(url: makeURL(), statusCode: 200, httpVersion: nil, headerFields: nil)!
+    private func makeHTTPURLResponse(statusCode: Int = 200) -> HTTPURLResponse {
+        return HTTPURLResponse(url: makeURL(), statusCode: statusCode, httpVersion: nil, headerFields: nil)!
     }
 
     private func makeURLResponse() -> URLResponse {
