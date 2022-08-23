@@ -154,7 +154,9 @@ class URLProtocolStub: URLProtocol {
     override class func canonicalRequest(for request: URLRequest) -> URLRequest { return request }
 
     override func startLoading() {
-        URLProtocolStub.observeRequest?(request)
+        if let observeRequest = URLProtocolStub.observeRequest {
+            return observeRequest(request)
+        }
 
         if let data = URLProtocolStub.stub?.data {
             client?.urlProtocol(self, didLoad: data)
