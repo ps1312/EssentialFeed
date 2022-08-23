@@ -38,9 +38,9 @@ class URLSessionHTTPClientTests: XCTestCase {
     }
 
     func testGetCompletesWithEmptyDataWhenResponseHasNoData() {
-        let emptyData = Data()
-        let result = resultValuesFor(data: emptyData, response: makeHTTPURLResponse(), error: nil)
+        let result = resultValuesFor(data: nil, response: makeHTTPURLResponse(), error: nil)
 
+        let emptyData = Data()
         XCTAssertEqual(result?.data, emptyData)
     }
 
@@ -77,7 +77,7 @@ class URLSessionHTTPClientTests: XCTestCase {
 
     private func resultFor(data: Data?, response: URLResponse?, error: Error?) -> HTTPClientResult {
         let exp = expectation(description: "Wait for request completion")
-        let sut = URLSessionHTTPClient()
+        let sut = makeSUT()
 
         URLProtocolStub.setStub(data: data, response: response, error: error)
 
