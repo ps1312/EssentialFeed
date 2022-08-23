@@ -10,6 +10,9 @@ class EssentialFeedEndToEndTests: XCTestCase {
         let httpClient = URLSessionHTTPClient()
         let remoteFeedLoader = RemoteFeedLoader(url: url, client: httpClient)
 
+        testMemoryLeak(httpClient)
+        testMemoryLeak(remoteFeedLoader)
+
         var capturedFeedItems = [FeedItem]()
         remoteFeedLoader.load { result in
             switch (result) {
