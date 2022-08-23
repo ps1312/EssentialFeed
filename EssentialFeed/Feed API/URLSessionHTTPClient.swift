@@ -5,7 +5,7 @@ public class URLSessionHTTPClient: HTTPClient {
 
     private let session: URLSession
 
-    public typealias Result = Swift.Result<(Data, HTTPURLResponse), Error>
+    public typealias Result = HTTPClientResult
 
     public init (session: URLSession = .shared) {
         self.session = session
