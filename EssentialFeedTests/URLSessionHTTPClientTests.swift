@@ -50,8 +50,8 @@ class URLSessionHTTPClientTests: XCTestCase {
         let result = resultValuesFor(data: makeData(), response: makeHTTPURLResponse(), error: nil)
 
         XCTAssertEqual(result?.data, expectedData)
-        XCTAssertEqual(result?.response?.statusCode, expectedResponse.statusCode)
-        XCTAssertEqual(result?.response?.url, expectedResponse.url)
+        XCTAssertEqual(result?.response.statusCode, expectedResponse.statusCode)
+        XCTAssertEqual(result?.response.url, expectedResponse.url)
     }
 
     func testGetDeliverUnexpectedErrorWhenRequestCompletesWithUnexpectedValues() {
@@ -91,7 +91,7 @@ class URLSessionHTTPClientTests: XCTestCase {
         return capturedResult
     }
 
-    private func resultValuesFor(data: Data?, response: URLResponse?, error: Error?) -> (data: Data, response: HTTPURLResponse?)? {
+    private func resultValuesFor(data: Data?, response: URLResponse?, error: Error?) -> (data: Data, response: HTTPURLResponse)? {
         let result = resultFor(data: data, response: response, error: error)
 
         switch (result) {
