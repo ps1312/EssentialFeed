@@ -146,6 +146,7 @@ class URLProtocolStub: URLProtocol {
     static func stopInterceptingRequests() {
         URLProtocol.unregisterClass(URLProtocolStub.self)
         stub = nil
+        observeRequest = nil
     }
 
     override class func canInit(with request: URLRequest) -> Bool { return true }
