@@ -1,7 +1,7 @@
 import Foundation
 
 public class URLSessionHTTPClient: HTTPClient {
-    struct UnexpectedResultValues: Error {}
+    private struct UnexpectedValuesError: Error {}
 
     private let session: URLSession
 
@@ -18,7 +18,7 @@ public class URLSessionHTTPClient: HTTPClient {
             }
 
             guard let data = data, let response = response as? HTTPURLResponse else {
-                return completion(.failure(UnexpectedResultValues()))
+                return completion(.failure(UnexpectedValuesError()))
             }
 
             completion(.success((data, response)))
