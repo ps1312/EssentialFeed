@@ -20,8 +20,8 @@ class RemoteFeedLoaderTests: XCTestCase {
     }
 
     func testLoadTwiceMakesRequestTwice() {
-        let expectedURL = URL(string: "https://www.expected-url.com")!
-        let (sut, httpClientSpy) = makeSUT(url: expectedURL)
+        let expectedURL = makeURL()
+        let (sut, httpClientSpy) = makeSUT(url: makeURL())
 
         sut.load { _ in }
         sut.load { _ in }
@@ -33,7 +33,7 @@ class RemoteFeedLoaderTests: XCTestCase {
         let (sut, httpClientSpy) = makeSUT()
 
         assert(sut, toCompleteWith: .failure(RemoteFeedLoader.Error.connectivity), when: {
-            httpClientSpy.completeWith(error: NSError(domain: "test domain error", code: 0))
+            httpClientSpy.completeWith(error: makeNSError())
         })
     }
 
@@ -52,7 +52,7 @@ class RemoteFeedLoaderTests: XCTestCase {
         let (sut, httpClientSpy) = makeSUT()
 
         assert(sut, toCompleteWith: .failure(RemoteFeedLoader.Error.invalidData), when: {
-            let invalidJSON = Data("invalid json".utf8)
+            let invalidJSON = makeData()
             httpClientSpy.completeWith(statusCode: 200, data: invalidJSON)
         })
     }
@@ -68,18 +68,8 @@ class RemoteFeedLoaderTests: XCTestCase {
     func testLoadDeliversFeedItemsListOnStatusCode200AndValidJSON() {
         let (sut, httpClientSpy) = makeSUT()
 
-        let (model1, json1) = makeFeedItem(
-            id: UUID(),
-            description: "a description",
-            location: "a location",
-            imageURL: URL(string: "https://www.a-image-url.com")!
-        )
-        let (model2, json2) = makeFeedItem(
-            id: UUID(),
-            description: nil,
-            location: nil,
-            imageURL: URL(string: "https://www.a-image-url.com")!
-        )
+        let (model1, json1) = makeFeedItem(id: UUID(), description: "a description", location: "a location", imageURL: makeURL())
+        let (model2, json2) = makeFeedItem(id: UUID(), description: nil, location: nil, imageURL: makeURL())
 
         assert(sut, toCompleteWith: .success([model1, model2]), when: {
             let itemsJSON = makeItemsJSON([json1, json2])
@@ -89,7 +79,7 @@ class RemoteFeedLoaderTests: XCTestCase {
 
     // MARK: - Helpers
 
-    private func makeSUT(url: URL = URL(string: "https://www.any-url.com")!, file: StaticString = #filePath, line: UInt = #line) -> (RemoteFeedLoader, HTTPClientSpy) {
+    private func makeSUT(url: URL = makeURL(), file: StaticString = #filePath, line: UInt = #line) -> (RemoteFeedLoader, HTTPClientSpy) {
         let httpClientSpy = HTTPClientSpy()
         let sut = RemoteFeedLoader(url: url, client: httpClientSpy)
 
@@ -97,12 +87,6 @@ class RemoteFeedLoaderTests: XCTestCase {
         testMemoryLeak(httpClientSpy, file: file, line: line)
 
         return (sut, httpClientSpy)
-    }
-
-    private func testMemoryLeak(_ instance: AnyObject, file: StaticString = #filePath, line: UInt = #line) {
-        addTeardownBlock { [weak instance] in
-            XCTAssertNil(instance, "Instance is not deallocated after test ends. Possible memory leak", file: file, line: line)
-        }
     }
 
     private func makeFeedItem(id: UUID, description: String?, location: String?, imageURL: URL) -> (FeedItem, [String: Any]) {
