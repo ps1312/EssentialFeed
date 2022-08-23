@@ -126,4 +126,3 @@ GET /feed
 ## App Architecture
 
 ![](app_architecture.png)
-
