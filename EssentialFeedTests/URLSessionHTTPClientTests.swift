@@ -30,25 +30,11 @@ class URLSessionHTTPClientTests: XCTestCase {
     }
 
     func testGetDeliversErrorOnRequestFailure() {
-        let exp = expectation(description: "Wait for request completion")
-        let sut = makeSUT()
-
         let expectedError = makeError()
-        URLProtocolStub.setStub(data: nil, response: nil, error: makeError())
+        let receivedError = resultErrorFor(data: nil, response: nil, error: expectedError) as? NSError
 
-        sut.get(from: makeURL()) { receivedResult in
-            switch (receivedResult) {
-            case .failure(let receivedError as NSError):
-                XCTAssertEqual(receivedError.code, expectedError.code)
-                XCTAssertEqual(receivedError.domain, expectedError.domain)
-            default:
-                XCTFail("Expected request to fail, instead it succeeds with \(receivedResult)")
-            }
-
-            exp.fulfill()
-        }
-
-        wait(for: [exp], timeout: 0.1)
+        XCTAssertEqual(receivedError?.code, expectedError.code)
+        XCTAssertEqual(receivedError?.domain, expectedError.domain)
     }
 
     func testGetCompletesWithEmptyDataWhenResponseHasNoData() {
