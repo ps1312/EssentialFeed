@@ -30,7 +30,7 @@ class URLSessionHTTPClientTests: XCTestCase {
     }
 
     func testGetDeliversErrorOnRequestFailure() {
-        let expectedError = makeError()
+        let expectedError = makeNSError()
         let receivedError = resultErrorFor(data: nil, response: nil, error: expectedError) as? NSError
 
         XCTAssertEqual(receivedError?.code, expectedError.code)
@@ -58,12 +58,12 @@ class URLSessionHTTPClientTests: XCTestCase {
         XCTAssertNotNil(resultErrorFor(data: nil, response: nil, error: nil))
         XCTAssertNotNil(resultErrorFor(data: makeData(), response: nil, error: nil))
         XCTAssertNotNil(resultErrorFor(data: nil, response: makeURLResponse(), error: nil))
-        XCTAssertNotNil(resultErrorFor(data: nil, response: nil, error: makeError()))
-        XCTAssertNotNil(resultErrorFor(data: nil, response: makeHTTPURLResponse(), error: makeError()))
-        XCTAssertNotNil(resultErrorFor(data: nil, response: makeURLResponse(), error: makeError()))
-        XCTAssertNotNil(resultErrorFor(data: makeData(), response: nil, error: makeError()))
-        XCTAssertNotNil(resultErrorFor(data: makeData(), response: makeHTTPURLResponse(), error: makeError()))
-        XCTAssertNotNil(resultErrorFor(data: makeData(), response: makeURLResponse(), error: makeError()))
+        XCTAssertNotNil(resultErrorFor(data: nil, response: nil, error: makeNSError()))
+        XCTAssertNotNil(resultErrorFor(data: nil, response: makeHTTPURLResponse(), error: makeNSError()))
+        XCTAssertNotNil(resultErrorFor(data: nil, response: makeURLResponse(), error: makeNSError()))
+        XCTAssertNotNil(resultErrorFor(data: makeData(), response: nil, error: makeNSError()))
+        XCTAssertNotNil(resultErrorFor(data: makeData(), response: makeHTTPURLResponse(), error: makeNSError()))
+        XCTAssertNotNil(resultErrorFor(data: makeData(), response: makeURLResponse(), error: makeNSError()))
         XCTAssertNotNil(resultErrorFor(data: makeData(), response: makeURLResponse(), error: nil))
     }
 

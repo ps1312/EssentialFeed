@@ -1,7 +1,7 @@
 import Foundation
 import XCTest
 
-func makeError() -> NSError {
+func makeNSError() -> NSError {
     return NSError(domain: "Test", code: 1)
 }
 

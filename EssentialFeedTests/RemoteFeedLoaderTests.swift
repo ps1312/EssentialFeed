@@ -33,7 +33,7 @@ class RemoteFeedLoaderTests: XCTestCase {
         let (sut, httpClientSpy) = makeSUT()
 
         assert(sut, toCompleteWith: .failure(RemoteFeedLoader.Error.connectivity), when: {
-            httpClientSpy.completeWith(error: makeError())
+            httpClientSpy.completeWith(error: makeNSError())
         })
     }
 
