@@ -70,6 +70,44 @@ Given the customer doesn't have connectivity
 #### No connectivity – error course (sad path):
 1. System delivers connectivity error.
 
+### Load Feed From Cache Use Case
+
+#### Primary course (happy path):
+1. Execute "Load Image Feed" command
+2. System fetches feed data from cache
+3. System validades cache is less than 7 days old
+4. System creates feed items from cache data
+5. System delivers feed items
+
+#### Load cache error (sad path):
+1. System delivers error message.
+
+#### Cache is old (sad path):
+1. System deletes current cache
+2. System delivers no feed items
+
+#### Empty cache (sad path):
+1. System delivers no feed items
+
+### Cache Feed Use Case
+
+#### Data:
+- Feed items
+
+#### Primary course (happy path):
+1. Execute "Save Feed Cache" command with above data
+2. System deletes old cache
+3. System encodes feed items
+4. System timestamps newly created cache
+5. System persists new cache data
+6. System delivers success message
+
+#### Delete cache error (sad path):
+1. System delivers error
+
+#### Saving cache error (sad path):
+1. System delivers error
+
 ---
 
 ## Flowchart
