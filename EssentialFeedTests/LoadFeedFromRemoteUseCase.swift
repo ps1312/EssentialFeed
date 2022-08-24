@@ -1,7 +1,7 @@
 import XCTest
 import EssentialFeed
 
-class RemoteFeedLoaderTests: XCTestCase {
+class LoadFeedFromRemoteUseCase: XCTestCase {
 
     func testInitDoesNotMakeRequests() {
         let (_, httpClientSpy) = makeSUT()

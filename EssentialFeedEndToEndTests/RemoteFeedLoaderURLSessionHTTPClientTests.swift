@@ -1,7 +1,7 @@
 import XCTest
 import EssentialFeed
 
-class EssentialFeedEndToEndTests: XCTestCase {
+class RemoteFeedLoaderURLSessionHTTPClientTests: XCTestCase {
 
     func testRemoteFeedLoaderAndURLSessionHTTPClientReturnsCorrectFeedItems() {
         let exp = expectation(description: "waiting for real request to complete")
