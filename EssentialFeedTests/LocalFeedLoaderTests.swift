@@ -6,7 +6,7 @@ protocol FeedStore {
     typealias PersistCompletion = (Error?) -> Void
 
     func delete(completion: @escaping DeletionCompletion)
-    func persist(_ items: [FeedItem], completion: @escaping PersistCompletion)
+    func persist(items: [FeedItem], timestamp: Date, completion: @escaping PersistCompletion)
 }
 
 class FeedStoreSpy: FeedStore {
@@ -15,7 +15,7 @@ class FeedStoreSpy: FeedStore {
 
     enum Message: Equatable {
         case delete
-        case persist([FeedItem])
+        case persist(items: [FeedItem], timestamp: Date)
     }
 
     var messages = [Message]()
@@ -25,9 +25,9 @@ class FeedStoreSpy: FeedStore {
         messages.append(.delete)
     }
 
-    func persist(_ items: [FeedItem], completion: @escaping PersistCompletion) {
+    func persist(items: [FeedItem], timestamp: Date, completion: @escaping PersistCompletion) {
         persistRequests.append(completion)
-        messages.append(.persist(items))
+        messages.append(.persist(items: items, timestamp: timestamp))
     }
 
     func completeDelete(with error: Error, at index: Int = 0) {
@@ -51,9 +51,11 @@ class FeedStoreSpy: FeedStore {
 
 class LocalFeedLoader {
     private let store: FeedStore
+    private let currentDate: () -> Date
 
-    init(store: FeedStore) {
+    init(store: FeedStore, currentDate: @escaping () -> Date) {
         self.store = store
+        self.currentDate = currentDate
     }
 
     func save(feed: [FeedItem], completion: @escaping (Error?) -> Void) {
@@ -61,7 +63,7 @@ class LocalFeedLoader {
             if let error = error {
                 completion(error)
             } else {
-                self.store.persist(feed, completion: completion)
+                self.store.persist(items: feed, timestamp: currentDate(), completion: completion)
             }
         }
     }
@@ -93,14 +95,15 @@ class LocalFeedLoaderTests: XCTestCase {
         })
     }
 
-    func testSaveRequestsCachePersistenceWithProvidedFeedItems() {
+    func testSaveRequestsCachePersistenceWithProvidedFeedItemsAndTimestamp() {
+        let expectedTimestamp = Date()
         let expectedFeedItems = [uniqueItem(), uniqueItem()]
-        let (sut, feedStore) = makeSUT()
+        let (sut, feedStore) = makeSUT(currentDate: { expectedTimestamp })
 
         sut.save(feed: expectedFeedItems) { _ in }
         feedStore.completeDeletionWithSuccess()
 
-        XCTAssertEqual(feedStore.messages, [.delete, .persist(expectedFeedItems)])
+        XCTAssertEqual(feedStore.messages, [.delete, .persist(items: expectedFeedItems, timestamp: expectedTimestamp)])
     }
 
     func testSaveDeliversErrorOnCachePersistenceFailure() {
@@ -124,9 +127,9 @@ class LocalFeedLoaderTests: XCTestCase {
 
     // MARK: - Helpers
 
-    private func makeSUT(file: StaticString = #filePath, line: UInt = #line) -> (LocalFeedLoader, FeedStoreSpy) {
+    private func makeSUT(currentDate: @escaping () -> Date = Date.init, file: StaticString = #filePath, line: UInt = #line) -> (LocalFeedLoader, FeedStoreSpy) {
         let feedStore = FeedStoreSpy()
-        let sut = LocalFeedLoader(store: feedStore)
+        let sut = LocalFeedLoader(store: feedStore, currentDate: currentDate)
 
         testMemoryLeak(sut, file: file, line: line)
         testMemoryLeak(feedStore, file: file, line: line)
