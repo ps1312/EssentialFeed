@@ -24,19 +24,26 @@ class LocalFeedLoader {
 class LocalFeedLoaderTests: XCTestCase {
 
     func testInitDoesNotRequestCacheDeletion() {
-        let feedStore = FeedStore()
-        _ = LocalFeedLoader(store: feedStore)
+        let (_, feedStore) = makeSUT()
 
         XCTAssertEqual(feedStore.deleteRequestsCount, 0)
     }
 
     func testSaveRequestsCurrentCacheDeletion() {
-        let feedStore = FeedStore()
-        let sut = LocalFeedLoader(store: feedStore)
+        let (sut, feedStore) = makeSUT()
 
         sut.save()
 
         XCTAssertEqual(feedStore.deleteRequestsCount, 1)
+    }
+
+    // MARK: - Helpers
+
+    private func makeSUT() -> (LocalFeedLoader, FeedStore) {
+        let feedStore = FeedStore()
+        let sut = LocalFeedLoader(store: feedStore)
+
+        return (sut, feedStore)
     }
 
 }
