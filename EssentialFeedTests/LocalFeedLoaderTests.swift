@@ -75,11 +75,9 @@ class LocalFeedLoaderTests: XCTestCase {
         let expectedError = makeNSError()
         let (sut, feedStore) = makeSUT()
 
-        var capturedError: Error? = nil
-        sut.save(feed: [uniqueItem()]) { capturedError = $0 }
-        feedStore.completeDelete(with: expectedError)
-
-        XCTAssertEqual(capturedError as? NSError, expectedError)
+        expect(sut, toCompleteWithError: expectedError, when: {
+            feedStore.completeDelete(with: expectedError)
+        })
     }
 
     func testSaveRequestsCachePersistenceWithProvidedFeedItems() {
@@ -93,8 +91,29 @@ class LocalFeedLoaderTests: XCTestCase {
     }
 
     func testSaveDeliversErrorOnCachePersistenceFailure() {
-        let exp = expectation(description: "waiting for cache saving completion")
         let expectedError = makeNSError()
+        let (sut, feedStore) = makeSUT()
+
+        expect(sut, toCompleteWithError: expectedError, when: {
+            feedStore.completeDeletionWithSuccess()
+            feedStore.completePersist(with: expectedError)
+        })
+    }
+
+    // MARK: - Helpers
+
+    private func makeSUT(file: StaticString = #filePath, line: UInt = #line) -> (LocalFeedLoader, FeedStore) {
+        let feedStore = FeedStore()
+        let sut = LocalFeedLoader(store: feedStore)
+
+        testMemoryLeak(sut, file: file, line: line)
+        testMemoryLeak(feedStore, file: file, line: line)
+
+        return (sut, feedStore)
+    }
+
+    private func expect(_ sut: LocalFeedLoader, toCompleteWithError expectedError: NSError, when action: () -> Void) {
+        let exp = expectation(description: "waiting for cache saving completion")
         let (sut, feedStore) = makeSUT()
 
         var capturedError: Error? = nil
@@ -108,18 +127,7 @@ class LocalFeedLoaderTests: XCTestCase {
         wait(for: [exp], timeout: 0.1)
 
         XCTAssertEqual(capturedError as? NSError, expectedError)
-    }
 
-    // MARK: - Helpers
-
-    private func makeSUT(file: StaticString = #filePath, line: UInt = #line) -> (LocalFeedLoader, FeedStore) {
-        let feedStore = FeedStore()
-        let sut = LocalFeedLoader(store: feedStore)
-
-        testMemoryLeak(sut, file: file, line: line)
-        testMemoryLeak(feedStore, file: file, line: line)
-
-        return (sut, feedStore)
     }
 
     private func uniqueItem() -> FeedItem {
