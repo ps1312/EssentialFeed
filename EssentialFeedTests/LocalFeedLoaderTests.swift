@@ -1,7 +1,15 @@
 import XCTest
 import EssentialFeed
 
-class FeedStore {
+protocol FeedStore {
+    typealias DeletionCompletion = (Error?) -> Void
+    typealias PersistCompletion = (Error?) -> Void
+
+    func deleteCache(completion: @escaping DeletionCompletion)
+    func persistCache(_ items: [FeedItem], completion: @escaping PersistCompletion)
+}
+
+class FeedStoreSpy: FeedStore {
     var deleteRequests = [(Error?) -> Void]()
     var persistRequests = [(Error?) -> Void]()
 
@@ -12,12 +20,12 @@ class FeedStore {
 
     var messages = [Message]()
 
-    func deleteCache(completion: @escaping (Error?) -> Void) {
+    func deleteCache(completion: @escaping DeletionCompletion) {
         deleteRequests.append(completion)
         messages.append(.delete)
     }
 
-    func persistCache(_ items: [FeedItem], completion: @escaping (Error?) -> Void) {
+    func persistCache(_ items: [FeedItem], completion: @escaping PersistCompletion) {
         persistRequests.append(completion)
         messages.append(.persist(items))
     }
@@ -39,6 +47,7 @@ class FeedStore {
     }
     
 }
+
 
 class LocalFeedLoader {
     private let store: FeedStore
@@ -123,8 +132,8 @@ class LocalFeedLoaderTests: XCTestCase {
 
     // MARK: - Helpers
 
-    private func makeSUT(file: StaticString = #filePath, line: UInt = #line) -> (LocalFeedLoader, FeedStore) {
-        let feedStore = FeedStore()
+    private func makeSUT(file: StaticString = #filePath, line: UInt = #line) -> (LocalFeedLoader, FeedStoreSpy) {
+        let feedStore = FeedStoreSpy()
         let sut = LocalFeedLoader(store: feedStore)
 
         testMemoryLeak(sut, file: file, line: line)
