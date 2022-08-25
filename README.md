@@ -55,9 +55,11 @@ Given the customer doesn't have connectivity
 ### Load Feed From Remote Use Case
 
 #### Data:
+
 - URL
 
 #### Primary course (happy path):
+
 1. Execute "Load Image Feed" command with above data.
 2. System downloads data from the URL.
 3. System validates downloaded data.
@@ -65,14 +67,17 @@ Given the customer doesn't have connectivity
 5. System delivers image feed.
 
 #### Invalid data – error course (sad path):
+
 1. System delivers invalid data error.
 
 #### No connectivity – error course (sad path):
+
 1. System delivers connectivity error.
 
 ### Load Feed From Cache Use Case
 
 #### Primary course (happy path):
+
 1. Execute "Load Image Feed" command
 2. System fetches feed data from cache
 3. System validades cache is less than 7 days old
@@ -80,21 +85,26 @@ Given the customer doesn't have connectivity
 5. System delivers feed items
 
 #### Load cache error (sad path):
+
 1. System delivers error message.
 
 #### Cache is old (sad path):
+
 1. System deletes current cache
 2. System delivers no feed items
 
 #### Empty cache (sad path):
+
 1. System delivers no feed items
 
 ### Cache Feed Use Case
 
 #### Data:
+
 - Feed items
 
 #### Primary course (happy path):
+
 1. Execute "Save Feed Cache" command with above data
 2. System deletes old cache
 3. System encodes feed items
@@ -103,9 +113,11 @@ Given the customer doesn't have connectivity
 6. System delivers success message
 
 #### Delete cache error (sad path):
+
 1. System delivers error
 
 #### Saving cache error (sad path):
+
 1. System delivers error
 
 ---
@@ -119,11 +131,11 @@ Given the customer doesn't have connectivity
 ### Feed Image
 
 | Property      | Type                |
-|---------------|---------------------|
+| ------------- | ------------------- |
 | `id`          | `UUID`              |
 | `description` | `String` (optional) |
 | `location`    | `String` (optional) |
-| `url`            | `URL`               |
+| `url`         | `URL`               |
 
 ### Payload contract
 
