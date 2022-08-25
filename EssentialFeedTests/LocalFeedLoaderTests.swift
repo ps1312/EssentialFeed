@@ -65,7 +65,11 @@ class LocalFeedLoader {
             if let error = error {
                 completion(error)
             } else {
-                self.store.persist(items: feed, timestamp: self.currentDate(), completion: completion)
+                self.store.persist(items: feed, timestamp: self.currentDate()) { [weak self] persistError in
+                    guard self != nil else { return }
+
+                    completion(persistError)
+                }
             }
         }
     }
@@ -136,6 +140,21 @@ class LocalFeedLoaderTests: XCTestCase {
 
         sut = nil
         store.completeDelete(with: makeNSError())
+
+        XCTAssertNil(capturedError)
+    }
+
+    func testSaveDoesNotCompletePersistenceWhenSUTHasBeenDeallocated() {
+        let store = FeedStoreSpy()
+        var sut: LocalFeedLoader? = LocalFeedLoader(store: store)
+
+        var capturedError: Error? = nil
+        sut?.save(feed: [uniqueItem()]) { capturedError = $0 }
+        store.completeDeletionWithSuccess()
+
+        sut = nil
+        store.completePersist(with: makeNSError())
+
         XCTAssertNil(capturedError)
     }
 
