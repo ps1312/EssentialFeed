@@ -33,6 +33,10 @@ class FeedStore {
     func completePersist(with error: Error, at index: Int = 0) {
         persistRequests[index](error)
     }
+
+    func completePersistWithSuccess(at index: Int = 0) {
+        persistRequests[index](nil)
+    }
     
 }
 
@@ -98,6 +102,23 @@ class LocalFeedLoaderTests: XCTestCase {
             feedStore.completeDeletionWithSuccess()
             feedStore.completePersist(with: expectedError)
         })
+    }
+
+    func testSaveDoesNotDeliverErrorWhenNewCachePersistenceSucceeds() {
+        let exp = expectation(description: "wait for cache saving completion")
+        let (sut, feedStore) = makeSUT()
+
+        var capturedError: Error? = nil
+        sut.save(feed: [uniqueItem()]) { receivedError in
+            capturedError = receivedError
+            exp.fulfill()
+        }
+        feedStore.completeDeletionWithSuccess()
+        feedStore.completePersistWithSuccess()
+
+        wait(for: [exp], timeout: 0.1)
+
+        XCTAssertNil(capturedError)
     }
 
     // MARK: - Helpers
