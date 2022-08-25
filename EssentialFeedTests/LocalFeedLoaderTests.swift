@@ -1,84 +1,6 @@
 import XCTest
 import EssentialFeed
 
-protocol FeedStore {
-    typealias DeletionCompletion = (Error?) -> Void
-    typealias PersistCompletion = (Error?) -> Void
-
-    func delete(completion: @escaping DeletionCompletion)
-    func persist(items: [FeedItem], timestamp: Date, completion: @escaping PersistCompletion)
-}
-
-class FeedStoreSpy: FeedStore {
-    var deleteRequests = [(Error?) -> Void]()
-    var persistRequests = [(Error?) -> Void]()
-
-    enum Message: Equatable {
-        case delete
-        case persist(items: [FeedItem], timestamp: Date)
-    }
-
-    var messages = [Message]()
-
-    func delete(completion: @escaping DeletionCompletion) {
-        deleteRequests.append(completion)
-        messages.append(.delete)
-    }
-
-    func persist(items: [FeedItem], timestamp: Date, completion: @escaping PersistCompletion) {
-        persistRequests.append(completion)
-        messages.append(.persist(items: items, timestamp: timestamp))
-    }
-
-    func completeDelete(with error: Error, at index: Int = 0) {
-        deleteRequests[index](error)
-    }
-
-    func completeDeletionWithSuccess(at index: Int = 0) {
-        deleteRequests[index](nil)
-    }
-
-    func completePersist(with error: Error, at index: Int = 0) {
-        persistRequests[index](error)
-    }
-
-    func completePersistWithSuccess(at index: Int = 0) {
-        persistRequests[index](nil)
-    }
-    
-}
-
-
-class LocalFeedLoader {
-    private let store: FeedStore
-    private let currentDate: () -> Date
-
-    init(store: FeedStore, currentDate: @escaping () -> Date = Date.init) {
-        self.store = store
-        self.currentDate = currentDate
-    }
-
-    func save(feed: [FeedItem], completion: @escaping (Error?) -> Void) {
-        store.delete { [weak self] error in
-            guard let self = self else { return }
-
-            if let cacheDeleteError = error {
-                completion(cacheDeleteError)
-            } else {
-                self.cache(feed, completion: completion)
-            }
-        }
-    }
-
-    func cache(_ feed: [FeedItem], completion: @escaping (Error?) -> Void) {
-        store.persist(items: feed, timestamp: self.currentDate()) { [weak self] error in
-            guard self != nil else { return }
-            completion(error)
-        }
-    }
-
-}
-
 class LocalFeedLoaderTests: XCTestCase {
 
     func testInitDoesNotRequestCacheDeletion() {
@@ -173,6 +95,45 @@ class LocalFeedLoaderTests: XCTestCase {
         return (sut, feedStore)
     }
 
+    private class FeedStoreSpy: FeedStore {
+        private var deleteRequests = [(Error?) -> Void]()
+        private var persistRequests = [(Error?) -> Void]()
+
+        enum Message: Equatable {
+            case delete
+            case persist(items: [FeedItem], timestamp: Date)
+        }
+
+        var messages = [Message]()
+
+        func delete(completion: @escaping DeletionCompletion) {
+            deleteRequests.append(completion)
+            messages.append(.delete)
+        }
+
+        func persist(items: [FeedItem], timestamp: Date, completion: @escaping PersistCompletion) {
+            persistRequests.append(completion)
+            messages.append(.persist(items: items, timestamp: timestamp))
+        }
+
+        func completeDelete(with error: Error, at index: Int = 0) {
+            deleteRequests[index](error)
+        }
+
+        func completeDeletionWithSuccess(at index: Int = 0) {
+            deleteRequests[index](nil)
+        }
+
+        func completePersist(with error: Error, at index: Int = 0) {
+            persistRequests[index](error)
+        }
+
+        func completePersistWithSuccess(at index: Int = 0) {
+            persistRequests[index](nil)
+        }
+
+    }
+
     private func expect(_ sut: LocalFeedLoader, toCompleteWithError expectedError: NSError?, when action: () -> Void) {
         let exp = expectation(description: "waiting for cache saving completion")
 
@@ -187,7 +148,6 @@ class LocalFeedLoaderTests: XCTestCase {
         wait(for: [exp], timeout: 0.1)
 
         XCTAssertEqual(capturedError as? NSError, expectedError)
-
     }
 
     private func uniqueItem() -> FeedItem {
