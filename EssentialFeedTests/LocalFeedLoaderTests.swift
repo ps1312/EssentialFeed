@@ -53,17 +53,19 @@ class LocalFeedLoader {
     private let store: FeedStore
     private let currentDate: () -> Date
 
-    init(store: FeedStore, currentDate: @escaping () -> Date) {
+    init(store: FeedStore, currentDate: @escaping () -> Date = Date.init) {
         self.store = store
         self.currentDate = currentDate
     }
 
     func save(feed: [FeedItem], completion: @escaping (Error?) -> Void) {
-        store.delete { [unowned self] error in
+        store.delete { [weak self] error in
+            guard let self = self else { return }
+
             if let error = error {
                 completion(error)
             } else {
-                self.store.persist(items: feed, timestamp: currentDate(), completion: completion)
+                self.store.persist(items: feed, timestamp: self.currentDate(), completion: completion)
             }
         }
     }
@@ -123,6 +125,18 @@ class LocalFeedLoaderTests: XCTestCase {
             feedStore.completeDeletionWithSuccess()
             feedStore.completePersistWithSuccess()
         })
+    }
+
+    func testSaveDoesNotCompleteDeletionWhenSUTHasBeenDeallocated() {
+        let store = FeedStoreSpy()
+        var sut: LocalFeedLoader? = LocalFeedLoader(store: store)
+
+        var capturedError: Error? = nil
+        sut?.save(feed: [uniqueItem()]) { capturedError = $0 }
+
+        sut = nil
+        store.completeDelete(with: makeNSError())
+        XCTAssertNil(capturedError)
     }
 
     // MARK: - Helpers
