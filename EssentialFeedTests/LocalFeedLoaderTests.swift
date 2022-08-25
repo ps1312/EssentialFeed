@@ -36,10 +36,10 @@ class LocalFeedLoader {
         self.store = store
     }
 
-    func save(completion: @escaping (Error?) -> Void) {
+    func save(feed: [FeedItem], completion: @escaping (Error?) -> Void) {
         store.deleteCache { [unowned self] error in
             completion(error)
-            self.store.persistCache([FeedItem]())
+            self.store.persistCache(feed)
         }
     }
 
@@ -56,7 +56,7 @@ class LocalFeedLoaderTests: XCTestCase {
     func testSaveRequestsCurrentCacheDeletion() {
         let (sut, feedStore) = makeSUT()
 
-        sut.save { _ in }
+        sut.save(feed: [uniqueItem()]) { _ in }
 
         XCTAssertEqual(feedStore.messages, [.delete])
     }
@@ -66,17 +66,17 @@ class LocalFeedLoaderTests: XCTestCase {
         let (sut, feedStore) = makeSUT()
 
         var capturedError: Error? = nil
-        sut.save { capturedError = $0 }
+        sut.save(feed: [uniqueItem()]) { capturedError = $0 }
         feedStore.completeDelete(with: expectedError)
 
         XCTAssertEqual(capturedError as? NSError, expectedError)
     }
 
     func testSaveRequestsCachePersistanceWithProvidedFeedItems() {
-        let expectedFeedItems = [FeedItem]()
+        let expectedFeedItems = [uniqueItem(), uniqueItem()]
         let (sut, feedStore) = makeSUT()
 
-        sut.save { _ in }
+        sut.save(feed: expectedFeedItems) { _ in }
         feedStore.completeDeletionWithSuccess()
 
         XCTAssertEqual(feedStore.messages, [.delete, .persist(expectedFeedItems)])
@@ -92,6 +92,10 @@ class LocalFeedLoaderTests: XCTestCase {
         testMemoryLeak(feedStore, file: file, line: line)
 
         return (sut, feedStore)
+    }
+
+    private func uniqueItem() -> FeedItem {
+        return FeedItem(id: UUID(), description: "description", location: "location", imageURL: makeURL())
     }
 
 }
