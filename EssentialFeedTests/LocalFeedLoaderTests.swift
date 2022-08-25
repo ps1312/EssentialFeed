@@ -5,8 +5,8 @@ protocol FeedStore {
     typealias DeletionCompletion = (Error?) -> Void
     typealias PersistCompletion = (Error?) -> Void
 
-    func deleteCache(completion: @escaping DeletionCompletion)
-    func persistCache(_ items: [FeedItem], completion: @escaping PersistCompletion)
+    func delete(completion: @escaping DeletionCompletion)
+    func persist(_ items: [FeedItem], completion: @escaping PersistCompletion)
 }
 
 class FeedStoreSpy: FeedStore {
@@ -20,12 +20,12 @@ class FeedStoreSpy: FeedStore {
 
     var messages = [Message]()
 
-    func deleteCache(completion: @escaping DeletionCompletion) {
+    func delete(completion: @escaping DeletionCompletion) {
         deleteRequests.append(completion)
         messages.append(.delete)
     }
 
-    func persistCache(_ items: [FeedItem], completion: @escaping PersistCompletion) {
+    func persist(_ items: [FeedItem], completion: @escaping PersistCompletion) {
         persistRequests.append(completion)
         messages.append(.persist(items))
     }
@@ -57,11 +57,11 @@ class LocalFeedLoader {
     }
 
     func save(feed: [FeedItem], completion: @escaping (Error?) -> Void) {
-        store.deleteCache { [unowned self] error in
+        store.delete { [unowned self] error in
             if let error = error {
                 completion(error)
             } else {
-                self.store.persistCache(feed, completion: completion)
+                self.store.persist(feed, completion: completion)
             }
         }
     }
