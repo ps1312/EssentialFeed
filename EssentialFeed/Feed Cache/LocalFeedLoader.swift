@@ -22,7 +22,7 @@ public final class LocalFeedLoader {
     }
 
     private func cache(_ feed: [FeedItem], completion: @escaping (Error?) -> Void) {
-        store.persist(items: feed, timestamp: self.currentDate()) { [weak self] error in
+        store.persist(items: feed, timestamp: currentDate()) { [weak self] error in
             guard self != nil else { return }
             completion(error)
         }
