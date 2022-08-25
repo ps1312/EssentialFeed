@@ -82,7 +82,7 @@ class LocalFeedLoaderTests: XCTestCase {
         XCTAssertEqual(capturedError as? NSError, expectedError)
     }
 
-    func testSaveRequestsCachePersistanceWithProvidedFeedItems() {
+    func testSaveRequestsCachePersistenceWithProvidedFeedItems() {
         let expectedFeedItems = [uniqueItem(), uniqueItem()]
         let (sut, feedStore) = makeSUT()
 
@@ -92,7 +92,7 @@ class LocalFeedLoaderTests: XCTestCase {
         XCTAssertEqual(feedStore.messages, [.delete, .persist(expectedFeedItems)])
     }
 
-    func testSaveDeliversErrorOnCachePersistanceFailure() {
+    func testSaveDeliversErrorOnCachePersistenceFailure() {
         let exp = expectation(description: "waiting for cache saving completion")
         let expectedError = makeNSError()
         let (sut, feedStore) = makeSUT()
