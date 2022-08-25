@@ -114,20 +114,12 @@ class LocalFeedLoaderTests: XCTestCase {
     }
 
     func testSaveDoesNotDeliverErrorWhenNewCachePersistenceSucceeds() {
-        let exp = expectation(description: "wait for cache saving completion")
         let (sut, feedStore) = makeSUT()
 
-        var capturedError: Error? = nil
-        sut.save(feed: [uniqueItem()]) { receivedError in
-            capturedError = receivedError
-            exp.fulfill()
-        }
-        feedStore.completeDeletionWithSuccess()
-        feedStore.completePersistWithSuccess()
-
-        wait(for: [exp], timeout: 0.1)
-
-        XCTAssertNil(capturedError)
+        expect(sut, toCompleteWithError: nil, when: {
+            feedStore.completeDeletionWithSuccess()
+            feedStore.completePersistWithSuccess()
+        })
     }
 
     // MARK: - Helpers
@@ -142,12 +134,12 @@ class LocalFeedLoaderTests: XCTestCase {
         return (sut, feedStore)
     }
 
-    private func expect(_ sut: LocalFeedLoader, toCompleteWithError expectedError: NSError, when action: () -> Void) {
+    private func expect(_ sut: LocalFeedLoader, toCompleteWithError expectedError: NSError?, when action: () -> Void) {
         let exp = expectation(description: "waiting for cache saving completion")
 
         var capturedError: Error? = nil
-        sut.save(feed: [uniqueItem()]) {
-            capturedError = $0
+        sut.save(feed: [uniqueItem()]) { error in
+            capturedError = error
             exp.fulfill()
         }
 
