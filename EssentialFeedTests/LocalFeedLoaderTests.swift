@@ -2,6 +2,10 @@ import XCTest
 
 class FeedStore {
     var deleteRequestsCount = 0
+
+    func deleteCache() {
+        deleteRequestsCount += 1
+    }
 }
 
 class LocalFeedLoader {
@@ -12,7 +16,7 @@ class LocalFeedLoader {
     }
 
     func save() {
-
+        store.deleteCache()
     }
 
 }
@@ -24,6 +28,15 @@ class LocalFeedLoaderTests: XCTestCase {
         _ = LocalFeedLoader(store: feedStore)
 
         XCTAssertEqual(feedStore.deleteRequestsCount, 0)
+    }
+
+    func testSaveRequestsCurrentCacheDeletion() {
+        let feedStore = FeedStore()
+        let sut = LocalFeedLoader(store: feedStore)
+
+        sut.save()
+
+        XCTAssertEqual(feedStore.deleteRequestsCount, 1)
     }
 
 }
