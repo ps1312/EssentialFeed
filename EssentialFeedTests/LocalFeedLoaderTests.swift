@@ -62,15 +62,18 @@ class LocalFeedLoader {
         store.delete { [weak self] error in
             guard let self = self else { return }
 
-            if let error = error {
-                completion(error)
+            if let cacheDeleteError = error {
+                completion(cacheDeleteError)
             } else {
-                self.store.persist(items: feed, timestamp: self.currentDate()) { [weak self] persistError in
-                    guard self != nil else { return }
-
-                    completion(persistError)
-                }
+                self.cache(feed, completion: completion)
             }
+        }
+    }
+
+    func cache(_ feed: [FeedItem], completion: @escaping (Error?) -> Void) {
+        store.persist(items: feed, timestamp: self.currentDate()) { [weak self] error in
+            guard self != nil else { return }
+            completion(error)
         }
     }
 
