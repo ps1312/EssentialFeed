@@ -144,15 +144,14 @@ class LocalFeedLoaderTests: XCTestCase {
 
     private func expect(_ sut: LocalFeedLoader, toCompleteWithError expectedError: NSError, when action: () -> Void) {
         let exp = expectation(description: "waiting for cache saving completion")
-        let (sut, feedStore) = makeSUT()
 
         var capturedError: Error? = nil
         sut.save(feed: [uniqueItem()]) {
             capturedError = $0
             exp.fulfill()
         }
-        feedStore.completeDeletionWithSuccess()
-        feedStore.completePersist(with: expectedError)
+
+        action()
 
         wait(for: [exp], timeout: 0.1)
 
