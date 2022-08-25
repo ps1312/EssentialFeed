@@ -1,15 +1,26 @@
 import XCTest
+import EssentialFeed
 
 class FeedStore {
     var deleteRequests = [(Error?) -> Void]()
     var deleteRequestsCount: Int { deleteRequests.count }
 
+    var persistRequestsCount = 0
+
     func deleteCache(completion: @escaping (Error?) -> Void) {
         deleteRequests.append(completion)
     }
 
+    func persistCache(_ items: [FeedItem]) {
+        persistRequestsCount += 1
+    }
+
     func completeDelete(with error: Error, at index: Int = 0) {
         deleteRequests[index](error)
+    }
+
+    func completeDeletionWithSuccess(at index: Int = 0) {
+        deleteRequests[index](nil)
     }
 }
 
@@ -21,8 +32,9 @@ class LocalFeedLoader {
     }
 
     func save(completion: @escaping (Error?) -> Void) {
-        store.deleteCache { error in
+        store.deleteCache { [unowned self] error in
             completion(error)
+            self.store.persistCache([FeedItem]())
         }
     }
 
@@ -53,6 +65,16 @@ class LocalFeedLoaderTests: XCTestCase {
         feedStore.completeDelete(with: expectedError)
 
         XCTAssertEqual(capturedError as? NSError, expectedError)
+    }
+
+    func testSaveRequestsCachePersistanceWithProvidedFeedItems() {
+        let (sut, feedStore) = makeSUT()
+
+        sut.save { _ in }
+        feedStore.completeDeletionWithSuccess()
+
+        XCTAssertEqual(feedStore.deleteRequestsCount, 1)
+        XCTAssertEqual(feedStore.persistRequestsCount, 1)
     }
 
     // MARK: - Helpers
