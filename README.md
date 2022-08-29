@@ -81,8 +81,8 @@ Given the customer doesn't have connectivity
 1. Execute "Load Image Feed" command
 2. System fetches feed data from cache
 3. System validades cache is less than 7 days old
-4. System creates feed items from cache data
-5. System delivers feed items
+4. System creates feed images from cache data
+5. System delivers feed images
 
 #### Load cache error (sad path):
 
@@ -91,23 +91,23 @@ Given the customer doesn't have connectivity
 #### Cache is old (sad path):
 
 1. System deletes current cache
-2. System delivers no feed items
+2. System delivers no feed images
 
 #### Empty cache (sad path):
 
-1. System delivers no feed items
+1. System delivers no feed images
 
 ### Cache Feed Use Case
 
 #### Data:
 
-- Feed items
+- Feed images
 
 #### Primary course (happy path):
 
 1. Execute "Save Feed Cache" command with above data
 2. System deletes old cache
-3. System encodes feed items
+3. System encodes feed images
 4. System timestamps newly created cache
 5. System persists new cache data
 6. System delivers success message

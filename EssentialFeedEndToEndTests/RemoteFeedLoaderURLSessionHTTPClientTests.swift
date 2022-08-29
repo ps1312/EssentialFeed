@@ -3,7 +3,7 @@ import EssentialFeed
 
 class RemoteFeedLoaderURLSessionHTTPClientTests: XCTestCase {
 
-    func testRemoteFeedLoaderAndURLSessionHTTPClientReturnsCorrectFeedItems() {
+    func testRemoteFeedLoaderAndURLSessionHTTPClientReturnsCorrectFeedImages() {
         let exp = expectation(description: "waiting for real request to complete")
 
         let url = URL(string: "https://essentialdeveloper.com/feed-case-study/test-api/feed")!
@@ -13,11 +13,11 @@ class RemoteFeedLoaderURLSessionHTTPClientTests: XCTestCase {
         testMemoryLeak(httpClient)
         testMemoryLeak(remoteFeedLoader)
 
-        var capturedFeedItems = [FeedItem]()
+        var capturedFeedImages = [FeedImage]()
         remoteFeedLoader.load { result in
             switch (result) {
-            case .success(let feedItems):
-                capturedFeedItems = feedItems
+            case .success(let feedImages):
+                capturedFeedImages = feedImages
             case .failure(let error):
                 XCTFail("Expected real request to succeed, instead got \(error)")
             }
@@ -27,12 +27,12 @@ class RemoteFeedLoaderURLSessionHTTPClientTests: XCTestCase {
         wait(for: [exp], timeout: 30.0)
 
         for index in 0...7 {
-            XCTAssertEqual(capturedFeedItems[index], feedItem(at: index))
+            XCTAssertEqual(capturedFeedImages[index], feedImage(at: index))
         }
     }
 
-    private func feedItem(at index: Int) -> FeedItem {
-        return FeedItem(id: UUID(uuidString: ids[index])!, description: descriptions[index], location: locations[index], imageURL: imageURL(at: index))
+    private func feedImage(at index: Int) -> FeedImage {
+        return FeedImage(id: UUID(uuidString: ids[index])!, description: descriptions[index], location: locations[index], url: imageURL(at: index))
     }
 
     private var ids = [

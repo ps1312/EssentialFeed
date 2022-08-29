@@ -104,12 +104,12 @@ class LoadFeedFromRemoteUseCase: XCTestCase {
         return (sut, httpClientSpy)
     }
 
-    private func makeFeedItem(id: UUID, description: String?, location: String?, imageURL: URL) -> (FeedItem, [String: Any]) {
-        let model = FeedItem(
+    private func makeFeedItem(id: UUID, description: String?, location: String?, imageURL: URL) -> (FeedImage, [String: Any]) {
+        let model = FeedImage(
             id: id,
             description: description,
             location: location,
-            imageURL: imageURL
+            url: imageURL
         )
         let json = [
             "id": id.uuidString,
@@ -136,8 +136,8 @@ class LoadFeedFromRemoteUseCase: XCTestCase {
 
         sut.load { receivedResult in
             switch (receivedResult, expectedResult) {
-            case (.success(let receivedItems), .success(let expectedItems)):
-                XCTAssertEqual(receivedItems, expectedItems)
+            case (.success(let receivedImages), .success(let expectedItems)):
+                XCTAssertEqual(receivedImages, expectedItems)
 
             case (.failure(let receivedError as RemoteFeedLoader.Error), .failure(let expectedError as RemoteFeedLoader.Error)):
                 XCTAssertEqual(receivedError, expectedError)
