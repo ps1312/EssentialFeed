@@ -20,9 +20,3 @@ private struct Root: Decodable {
     var items = [RemoteFeedItem]()
 }
 
-struct RemoteFeedItem: Decodable {
-    var id: UUID
-    var description: String?
-    var location: String?
-    var image: URL
-}
