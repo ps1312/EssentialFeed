@@ -19,42 +19,20 @@ class LoadFeedFromCacheUseCaseTests: XCTestCase {
     }
 
     func testLoadDeliversErrorOnRetrievalFailure() {
-        let exp = expectation(description: "wait for load to complete")
         let expectedError = makeNSError()
         let (sut, storeSpy) = makeSUT()
 
-        sut.load { receivedResult in
-            switch (receivedResult) {
-            case .failure(let receivedError):
-                XCTAssertEqual(receivedError as NSError, expectedError)
-            default:
-                XCTFail("Expected failure, got \(receivedResult) instead.")
-            }
-
-            exp.fulfill()
-        }
-
-        storeSpy.completeRetrieve(with: expectedError)
-        wait(for: [exp], timeout: 1.0)
+        expect(sut, toCompleteWith: .failure(expectedError), when: {
+            storeSpy.completeRetrieve(with: expectedError)
+        })
     }
 
     func testLoadDeliversEmptyListWhenCacheIsEmpty() {
-        let exp = expectation(description: "wait for load to complete")
         let (sut, storeSpy) = makeSUT()
 
-        sut.load { receivedResult in
-            switch (receivedResult) {
-            case .success(let feedImages):
-                XCTAssertEqual(feedImages, [])
-            default:
-                XCTFail("Expected success, got \(receivedResult) instead.")
-            }
-
-            exp.fulfill()
-        }
-
-        storeSpy.completeRetrieveWithEmptyCache()
-        wait(for: [exp], timeout: 1.0)
+        expect(sut, toCompleteWith: .success([]), when: {
+            storeSpy.completeRetrieveWithEmptyCache()
+        })
     }
 
     // MARK: - Helpers
@@ -67,6 +45,29 @@ class LoadFeedFromCacheUseCaseTests: XCTestCase {
         testMemoryLeak(feedStore, file: file, line: line)
 
         return (sut, feedStore)
+    }
+
+    private func expect(_ sut: LocalFeedLoader, toCompleteWith expectedResult: LoadFeedResult, when action: () -> Void) {
+        let exp = expectation(description: "wait for load to complete")
+
+        sut.load { receivedResult in
+            switch (receivedResult, expectedResult) {
+            case let (.success(receivedFeed), .success(expectedFeed)):
+                XCTAssertEqual(receivedFeed, expectedFeed)
+
+            case let (.failure(receivedError), .failure(expectedError)):
+                XCTAssertEqual(receivedError as NSError, expectedError as NSError)
+
+            default:
+                XCTFail("Received result and expected result should match, instead got \(receivedResult) and \(expectedResult)")
+            }
+
+            exp.fulfill()
+        }
+
+        action()
+
+        wait(for: [exp], timeout: 1.0)
     }
 
 }
