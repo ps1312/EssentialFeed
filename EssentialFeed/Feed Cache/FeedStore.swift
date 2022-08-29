@@ -6,4 +6,5 @@ public protocol FeedStore {
 
     func delete(completion: @escaping DeletionCompletion)
     func persist(images: [LocalFeedImage], timestamp: Date, completion: @escaping PersistCompletion)
+    func retrieve()
 }

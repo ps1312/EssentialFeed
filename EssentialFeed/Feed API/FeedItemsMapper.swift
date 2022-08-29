@@ -1,9 +1,9 @@
 import Foundation
 
-class FeedItemsMapper {
+class FeedImageMapper {
     private static let OK_200 = 200
 
-    static func map(_ data: Data, from response: HTTPURLResponse) throws -> [RemoteFeedItem] {
+    static func map(_ data: Data, from response: HTTPURLResponse) throws -> [RemoteFeedIteM<<] {
         guard response.statusCode == OK_200 else { throw RemoteFeedLoader.Error.invalidData }
 
         do {
@@ -19,4 +19,3 @@ class FeedItemsMapper {
 private struct Root: Decodable {
     var items = [RemoteFeedItem]()
 }
-
