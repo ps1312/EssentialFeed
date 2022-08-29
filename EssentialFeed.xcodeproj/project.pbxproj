@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		3A0C28D828BD4326009989AD /* LoadFeedFromCacheUseCaseTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A0C28D728BD4326009989AD /* LoadFeedFromCacheUseCaseTests.swift */; };
 		3A3A661328BCE07000BAD2B5 /* RemoteFeedItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A3A661228BCE07000BAD2B5 /* RemoteFeedItem.swift */; };
 		3A40290228B4BC7A00E420F5 /* XCTestCase+testMemoryLeak.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A40290128B4BC7A00E420F5 /* XCTestCase+testMemoryLeak.swift */; };
 		3A44CB1528B1A1F3006EE8DB /* LoadFeedFromRemoteUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A44CB1428B1A1F3006EE8DB /* LoadFeedFromRemoteUseCase.swift */; };
@@ -46,6 +47,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		3A0C28D728BD4326009989AD /* LoadFeedFromCacheUseCaseTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadFeedFromCacheUseCaseTests.swift; sourceTree = "<group>"; };
 		3A3A661228BCE07000BAD2B5 /* RemoteFeedItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteFeedItem.swift; sourceTree = "<group>"; };
 		3A40290128B4BC7A00E420F5 /* XCTestCase+testMemoryLeak.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "XCTestCase+testMemoryLeak.swift"; sourceTree = "<group>"; };
 		3A44CB1428B1A1F3006EE8DB /* LoadFeedFromRemoteUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadFeedFromRemoteUseCase.swift; sourceTree = "<group>"; };
@@ -163,6 +165,7 @@
 				3A40290328B4BC9600E420F5 /* Helpers */,
 				3ABA207928B6B4A8002D31BF /* Feed API */,
 				3ABA207A28B6E84E002D31BF /* CacheFeedUseCaseTests.swift */,
+				3A0C28D728BD4326009989AD /* LoadFeedFromCacheUseCaseTests.swift */,
 			);
 			path = EssentialFeedTests;
 			sourceTree = "<group>";
@@ -351,6 +354,7 @@
 			files = (
 				3AC4F9E528B3FDEC0067CE4C /* SharedHelpers.swift in Sources */,
 				3ABA207B28B6E84E002D31BF /* CacheFeedUseCaseTests.swift in Sources */,
+				3A0C28D828BD4326009989AD /* LoadFeedFromCacheUseCaseTests.swift in Sources */,
 				3A44CB1528B1A1F3006EE8DB /* LoadFeedFromRemoteUseCase.swift in Sources */,
 				3A40290228B4BC7A00E420F5 /* XCTestCase+testMemoryLeak.swift in Sources */,
 				3AC4F9E328B3EF570067CE4C /* URLSessionHTTPClientTests.swift in Sources */,
