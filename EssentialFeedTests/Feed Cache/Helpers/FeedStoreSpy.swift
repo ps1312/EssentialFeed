@@ -2,8 +2,9 @@ import Foundation
 import EssentialFeed
 
 class FeedStoreSpy: FeedStore {
-    private var deleteRequests = [(Error?) -> Void]()
-    private var persistRequests = [(Error?) -> Void]()
+    private var deleteRequests = [DeletionCompletion]()
+    private var persistRequests = [PersistCompletion]()
+    private var retrieveRequests = [RetrieveCompletion]()
 
     enum Message: Equatable {
         case delete
@@ -23,7 +24,8 @@ class FeedStoreSpy: FeedStore {
         messages.append(.persist(images: images, timestamp: timestamp))
     }
 
-    func retrieve() {
+    func retrieve(completion: @escaping RetrieveCompletion) {
+        retrieveRequests.append(completion)
         messages.append(.retrieve)
     }
 
@@ -41,6 +43,10 @@ class FeedStoreSpy: FeedStore {
 
     func completePersistWithSuccess(at index: Int = 0) {
         persistRequests[index](nil)
+    }
+
+    func completeRetrieve(with error: Error, at index: Int = 0) {
+        retrieveRequests[index](error)
     }
 
 }
