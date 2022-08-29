@@ -8,6 +8,7 @@ class FeedStoreSpy: FeedStore {
     enum Message: Equatable {
         case delete
         case persist(images: [LocalFeedImage], timestamp: Date)
+        case retrieve
     }
 
     var messages = [Message]()
@@ -20,6 +21,10 @@ class FeedStoreSpy: FeedStore {
     func persist(images: [LocalFeedImage], timestamp: Date, completion: @escaping PersistCompletion) {
         persistRequests.append(completion)
         messages.append(.persist(images: images, timestamp: timestamp))
+    }
+
+    func retrieve() {
+        messages.append(.retrieve)
     }
 
     func completeDelete(with error: Error, at index: Int = 0) {
