@@ -35,6 +35,15 @@ class LoadFeedFromCacheUseCaseTests: XCTestCase {
         })
     }
 
+    func testLoadDeliversFeedImagesWhenCacheIsLessThan7DaysOld() {
+        let expectedFeed = uniqueImages()
+        let (sut, storeSpy) = makeSUT()
+
+        expect(sut, toCompleteWith: .success(expectedFeed.models), when: {
+            storeSpy.completeRetrieve(with: expectedFeed.locals)
+        })
+    }
+
     // MARK: - Helpers
 
     private func makeSUT(currentDate: @escaping () -> Date = Date.init, file: StaticString = #filePath, line: UInt = #line) -> (LocalFeedLoader, FeedStoreSpy) {
@@ -68,6 +77,17 @@ class LoadFeedFromCacheUseCaseTests: XCTestCase {
         action()
 
         wait(for: [exp], timeout: 1.0)
+    }
+
+    private func uniqueImage() -> FeedImage {
+        return FeedImage(id: UUID(), description: "description", location: "location", url: makeURL())
+    }
+
+    private func uniqueImages() -> (models: [FeedImage], locals: [LocalFeedImage])  {
+        let feedImages = [uniqueImage(), uniqueImage()]
+        let localFeedImages = feedImages.map { LocalFeedImage(id: $0.id, description: $0.description, location: $0.location, url: $0.url) }
+
+        return (models: feedImages, locals: localFeedImages)
     }
 
 }
