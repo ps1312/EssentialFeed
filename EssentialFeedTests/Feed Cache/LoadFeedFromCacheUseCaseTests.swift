@@ -22,11 +22,16 @@ class LoadFeedFromCacheUseCaseTests: XCTestCase {
         let expectedError = makeNSError()
         let (sut, storeSpy) = makeSUT()
 
-        var capturedError: Error? = nil
-        sut.load { capturedError = $0 }
-        storeSpy.completeRetrieve(with: expectedError)
+        sut.load { receivedResult in
+            switch (receivedResult) {
+            case .failure(let receivedError):
+                XCTAssertEqual(receivedError as NSError, expectedError)
+            default:
+                XCTFail("Expected failure, got \(receivedResult) instead.")
+            }
+        }
 
-        XCTAssertEqual(capturedError as? NSError, expectedError)
+        storeSpy.completeRetrieve(with: expectedError)
     }
 
     // MARK: - Helpers
