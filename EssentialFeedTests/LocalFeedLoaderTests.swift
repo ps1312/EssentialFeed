@@ -12,7 +12,7 @@ class LocalFeedLoaderTests: XCTestCase {
     func testSaveRequestsCurrentCacheDeletion() {
         let (sut, feedStore) = makeSUT()
 
-        sut.save(feed: [uniqueItem()]) { _ in }
+        sut.save(feed: uniqueItems().models) { _ in }
 
         XCTAssertEqual(feedStore.messages, [.delete])
     }
@@ -61,7 +61,7 @@ class LocalFeedLoaderTests: XCTestCase {
         var sut: LocalFeedLoader? = LocalFeedLoader(store: store)
 
         var capturedError: Error? = nil
-        sut?.save(feed: [uniqueItem()]) { capturedError = $0 }
+        sut?.save(feed: uniqueItems().models) { capturedError = $0 }
 
         sut = nil
         store.completeDelete(with: makeNSError())
@@ -74,7 +74,7 @@ class LocalFeedLoaderTests: XCTestCase {
         var sut: LocalFeedLoader? = LocalFeedLoader(store: store)
 
         var capturedError: Error? = nil
-        sut?.save(feed: [uniqueItem()]) { capturedError = $0 }
+        sut?.save(feed: uniqueItems().models) { capturedError = $0 }
         store.completeDeletionWithSuccess()
 
         sut = nil
@@ -138,7 +138,7 @@ class LocalFeedLoaderTests: XCTestCase {
         let exp = expectation(description: "waiting for cache saving completion")
 
         var capturedError: Error? = nil
-        sut.save(feed: [uniqueItem()]) { error in
+        sut.save(feed: uniqueItems().models) { error in
             capturedError = error
             exp.fulfill()
         }
