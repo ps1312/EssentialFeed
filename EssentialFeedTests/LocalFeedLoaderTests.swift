@@ -28,13 +28,13 @@ class LocalFeedLoaderTests: XCTestCase {
 
     func testSaveRequestsCachePersistenceWithProvidedFeedItemsAndTimestamp() {
         let expectedTimestamp = Date()
-        let expectedFeedItems = [uniqueItem(), uniqueItem()]
+        let (models, locals) = uniqueItems()
         let (sut, feedStore) = makeSUT(currentDate: { expectedTimestamp })
 
-        sut.save(feed: expectedFeedItems) { _ in }
+        sut.save(feed: models) { _ in }
         feedStore.completeDeletionWithSuccess()
 
-        XCTAssertEqual(feedStore.messages, [.delete, .persist(items: expectedFeedItems, timestamp: expectedTimestamp)])
+        XCTAssertEqual(feedStore.messages, [.delete, .persist(items: locals, timestamp: expectedTimestamp)])
     }
 
     func testSaveDeliversErrorOnCachePersistenceFailure() {
@@ -101,7 +101,7 @@ class LocalFeedLoaderTests: XCTestCase {
 
         enum Message: Equatable {
             case delete
-            case persist(items: [FeedItem], timestamp: Date)
+            case persist(items: [LocalFeedItem], timestamp: Date)
         }
 
         var messages = [Message]()
@@ -111,7 +111,7 @@ class LocalFeedLoaderTests: XCTestCase {
             messages.append(.delete)
         }
 
-        func persist(items: [FeedItem], timestamp: Date, completion: @escaping PersistCompletion) {
+        func persist(items: [LocalFeedItem], timestamp: Date, completion: @escaping PersistCompletion) {
             persistRequests.append(completion)
             messages.append(.persist(items: items, timestamp: timestamp))
         }
@@ -152,6 +152,13 @@ class LocalFeedLoaderTests: XCTestCase {
 
     private func uniqueItem() -> FeedItem {
         return FeedItem(id: UUID(), description: "description", location: "location", imageURL: makeURL())
+    }
+
+    private func uniqueItems() -> (models: [FeedItem], locals: [LocalFeedItem])  {
+        let feedItems = [uniqueItem(), uniqueItem()]
+        let localFeedItems = feedItems.map { LocalFeedItem(id: $0.id, description: $0.description, location: $0.location, imageURL: $0.imageURL) }
+
+        return (models: feedItems, locals: localFeedItems)
     }
 
 }

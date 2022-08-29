@@ -5,5 +5,5 @@ public protocol FeedStore {
     typealias PersistCompletion = (Error?) -> Void
 
     func delete(completion: @escaping DeletionCompletion)
-    func persist(items: [FeedItem], timestamp: Date, completion: @escaping PersistCompletion)
+    func persist(items: [LocalFeedItem], timestamp: Date, completion: @escaping PersistCompletion)
 }

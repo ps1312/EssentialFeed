@@ -1,5 +1,20 @@
 import Foundation
 
+public struct LocalFeedItem: Equatable {
+    public let id: UUID
+    public let description: String?
+    public let location: String?
+    public let imageURL: URL
+
+    public init (id: UUID, description: String?, location: String?, imageURL: URL) {
+        self.id = id
+        self.description = description
+        self.location = location
+        self.imageURL = imageURL
+    }
+}
+
+
 public final class LocalFeedLoader {
     private let store: FeedStore
     private let currentDate: () -> Date
@@ -22,10 +37,16 @@ public final class LocalFeedLoader {
     }
 
     private func cache(_ feed: [FeedItem], completion: @escaping (Error?) -> Void) {
-        store.persist(items: feed, timestamp: currentDate()) { [weak self] error in
+        store.persist(items: feed.toLocal(), timestamp: currentDate()) { [weak self] error in
             guard self != nil else { return }
             completion(error)
         }
     }
 
+}
+
+private extension Array where Element == FeedItem {
+    func toLocal() -> [LocalFeedItem] {
+        return map { LocalFeedItem(id: $0.id, description: $0.description, location: $0.location, imageURL: $0.imageURL) }
+    }
 }
