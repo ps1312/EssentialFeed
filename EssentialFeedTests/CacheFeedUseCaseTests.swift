@@ -1,7 +1,7 @@
 import XCTest
 import EssentialFeed
 
-class LocalFeedLoaderTests: XCTestCase {
+class CacheFeedUseCaseTests: XCTestCase {
 
     func testInitDoesNotRequestCacheDeletion() {
         let (_, feedStore) = makeSUT()
