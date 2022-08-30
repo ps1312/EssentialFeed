@@ -32,7 +32,7 @@ class LoadFeedFromRemoteUseCase: XCTestCase {
     func testLoadDeliversConnectivityErrorOnClientError() {
         let (sut, httpClientSpy) = makeSUT()
 
-        assert(sut, toCompleteWith: .failure(RemoteFeedLoader.Error.connectivity), when: {
+        expect(sut, toCompleteWith: .failure(RemoteFeedLoader.Error.connectivity), when: {
             httpClientSpy.completeWith(error: makeNSError())
         })
     }
@@ -42,7 +42,7 @@ class LoadFeedFromRemoteUseCase: XCTestCase {
 
         let samples = [199, 201, 300, 400, 500]
         samples.enumerated().forEach { index, statusCode in
-            assert(sut, toCompleteWith: .failure(RemoteFeedLoader.Error.invalidData), when: {
+            expect(sut, toCompleteWith: .failure(RemoteFeedLoader.Error.invalidData), when: {
                 httpClientSpy.completeWith(statusCode: statusCode, data: makeItemsJSON([]), at: index)
             })
         }
@@ -51,7 +51,7 @@ class LoadFeedFromRemoteUseCase: XCTestCase {
     func testLoadDeliversInvalidDataErrorWhenStatusCode200AndInvalidJSON() {
         let (sut, httpClientSpy) = makeSUT()
 
-        assert(sut, toCompleteWith: .failure(RemoteFeedLoader.Error.invalidData), when: {
+        expect(sut, toCompleteWith: .failure(RemoteFeedLoader.Error.invalidData), when: {
             let invalidJSON = makeData()
             httpClientSpy.completeWith(statusCode: 200, data: invalidJSON)
         })
@@ -60,7 +60,7 @@ class LoadFeedFromRemoteUseCase: XCTestCase {
     func testLoadDeliversEmptyListOnStatusCode200AndValidJSON() {
         let (sut, httpClientSpy) = makeSUT()
 
-        assert(sut, toCompleteWith: .success([]), when: {
+        expect(sut, toCompleteWith: .success([]), when: {
             httpClientSpy.completeWith(statusCode: 200, data: makeItemsJSON([]))
         })
     }
@@ -71,7 +71,7 @@ class LoadFeedFromRemoteUseCase: XCTestCase {
         let (model1, json1) = makeFeedItem(id: UUID(), description: "a description", location: "a location", imageURL: makeURL())
         let (model2, json2) = makeFeedItem(id: UUID(), description: nil, location: nil, imageURL: makeURL())
 
-        assert(sut, toCompleteWith: .success([model1, model2]), when: {
+        expect(sut, toCompleteWith: .success([model1, model2]), when: {
             let itemsJSON = makeItemsJSON([json1, json2])
             httpClientSpy.completeWith(statusCode: 200, data: itemsJSON)
         })
@@ -125,13 +125,7 @@ class LoadFeedFromRemoteUseCase: XCTestCase {
         return try! JSONSerialization.data(withJSONObject: ["items": feedItemsJSON])
     }
 
-    private func assert(
-        _ sut: RemoteFeedLoader,
-        toCompleteWith expectedResult: RemoteFeedLoader.Result,
-        when action: () -> Void,
-        file: StaticString = #filePath,
-        line: UInt = #line
-    ) {
+    private func expect(_ sut: RemoteFeedLoader, toCompleteWith expectedResult: RemoteFeedLoader.Result, when action: () -> Void, file: StaticString = #filePath, line: UInt = #line) {
         let exp = expectation(description: "wait for load to complete")
 
         sut.load { receivedResult in
