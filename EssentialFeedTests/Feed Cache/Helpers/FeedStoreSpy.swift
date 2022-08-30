@@ -53,8 +53,8 @@ class FeedStoreSpy: FeedStore {
         retrieveRequests[index](.empty)
     }
 
-    func completeRetrieve(with feed: [LocalFeedImage], at index: Int = 0) {
-        retrieveRequests[index](.success(feed))
+    func completeRetrieve(with feed: [LocalFeedImage], timestamp: Date, at index: Int = 0) {
+        retrieveRequests[index](.success(feed: feed, timestamp: timestamp))
     }
 
 }
