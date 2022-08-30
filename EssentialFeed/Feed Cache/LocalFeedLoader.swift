@@ -31,10 +31,17 @@ public final class LocalFeedLoader {
             case let .failure(error):
                 self.store.delete { _ in }
                 completion(.failure(error))
+
             case let .found(localFeed, timestamp) where self.validate(timestamp):
                 completion(.success(localFeed.toModels()))
-            case .found, .empty:
+
+            case .found:
+                self.store.delete { _ in }
                 completion(.success([]))
+
+            case .empty:
+                completion(.success([]))
+
             }
         }
     }

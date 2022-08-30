@@ -48,11 +48,11 @@ class LoadFeedFromCacheUseCaseTests: XCTestCase {
 
     func testLoadDeliversEmptyListWhenCacheIsOlderThan7Days() {
         let currentDate = Date()
-        let olderThanSevenDaysOldTimestamp = currentDate.adding(days: -7).adding(seconds: -1)
+        let olderThanSevenDaysTimestamp = currentDate.adding(days: -7).adding(seconds: -1)
         let (sut, storeSpy) = makeSUT(currentDate: { currentDate })
 
         expect(sut, toCompleteWith: .success([]), when: {
-            storeSpy.completeRetrieve(with: uniqueImages().locals, timestamp: olderThanSevenDaysOldTimestamp)
+            storeSpy.completeRetrieve(with: uniqueImages().locals, timestamp: olderThanSevenDaysTimestamp)
         })
     }
 
@@ -71,6 +71,18 @@ class LoadFeedFromCacheUseCaseTests: XCTestCase {
 
         sut.load { _ in }
         storeSpy.completeRetrieve(with: makeNSError())
+
+        XCTAssertEqual(storeSpy.messages, [.retrieve, .delete])
+    }
+
+    func testLoadDeletesCacheIfOlderThan7DaysOld() {
+        let currentDate = Date()
+        let olderThanSevenDaysTimestamp = currentDate.adding(days: -7).adding(seconds: -1)
+
+        let (sut, storeSpy) = makeSUT(currentDate: { currentDate })
+
+        sut.load { _ in }
+        storeSpy.completeRetrieve(with: uniqueImages().locals, timestamp: olderThanSevenDaysTimestamp)
 
         XCTAssertEqual(storeSpy.messages, [.retrieve, .delete])
     }
