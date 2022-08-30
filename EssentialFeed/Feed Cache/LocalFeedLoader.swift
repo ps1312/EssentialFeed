@@ -33,7 +33,7 @@ extension LocalFeedLoader {
     }
 }
 
-extension LocalFeedLoader {
+extension LocalFeedLoader: FeedLoader {
     public typealias LoadResult = (LoadFeedResult) -> Void
 
     public func load(completion: @escaping LoadResult) {
