@@ -35,7 +35,7 @@ class LoadFeedFromCacheUseCaseTests: XCTestCase {
         })
     }
 
-    func testLoadDeliversFeedImagesWhenCacheIsLessThan7DaysOld() {
+    func testLoadDeliversFeedImagesWhenCacheIsLessThanSevenDaysOld() {
         let currentDate = Date()
         let lessThanSevenDaysOldTimestamp = currentDate.adding(days: -7).adding(seconds: 1)
         let expectedFeed = uniqueImages()
@@ -46,7 +46,7 @@ class LoadFeedFromCacheUseCaseTests: XCTestCase {
         })
     }
 
-    func testLoadDeliversEmptyListWhenCacheIsOlderThan7Days() {
+    func testLoadDeliversEmptyListWhenCacheIsOlderThanSevenDays() {
         let currentDate = Date()
         let olderThanSevenDaysTimestamp = currentDate.adding(days: -7).adding(seconds: -1)
         let (sut, storeSpy) = makeSUT(currentDate: { currentDate })
@@ -56,7 +56,7 @@ class LoadFeedFromCacheUseCaseTests: XCTestCase {
         })
     }
 
-    func testLoadDeliversFeedImagesWhenCacheIs7DaysOld() {
+    func testLoadDeliversEmptyFeedImageArrayWhenCacheIsSevenDaysOld() {
         let currentDate = Date()
         let sevenDaysOldTimestamp = currentDate.adding(days: -7)
         let (sut, storeSpy) = makeSUT(currentDate: { currentDate })
@@ -75,7 +75,7 @@ class LoadFeedFromCacheUseCaseTests: XCTestCase {
         XCTAssertEqual(storeSpy.messages, [.retrieve, .delete])
     }
 
-    func testLoadDeletesCacheIfOlderThan7DaysOld() {
+    func testLoadDeletesCacheWhenOlderThanSevenDays() {
         let currentDate = Date()
         let olderThanSevenDaysTimestamp = currentDate.adding(days: -7).adding(seconds: -1)
 
@@ -87,7 +87,7 @@ class LoadFeedFromCacheUseCaseTests: XCTestCase {
         XCTAssertEqual(storeSpy.messages, [.retrieve, .delete])
     }
 
-    func testLoadDeletesCacheIf7DaysOld() {
+    func testLoadDeletesCacheWhenSevenDaysOld() {
         let currentDate = Date()
         let olderThanSevenDaysTimestamp = currentDate.adding(days: -7)
 
@@ -99,7 +99,7 @@ class LoadFeedFromCacheUseCaseTests: XCTestCase {
         XCTAssertEqual(storeSpy.messages, [.retrieve, .delete])
     }
 
-    func testLoadDoesNotDeleteCacheIfIsEmpty() {
+    func testLoadDoesNotDeleteCacheWhenAlreadyEmpty() {
         let (sut, storeSpy) = makeSUT()
 
         sut.load { _ in }
