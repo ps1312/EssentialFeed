@@ -31,13 +31,25 @@ class ValidateCacheUseCaseTests: XCTestCase {
 
     func testValidateCacheRequestsDeletionWhenCacheIsSevenDaysOld() {
         let currentDate = Date()
-        let olderThanSevenDaysTimestamp = currentDate.adding(days: -7)
+        let sevenDaysTimestamp = currentDate.adding(days: -7)
         let (sut, store) = makeSUT(currentDate: { currentDate })
 
         sut.validateCache()
-        store.completeRetrieve(with: uniqueImages().locals, timestamp: olderThanSevenDaysTimestamp)
+        store.completeRetrieve(with: uniqueImages().locals, timestamp: sevenDaysTimestamp)
 
         XCTAssertEqual(store.messages, [.retrieve, .delete])
+    }
+
+    func testValidateCacheDoesNotRequestDeletionWhenCacheIsLessThanSevenDaysOld() {
+        let currentDate = Date()
+        let lessThanSevenDaysTimestamp = currentDate.adding(days: -7).adding(seconds: 1)
+        let (sut, store) = makeSUT(currentDate: { currentDate })
+
+        sut.validateCache()
+        store.completeRetrieve(with: uniqueImages().locals, timestamp: lessThanSevenDaysTimestamp)
+
+        XCTAssertEqual(store.messages, [.retrieve])
+
     }
 
     // MARK: - Helpers
