@@ -49,6 +49,9 @@ public final class LocalFeedLoader {
             case let .found(_, timestamp) where self.validate(timestamp):
                 break
 
+            case .empty:
+                break
+
             default:
                 self.store.delete { _ in }
             }
