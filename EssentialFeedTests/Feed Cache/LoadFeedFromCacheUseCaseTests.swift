@@ -75,7 +75,7 @@ class LoadFeedFromCacheUseCaseTests: XCTestCase {
         XCTAssertEqual(storeSpy.messages, [.retrieve])
     }
 
-    func testLoadDeletesCacheWhenOlderThanSevenDays() {
+    func testLoadHasNoSideEffectsWhenCacheIsOlderThanSevenDays() {
         let currentDate = Date()
         let olderThanSevenDaysTimestamp = currentDate.adding(days: -7).adding(seconds: -1)
 
@@ -84,10 +84,10 @@ class LoadFeedFromCacheUseCaseTests: XCTestCase {
         sut.load { _ in }
         storeSpy.completeRetrieve(with: uniqueImages().locals, timestamp: olderThanSevenDaysTimestamp)
 
-        XCTAssertEqual(storeSpy.messages, [.retrieve, .delete])
+        XCTAssertEqual(storeSpy.messages, [.retrieve])
     }
 
-    func testLoadDeletesCacheWhenSevenDaysOld() {
+    func testLoadHasNoSideEffectsWhenCacheIsSevenDaysOld() {
         let currentDate = Date()
         let olderThanSevenDaysTimestamp = currentDate.adding(days: -7)
 
@@ -96,7 +96,7 @@ class LoadFeedFromCacheUseCaseTests: XCTestCase {
         sut.load { _ in }
         storeSpy.completeRetrieve(with: uniqueImages().locals, timestamp: olderThanSevenDaysTimestamp)
 
-        XCTAssertEqual(storeSpy.messages, [.retrieve, .delete])
+        XCTAssertEqual(storeSpy.messages, [.retrieve])
     }
 
     func testLoadDoesNotDeleteCacheWhenLessThanSevenDaysOld() {

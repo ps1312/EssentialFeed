@@ -18,6 +18,28 @@ class ValidateCacheUseCaseTests: XCTestCase {
         XCTAssertEqual(store.messages, [.retrieve, .delete])
     }
 
+    func testValidateCacheRequestsDeletionWhenOlderThanSevenDays() {
+        let currentDate = Date()
+        let olderThanSevenDaysTimestamp = currentDate.adding(days: -7).adding(seconds: -1)
+        let (sut, store) = makeSUT(currentDate: { currentDate })
+
+        sut.validateCache()
+        store.completeRetrieve(with: uniqueImages().locals, timestamp: olderThanSevenDaysTimestamp)
+
+        XCTAssertEqual(store.messages, [.retrieve, .delete])
+    }
+
+    func testValidateCacheRequestsDeletionWhenCacheIsSevenDaysOld() {
+        let currentDate = Date()
+        let olderThanSevenDaysTimestamp = currentDate.adding(days: -7)
+        let (sut, store) = makeSUT(currentDate: { currentDate })
+
+        sut.validateCache()
+        store.completeRetrieve(with: uniqueImages().locals, timestamp: olderThanSevenDaysTimestamp)
+
+        XCTAssertEqual(store.messages, [.retrieve, .delete])
+    }
+
     // MARK: - Helpers
 
     private func makeSUT(currentDate: @escaping () -> Date = Date.init, file: StaticString = #filePath, line: UInt = #line) -> (LocalFeedLoader, FeedStoreSpy) {
@@ -28,5 +50,15 @@ class ValidateCacheUseCaseTests: XCTestCase {
         testMemoryLeak(feedStore, file: file, line: line)
 
         return (sut, feedStore)
+    }
+}
+
+private extension Date {
+    func adding(days: Int) -> Date {
+        return Calendar(identifier: .gregorian).date(byAdding: .day, value: days, to: self)!
+    }
+
+    func adding(seconds: TimeInterval) -> Date {
+        return self + seconds
     }
 }
