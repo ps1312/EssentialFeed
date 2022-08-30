@@ -52,13 +52,3 @@ class ValidateCacheUseCaseTests: XCTestCase {
         return (sut, feedStore)
     }
 }
-
-private extension Date {
-    func adding(days: Int) -> Date {
-        return Calendar(identifier: .gregorian).date(byAdding: .day, value: days, to: self)!
-    }
-
-    func adding(seconds: TimeInterval) -> Date {
-        return self + seconds
-    }
-}
