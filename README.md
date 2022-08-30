@@ -84,18 +84,33 @@ Given the customer doesn't have connectivity
 4. System creates feed images from cache data
 5. System delivers feed images
 
-#### Load cache error (sad path):
+#### Retrieve cache error (sad path):
 
 1. System delivers error message.
 
 #### Cache is old (sad path):
 
-1. System deletes current cache
-2. System delivers no feed images
+1. System delivers no feed images
 
 #### Empty cache (sad path):
 
 1. System delivers no feed images
+
+### Validate Cache Use Case
+
+#### Primary course (happy path):
+
+1. Execute "Validate Cache" command
+2. System fetches feed data from cache
+3. System validades cache is less than 7 days old
+
+#### Retrieve cache error (sad path):
+
+1. System deletes cache
+
+#### Cache is old (sad path):
+
+1. System deletes cache
 
 ### Cache Feed Use Case
 
