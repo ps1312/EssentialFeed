@@ -37,14 +37,25 @@ class LoadFeedFromCacheUseCaseTests: XCTestCase {
 
     func testLoadDeliversFeedImagesWhenCacheIsLessThan7DaysOld() {
         let currentDate = Date()
-        let lessThenSevenDaysOldTimestamp = currentDate.adding(days: -7).adding(seconds: 1)
+        let lessThanSevenDaysOldTimestamp = currentDate.adding(days: -7).adding(seconds: 1)
         let expectedFeed = uniqueImages()
         let (sut, storeSpy) = makeSUT()
 
         expect(sut, toCompleteWith: .success(expectedFeed.models), when: {
-            storeSpy.completeRetrieve(with: expectedFeed.locals, timestamp: lessThenSevenDaysOldTimestamp)
+            storeSpy.completeRetrieve(with: expectedFeed.locals, timestamp: lessThanSevenDaysOldTimestamp)
         })
     }
+
+    func testLoadDeliversEmptyListWhenCacheIsOlderThan7Days() {
+        let currentDate = Date()
+        let olderThanSevenDaysOldTimestamp = currentDate.adding(days: -7).adding(seconds: -1)
+        let (sut, storeSpy) = makeSUT(currentDate: { currentDate })
+
+        expect(sut, toCompleteWith: .success([]), when: {
+            storeSpy.completeRetrieve(with: uniqueImages().locals, timestamp: olderThanSevenDaysOldTimestamp)
+        })
+    }
+
 
     // MARK: - Helpers
 
