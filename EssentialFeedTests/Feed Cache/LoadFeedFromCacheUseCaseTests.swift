@@ -56,6 +56,15 @@ class LoadFeedFromCacheUseCaseTests: XCTestCase {
         })
     }
 
+    func testLoadDeliversFeedImagesWhenCacheIs7DaysOld() {
+        let currentDate = Date()
+        let sevenDaysOldTimestamp = currentDate.adding(days: -7)
+        let (sut, storeSpy) = makeSUT(currentDate: { currentDate })
+
+        expect(sut, toCompleteWith: .success([]), when: {
+            storeSpy.completeRetrieve(with: uniqueImages().locals, timestamp: sevenDaysOldTimestamp)
+        })
+    }
 
     // MARK: - Helpers
 
