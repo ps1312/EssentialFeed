@@ -35,34 +35,34 @@ class LoadFeedFromCacheUseCaseTests: XCTestCase {
         })
     }
 
-    func testLoadDeliversFeedImagesWhenCacheIsLessThanSevenDaysOld() {
+    func testLoadDeliversFeedImagesWhenCacheIsNotExpired() {
         let currentDate = Date()
-        let lessThanSevenDaysOldTimestamp = currentDate.adding(days: -7).adding(seconds: 1)
+        let notExpiredTimestamp = currentDate.minusFeedCacheMaxAge().adding(seconds: 1)
         let expectedFeed = uniqueImages()
         let (sut, storeSpy) = makeSUT()
 
         expect(sut, toCompleteWith: .success(expectedFeed.models), when: {
-            storeSpy.completeRetrieve(with: expectedFeed.locals, timestamp: lessThanSevenDaysOldTimestamp)
+            storeSpy.completeRetrieve(with: expectedFeed.locals, timestamp: notExpiredTimestamp)
         })
     }
 
-    func testLoadDeliversEmptyListWhenCacheIsOlderThanSevenDays() {
+    func testLoadDeliversEmptyListWhenCacheIsExpired() {
         let currentDate = Date()
-        let olderThanSevenDaysTimestamp = currentDate.adding(days: -7).adding(seconds: -1)
+        let expiredTimestamp = currentDate.minusFeedCacheMaxAge().adding(seconds: -1)
         let (sut, storeSpy) = makeSUT(currentDate: { currentDate })
 
         expect(sut, toCompleteWith: .success([]), when: {
-            storeSpy.completeRetrieve(with: uniqueImages().locals, timestamp: olderThanSevenDaysTimestamp)
+            storeSpy.completeRetrieve(with: uniqueImages().locals, timestamp: expiredTimestamp)
         })
     }
 
-    func testLoadDeliversEmptyFeedImageArrayWhenCacheIsSevenDaysOld() {
+    func testLoadDeliversEmptyFeedImagesArrayWhenCacheIsOnExpirationDate() {
         let currentDate = Date()
-        let sevenDaysOldTimestamp = currentDate.adding(days: -7)
+        let expirationTimestamp = currentDate.minusFeedCacheMaxAge()
         let (sut, storeSpy) = makeSUT(currentDate: { currentDate })
 
         expect(sut, toCompleteWith: .success([]), when: {
-            storeSpy.completeRetrieve(with: uniqueImages().locals, timestamp: sevenDaysOldTimestamp)
+            storeSpy.completeRetrieve(with: uniqueImages().locals, timestamp: expirationTimestamp)
         })
     }
 
@@ -75,38 +75,38 @@ class LoadFeedFromCacheUseCaseTests: XCTestCase {
         XCTAssertEqual(storeSpy.messages, [.retrieve])
     }
 
-    func testLoadHasNoSideEffectsWhenCacheIsOlderThanSevenDays() {
+    func testLoadHasNoSideEffectsWhenCacheIsExpired() {
         let currentDate = Date()
-        let olderThanSevenDaysTimestamp = currentDate.adding(days: -7).adding(seconds: -1)
+        let expiredTimestamp = currentDate.minusFeedCacheMaxAge().adding(seconds: -1)
 
         let (sut, storeSpy) = makeSUT(currentDate: { currentDate })
 
         sut.load { _ in }
-        storeSpy.completeRetrieve(with: uniqueImages().locals, timestamp: olderThanSevenDaysTimestamp)
+        storeSpy.completeRetrieve(with: uniqueImages().locals, timestamp: expiredTimestamp)
 
         XCTAssertEqual(storeSpy.messages, [.retrieve])
     }
 
-    func testLoadHasNoSideEffectsWhenCacheIsSevenDaysOld() {
+    func testLoadHasNoSideEffectsWhenCacheIsOnExpirationDate() {
         let currentDate = Date()
-        let olderThanSevenDaysTimestamp = currentDate.adding(days: -7)
+        let expirationTimestamp = currentDate.minusFeedCacheMaxAge()
 
         let (sut, storeSpy) = makeSUT(currentDate: { currentDate })
 
         sut.load { _ in }
-        storeSpy.completeRetrieve(with: uniqueImages().locals, timestamp: olderThanSevenDaysTimestamp)
+        storeSpy.completeRetrieve(with: uniqueImages().locals, timestamp: expirationTimestamp)
 
         XCTAssertEqual(storeSpy.messages, [.retrieve])
     }
 
-    func testLoadDoesNotDeleteCacheWhenLessThanSevenDaysOld() {
+    func testLoadDoesNotDeleteCacheWhenNotExpired() {
         let currentDate = Date()
-        let sevenDaysTimestamp = currentDate.adding(days: -7).adding(seconds: 1)
+        let notExpiredTimestamp = currentDate.minusFeedCacheMaxAge().adding(seconds: 1)
 
         let (sut, storeSpy) = makeSUT(currentDate: { currentDate })
 
         sut.load { _ in }
-        storeSpy.completeRetrieve(with: uniqueImages().locals, timestamp: sevenDaysTimestamp)
+        storeSpy.completeRetrieve(with: uniqueImages().locals, timestamp: notExpiredTimestamp)
 
         XCTAssertEqual(storeSpy.messages, [.retrieve])
 

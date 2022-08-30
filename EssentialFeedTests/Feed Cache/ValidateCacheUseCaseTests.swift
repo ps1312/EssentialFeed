@@ -18,35 +18,35 @@ class ValidateCacheUseCaseTests: XCTestCase {
         XCTAssertEqual(store.messages, [.retrieve, .delete])
     }
 
-    func testValidateCacheRequestsDeletionWhenOlderThanSevenDays() {
+    func testValidateCacheRequestsDeletionWhenExpired() {
         let currentDate = Date()
-        let olderThanSevenDaysTimestamp = currentDate.adding(days: -7).adding(seconds: -1)
+        let expiredTimestamp = currentDate.minusFeedCacheMaxAge().adding(seconds: -1)
         let (sut, store) = makeSUT(currentDate: { currentDate })
 
         sut.validateCache()
-        store.completeRetrieve(with: uniqueImages().locals, timestamp: olderThanSevenDaysTimestamp)
+        store.completeRetrieve(with: uniqueImages().locals, timestamp: expiredTimestamp)
 
         XCTAssertEqual(store.messages, [.retrieve, .delete])
     }
 
-    func testValidateCacheRequestsDeletionWhenCacheIsSevenDaysOld() {
+    func testValidateCacheRequestsDeletionWhenCacheIsOnExpirationDate() {
         let currentDate = Date()
-        let sevenDaysTimestamp = currentDate.adding(days: -7)
+        let expirationTimestamp = currentDate.minusFeedCacheMaxAge()
         let (sut, store) = makeSUT(currentDate: { currentDate })
 
         sut.validateCache()
-        store.completeRetrieve(with: uniqueImages().locals, timestamp: sevenDaysTimestamp)
+        store.completeRetrieve(with: uniqueImages().locals, timestamp: expirationTimestamp)
 
         XCTAssertEqual(store.messages, [.retrieve, .delete])
     }
 
-    func testValidateCacheDoesNotRequestDeletionWhenCacheIsLessThanSevenDaysOld() {
+    func testValidateCacheDoesNotRequestDeletionWhenCacheIsNotExpired() {
         let currentDate = Date()
-        let lessThanSevenDaysTimestamp = currentDate.adding(days: -7).adding(seconds: 1)
+        let notExpiredTimestamp = currentDate.minusFeedCacheMaxAge().adding(seconds: 1)
         let (sut, store) = makeSUT(currentDate: { currentDate })
 
         sut.validateCache()
-        store.completeRetrieve(with: uniqueImages().locals, timestamp: lessThanSevenDaysTimestamp)
+        store.completeRetrieve(with: uniqueImages().locals, timestamp: notExpiredTimestamp)
 
         XCTAssertEqual(store.messages, [.retrieve])
     }
