@@ -49,7 +49,6 @@ class ValidateCacheUseCaseTests: XCTestCase {
         store.completeRetrieve(with: uniqueImages().locals, timestamp: lessThanSevenDaysTimestamp)
 
         XCTAssertEqual(store.messages, [.retrieve])
-
     }
 
     // MARK: - Helpers
