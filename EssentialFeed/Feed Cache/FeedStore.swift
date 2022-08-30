@@ -2,7 +2,7 @@ import Foundation
 
 public enum CacheRetrieveResult {
     case empty
-    case success(feed: [LocalFeedImage], timestamp: Date)
+    case found(feed: [LocalFeedImage], timestamp: Date)
     case failure(Error)
 }
 
