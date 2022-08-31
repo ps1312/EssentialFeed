@@ -62,6 +62,8 @@ class CodableFeedStore {
     }
 
     func delete(completion: (Error?) -> Void) {
+        try? FileManager.default.removeItem(at: storeURL)
+        completion(nil)
     }
 
 }
@@ -164,7 +166,18 @@ class CodableFeedStoreTests: XCTestCase {
         }
 
         wait(for: [exp], timeout: 1.0)
+    }
 
+    func test_deleteAfterInsert_returnsEmpty() {
+        let sut = makeSUT()
+
+        insert(sut, feed: uniqueImages().locals, timestamp: Date())
+
+        let exp = expectation(description: "wait for deletion to complete")
+        sut.delete { _ in exp.fulfill() }
+        wait(for: [exp], timeout: 1.0)
+
+        expect(sut, toRetrieve: .empty)
     }
 
     // MARK: - Helpers
