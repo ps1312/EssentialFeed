@@ -153,7 +153,7 @@ class CodableFeedStoreTests: XCTestCase {
     func test_deleteEmptyCache_returnsEmpty() {
         let sut = makeSUT()
 
-        sut.delete() { _ in }
+        sut.delete { _ in }
 
         expect(sut, toRetrieve: .empty)
     }
@@ -171,9 +171,8 @@ class CodableFeedStoreTests: XCTestCase {
 
         insert(sut, feed: uniqueImages().locals, timestamp: Date())
 
-        let exp = expectation(description: "wait for deletion to complete")
-        sut.delete { _ in exp.fulfill() }
-        wait(for: [exp], timeout: 1.0)
+        let deleteError = delete(sut)
+        XCTAssertNil(deleteError)
 
         expect(sut, toRetrieve: .empty)
     }
@@ -182,12 +181,8 @@ class CodableFeedStoreTests: XCTestCase {
         let invalidStoreURL = URL(string: "//invalid//store//path//")!
         let sut = makeSUT(storeURL: invalidStoreURL)
 
-        let exp = expectation(description: "wait for deletion to complete")
-        sut.delete { error in
-            XCTAssertNotNil(error)
-            exp.fulfill()
-        }
-        wait(for: [exp], timeout: 1.0)
+        let deleteError = delete(sut)
+        XCTAssertNotNil(deleteError)
     }
 
     // MARK: - Helpers
@@ -198,6 +193,20 @@ class CodableFeedStoreTests: XCTestCase {
         testMemoryLeak(sut, file: file, line: line)
 
         return sut
+    }
+
+    @discardableResult
+    private func delete(_ sut: CodableFeedStore) -> Error? {
+        let exp = expectation(description: "wait for deletion to complete")
+
+        var deleteError: Error? = nil
+        sut.delete { error in
+            deleteError = error
+            exp.fulfill()
+        }
+        wait(for: [exp], timeout: 1.0)
+
+        return deleteError
     }
 
     @discardableResult
