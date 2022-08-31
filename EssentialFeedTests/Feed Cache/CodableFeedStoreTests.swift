@@ -3,12 +3,26 @@ import EssentialFeed
 
 class CodableFeedStore {
     private struct Cache: Codable {
-        let localFeed: [LocalFeedImage]
+        let localFeed: [CodableFeedImage]
         let timestamp: Date
 
         init (localFeed: [LocalFeedImage], timestamp: Date) {
-            self.localFeed = localFeed
+            self.localFeed = localFeed.map { CodableFeedImage(id: $0.id, description: $0.description, location: $0.location, url: $0.url) }
             self.timestamp = timestamp
+        }
+    }
+
+    struct CodableFeedImage: Codable {
+        public let id: UUID
+        public let description: String?
+        public let location: String?
+        public let url: URL
+
+        public init (id: UUID, description: String?, location: String?, url: URL) {
+            self.id = id
+            self.description = description
+            self.location = location
+            self.url = url
         }
     }
 
@@ -20,7 +34,7 @@ class CodableFeedStore {
         let decoder = JSONDecoder()
         let cache = try! decoder.decode(Cache.self, from: data)
 
-        completion(.found(feed: cache.localFeed, timestamp: cache.timestamp))
+        completion(.found(feed: cache.localFeed.map { LocalFeedImage(id: $0.id, description: $0.description, location: $0.location, url: $0.url) }, timestamp: cache.timestamp))
     }
 
     func persist(images: [LocalFeedImage], timestamp: Date, completion: @escaping (Error?) -> Void) {
@@ -34,6 +48,15 @@ class CodableFeedStore {
 
 class CodableFeedStoreTests: XCTestCase {
     override func setUp() {
+        super.setUp()
+
+        let storeURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!.appendingPathComponent("image-feed.store")
+        try? FileManager.default.removeItem(at: storeURL)
+    }
+
+    override func tearDown() {
+        super.tearDown()
+
         let storeURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!.appendingPathComponent("image-feed.store")
         try? FileManager.default.removeItem(at: storeURL)
     }
