@@ -62,8 +62,12 @@ class CodableFeedStore {
     }
 
     func delete(completion: (Error?) -> Void) {
-        try? FileManager.default.removeItem(at: storeURL)
-        completion(nil)
+        do {
+            try FileManager.default.removeItem(at: storeURL)
+            completion(nil)
+        } catch {
+            completion(error)
+        }
     }
 
 }
@@ -178,6 +182,18 @@ class CodableFeedStoreTests: XCTestCase {
         wait(for: [exp], timeout: 1.0)
 
         expect(sut, toRetrieve: .empty)
+    }
+
+    func test_delete_deliversErrorOnFailure() {
+        let invalidStoreURL = URL(string: "//invalid//store//path//")!
+        let sut = makeSUT(storeURL: invalidStoreURL)
+
+        let exp = expectation(description: "wait for deletion to complete")
+        sut.delete { error in
+            XCTAssertNotNil(error)
+            exp.fulfill()
+        }
+        wait(for: [exp], timeout: 1.0)
     }
 
     // MARK: - Helpers
