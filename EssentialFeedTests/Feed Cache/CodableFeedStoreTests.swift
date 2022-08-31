@@ -56,6 +56,9 @@ class CodableFeedStore {
         completion(nil)
     }
 
+    func delete(completion: (Error?) -> Void) {
+    }
+
 }
 
 class CodableFeedStoreTests: XCTestCase {
@@ -115,6 +118,14 @@ class CodableFeedStoreTests: XCTestCase {
 
         insert(sut, feed: secondCacheImages, timestamp: secondCacheTimestamp)
         expect(sut, toRetrieve: .found(feed: secondCacheImages, timestamp: secondCacheTimestamp))
+    }
+
+    func test_deleteEmptyCache_returnsEmpty() {
+        let sut = makeSUT()
+
+        sut.delete() { _ in }
+
+        expect(sut, toRetrieve: .empty)
     }
 
     // MARK: - Helpers
