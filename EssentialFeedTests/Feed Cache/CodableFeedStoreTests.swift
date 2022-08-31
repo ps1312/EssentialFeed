@@ -3,11 +3,15 @@ import EssentialFeed
 
 class CodableFeedStore {
     private struct Cache: Codable {
-        let localFeed: [CodableFeedImage]
+        let codableFeed: [CodableFeedImage]
         let timestamp: Date
 
+        var localFeed: [LocalFeedImage] {
+            return codableFeed.map { $0.local }
+        }
+
         init (localFeed: [LocalFeedImage], timestamp: Date) {
-            self.localFeed = localFeed.map { CodableFeedImage(id: $0.id, description: $0.description, location: $0.location, url: $0.url) }
+            self.codableFeed = localFeed.map(CodableFeedImage.init)
             self.timestamp = timestamp
         }
     }
@@ -18,11 +22,15 @@ class CodableFeedStore {
         public let location: String?
         public let url: URL
 
-        public init (id: UUID, description: String?, location: String?, url: URL) {
-            self.id = id
-            self.description = description
-            self.location = location
-            self.url = url
+        var local: LocalFeedImage {
+            return LocalFeedImage(id: id, description: description, location: location, url: url)
+        }
+
+        init (_ local: LocalFeedImage) {
+            self.id = local.id
+            self.description = local.description
+            self.location = local.location
+            self.url = local.url
         }
     }
 
@@ -34,7 +42,7 @@ class CodableFeedStore {
         let decoder = JSONDecoder()
         let cache = try! decoder.decode(Cache.self, from: data)
 
-        completion(.found(feed: cache.localFeed.map { LocalFeedImage(id: $0.id, description: $0.description, location: $0.location, url: $0.url) }, timestamp: cache.timestamp))
+        completion(.found(feed: cache.localFeed, timestamp: cache.timestamp))
     }
 
     func persist(images: [LocalFeedImage], timestamp: Date, completion: @escaping (Error?) -> Void) {
@@ -122,6 +130,10 @@ class CodableFeedStoreTests: XCTestCase {
         }
 
         wait(for: [exp], timeout: 1.0)
+    }
+
+    func test_retrieveAfterDelete_returnsEmpty() {
+
     }
 
     private func makeSUT(file: StaticString = #filePath, line: UInt = #line) -> CodableFeedStore {
