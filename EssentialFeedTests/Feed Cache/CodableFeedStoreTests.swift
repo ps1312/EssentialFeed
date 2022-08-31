@@ -52,10 +52,13 @@ class CodableFeedStore {
     }
 
     func persist(images: [LocalFeedImage], timestamp: Date, completion: @escaping (Error?) -> Void) {
-        let encoder = JSONEncoder()
-        let encoded = try! encoder.encode(Cache(localFeed: images, timestamp: timestamp))
-        try! encoded.write(to: storeURL)
-        completion(nil)
+        do {
+            let encoded = try JSONEncoder().encode(Cache(localFeed: images, timestamp: timestamp))
+            try encoded.write(to: storeURL)
+            completion(nil)
+        } catch {
+            completion(error)
+        }
     }
 
     func delete(completion: (Error?) -> Void) {
@@ -147,6 +150,21 @@ class CodableFeedStoreTests: XCTestCase {
         sut.delete() { _ in }
 
         expect(sut, toRetrieve: .empty)
+    }
+
+    func test_insert_deliversErrorOnFailure() {
+        let invalidStoreURL = URL(string: "//invalid//store//path//")!
+        let sut = makeSUT(storeURL: invalidStoreURL)
+
+        let exp = expectation(description: "wait for insert to fail")
+
+        sut.persist(images: uniqueImages().locals, timestamp: Date()) { error in
+            XCTAssertNotNil(error)
+            exp.fulfill()
+        }
+
+        wait(for: [exp], timeout: 1.0)
+
     }
 
     // MARK: - Helpers
