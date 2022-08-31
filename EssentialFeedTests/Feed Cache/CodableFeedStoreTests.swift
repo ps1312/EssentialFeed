@@ -162,14 +162,8 @@ class CodableFeedStoreTests: XCTestCase {
         let invalidStoreURL = URL(string: "//invalid//store//path//")!
         let sut = makeSUT(storeURL: invalidStoreURL)
 
-        let exp = expectation(description: "wait for insert to fail")
-
-        sut.persist(images: uniqueImages().locals, timestamp: Date()) { error in
-            XCTAssertNotNil(error)
-            exp.fulfill()
-        }
-
-        wait(for: [exp], timeout: 1.0)
+        let error = insert(sut, feed: uniqueImages().locals, timestamp: Date())
+        XCTAssertNotNil(error)
     }
 
     func test_deleteAfterInsert_returnsEmpty() {
@@ -206,14 +200,19 @@ class CodableFeedStoreTests: XCTestCase {
         return sut
     }
 
-    private func insert(_ sut: CodableFeedStore, feed: [LocalFeedImage], timestamp: Date) {
+    @discardableResult
+    private func insert(_ sut: CodableFeedStore, feed: [LocalFeedImage], timestamp: Date) -> Error? {
         let exp = expectation(description: "wait for insertion to complete")
 
-        sut.persist(images: feed, timestamp: timestamp) { _ in
+        var persistError: Error? = nil
+        sut.persist(images: feed, timestamp: timestamp) { error in
+            persistError = error
             exp.fulfill()
         }
 
         wait(for: [exp], timeout: 1.0)
+
+        return persistError
     }
 
     private func expect(_ sut: CodableFeedStore, toRetrieveTwice expectedResult: CacheRetrieveResult, file: StaticString = #filePath, line: UInt = #line) {
