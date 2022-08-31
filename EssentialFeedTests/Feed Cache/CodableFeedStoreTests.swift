@@ -43,10 +43,12 @@ class CodableFeedStore {
     func retrieve(completion: (CacheRetrieveResult) -> Void) {
         guard let data = try? Data(contentsOf: storeURL) else { return completion(.empty) }
 
-        let decoder = JSONDecoder()
-        let cache = try! decoder.decode(Cache.self, from: data)
-
-        completion(.found(feed: cache.localFeed, timestamp: cache.timestamp))
+        do {
+            let cache = try JSONDecoder().decode(Cache.self, from: data)
+            completion(.found(feed: cache.localFeed, timestamp: cache.timestamp))
+        } catch {
+            completion(.failure(error))
+        }
     }
 
     func persist(images: [LocalFeedImage], timestamp: Date, completion: @escaping (Error?) -> Void) {
@@ -120,6 +122,14 @@ class CodableFeedStoreTests: XCTestCase {
         expect(sut, toRetrieve: .found(feed: secondCacheImages, timestamp: secondCacheTimestamp))
     }
 
+    func test_retrieve_deliversErrorOnInvalidCache() {
+        let sut = makeSUT()
+
+        try! "invalid data".write(to: testStoreURL(), atomically: false, encoding: .utf8)
+
+        expect(sut, toRetrieve: .failure(makeNSError()))
+    }
+
     func test_deleteEmptyCache_returnsEmpty() {
         let sut = makeSUT()
 
@@ -158,7 +168,7 @@ class CodableFeedStoreTests: XCTestCase {
 
         sut.retrieve { receivedResult in
             switch (receivedResult, expectedResult) {
-            case (.empty, .empty):
+            case (.empty, .empty), (.failure, .failure):
                 break
 
             case let (.found(receivedFeed, receivedTimestamp), .found(expectedFeed, expectedTimestamp)):
