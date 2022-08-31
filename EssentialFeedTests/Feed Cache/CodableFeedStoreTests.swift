@@ -1,11 +1,11 @@
 import XCTest
 import EssentialFeed
 
-class CodableFeedStore {
+class CodableFeedStore: FeedStore {
     private struct Cache: Codable {
-        let codableFeed: [CodableFeedImage]
-        let timestamp: Date
+        private let codableFeed: [CodableFeedImage]
 
+        let timestamp: Date
         var localFeed: [LocalFeedImage] {
             return codableFeed.map { $0.local }
         }
@@ -16,11 +16,11 @@ class CodableFeedStore {
         }
     }
 
-    struct CodableFeedImage: Codable {
-        public let id: UUID
-        public let description: String?
-        public let location: String?
-        public let url: URL
+    private struct CodableFeedImage: Codable {
+        private let id: UUID
+        private let description: String?
+        private let location: String?
+        private let url: URL
 
         var local: LocalFeedImage {
             return LocalFeedImage(id: id, description: description, location: location, url: url)
@@ -51,7 +51,7 @@ class CodableFeedStore {
         }
     }
 
-    func persist(images: [LocalFeedImage], timestamp: Date, completion: @escaping (Error?) -> Void) {
+    func persist(images: [LocalFeedImage], timestamp: Date, completion: PersistCompletion) {
         do {
             let encoded = try JSONEncoder().encode(Cache(localFeed: images, timestamp: timestamp))
             try encoded.write(to: storeURL)
@@ -61,7 +61,7 @@ class CodableFeedStore {
         }
     }
 
-    func delete(completion: (Error?) -> Void) {
+    func delete(completion: DeletionCompletion) {
         guard FileManager.default.fileExists(atPath: storeURL.path) else { return completion(nil) }
 
         do {
@@ -190,7 +190,7 @@ class CodableFeedStoreTests: XCTestCase {
 
     // MARK: - Helpers
 
-    private func makeSUT(storeURL: URL? = nil, file: StaticString = #filePath, line: UInt = #line) -> CodableFeedStore {
+    private func makeSUT(storeURL: URL? = nil, file: StaticString = #filePath, line: UInt = #line) -> FeedStore {
         let sut = CodableFeedStore(storeURL: storeURL ?? testStoreURL())
 
         testMemoryLeak(sut, file: file, line: line)
@@ -199,7 +199,7 @@ class CodableFeedStoreTests: XCTestCase {
     }
 
     @discardableResult
-    private func delete(_ sut: CodableFeedStore) -> Error? {
+    private func delete(_ sut: FeedStore) -> Error? {
         let exp = expectation(description: "wait for deletion to complete")
 
         var deleteError: Error? = nil
@@ -213,7 +213,7 @@ class CodableFeedStoreTests: XCTestCase {
     }
 
     @discardableResult
-    private func insert(_ sut: CodableFeedStore, feed: [LocalFeedImage], timestamp: Date) -> Error? {
+    private func insert(_ sut: FeedStore, feed: [LocalFeedImage], timestamp: Date) -> Error? {
         let exp = expectation(description: "wait for insertion to complete")
 
         var persistError: Error? = nil
@@ -227,12 +227,12 @@ class CodableFeedStoreTests: XCTestCase {
         return persistError
     }
 
-    private func expect(_ sut: CodableFeedStore, toRetrieveTwice expectedResult: CacheRetrieveResult, file: StaticString = #filePath, line: UInt = #line) {
+    private func expect(_ sut: FeedStore, toRetrieveTwice expectedResult: CacheRetrieveResult, file: StaticString = #filePath, line: UInt = #line) {
         expect(sut, toRetrieve: expectedResult, file: file, line: line)
         expect(sut, toRetrieve: expectedResult, file: file, line: line)
     }
 
-    private func expect(_ sut: CodableFeedStore, toRetrieve expectedResult: CacheRetrieveResult, file: StaticString = #filePath, line: UInt = #line) {
+    private func expect(_ sut: FeedStore, toRetrieve expectedResult: CacheRetrieveResult, file: StaticString = #filePath, line: UInt = #line) {
         let exp = expectation(description: "wait for insertion and retrieval to complete")
 
         sut.retrieve { receivedResult in
