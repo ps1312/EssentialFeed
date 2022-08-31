@@ -102,6 +102,21 @@ class CodableFeedStoreTests: XCTestCase {
         expect(sut, toRetrieveTwice: .found(feed: expectedLocalFeed, timestamp: expectedTimestamp))
     }
 
+    func test_insertOnExistingCache_overridesCurrentData() {
+        let sut = makeSUT()
+        let firstCacheTimestamp = Date()
+        let firstCacheImages = uniqueImages().locals
+
+        insert(sut, feed: firstCacheImages, timestamp: firstCacheTimestamp)
+        expect(sut, toRetrieve: .found(feed: firstCacheImages, timestamp: firstCacheTimestamp))
+
+        let secondCacheTimestamp = Date()
+        let secondCacheImages = uniqueImages().locals
+
+        insert(sut, feed: secondCacheImages, timestamp: secondCacheTimestamp)
+        expect(sut, toRetrieve: .found(feed: secondCacheImages, timestamp: secondCacheTimestamp))
+    }
+
     // MARK: - Helpers
 
     private func makeSUT(file: StaticString = #filePath, line: UInt = #line) -> CodableFeedStore {
