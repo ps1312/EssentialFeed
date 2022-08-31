@@ -63,7 +63,7 @@ class CodableFeedStoreTests: XCTestCase {
 
     func test_retrieve_returnsEmptyOnNoCache() {
         let exp = expectation(description: "wait for retrieve to complete")
-        let sut = CodableFeedStore()
+        let sut = makeSUT()
 
         sut.retrieve { result in
             switch (result) {
@@ -82,7 +82,7 @@ class CodableFeedStoreTests: XCTestCase {
 
     func test_retrieveTwice_hasNoSideEffects() {
         let exp = expectation(description: "wait for both retrieve to complete")
-        let sut = CodableFeedStore()
+        let sut = makeSUT()
 
         sut.retrieve { firstResult in
             sut.retrieve { secondResult in
@@ -103,7 +103,7 @@ class CodableFeedStoreTests: XCTestCase {
     func test_retrieveAfterInsert_returnsNewlyAddedData() {
         let exp = expectation(description: "wait for insertion and retrieval to complete")
 
-        let sut = CodableFeedStore()
+        let sut = makeSUT()
         let expectedTimestamp = Date()
         let localFeed = uniqueImages().locals
 
@@ -124,5 +124,12 @@ class CodableFeedStoreTests: XCTestCase {
         wait(for: [exp], timeout: 1.0)
     }
 
+    private func makeSUT(file: StaticString = #filePath, line: UInt = #line) -> CodableFeedStore {
+        let sut = CodableFeedStore()
+
+        testMemoryLeak(sut, file: file, line: line)
+
+        return sut
+    }
 }
 
