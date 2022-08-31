@@ -72,48 +72,34 @@ class CodableFeedStoreTests: XCTestCase {
     func test_retrieve_returnsEmptyOnNoCache() {
         let sut = makeSUT()
 
-        expect(sut, toRetreive: .empty)
+        expect(sut, toRetrieve: .empty)
     }
 
 
     func test_retrieveTwice_hasNoSideEffects() {
         let sut = makeSUT()
 
-        expect(sut, toRetreive: .empty)
-        expect(sut, toRetreive: .empty)
+        expect(sut, toRetrieveTwice: .empty)
     }
 
     func test_retrieveAfterInsert_returnsNewlyAddedData() {
-        let exp = expectation(description: "wait for insertion to complete")
-
         let sut = makeSUT()
         let expectedTimestamp = Date()
         let expectedLocalFeed = uniqueImages().locals
 
-        sut.persist(images: expectedLocalFeed, timestamp: expectedTimestamp) { _ in
-            exp.fulfill()
-        }
+        insert(sut, feed: expectedLocalFeed, timestamp: expectedTimestamp)
 
-        wait(for: [exp], timeout: 1.0)
-
-        expect(sut, toRetreive: .found(feed: expectedLocalFeed, timestamp: expectedTimestamp))
+        expect(sut, toRetrieve: .found(feed: expectedLocalFeed, timestamp: expectedTimestamp))
     }
 
     func test_retrieveTwiceAfterInsert_hasNoSideEffects() {
-        let exp = expectation(description: "wait for insertion and retrieval to complete")
-
         let sut = makeSUT()
         let expectedTimestamp = Date()
         let expectedLocalFeed = uniqueImages().locals
 
-        sut.persist(images: expectedLocalFeed, timestamp: expectedTimestamp) { _ in
-            exp.fulfill()
-        }
+        insert(sut, feed: expectedLocalFeed, timestamp: expectedTimestamp)
 
-        wait(for: [exp], timeout: 1.0)
-
-        expect(sut, toRetreive: .found(feed: expectedLocalFeed, timestamp: expectedTimestamp))
-        expect(sut, toRetreive: .found(feed: expectedLocalFeed, timestamp: expectedTimestamp))
+        expect(sut, toRetrieveTwice: .found(feed: expectedLocalFeed, timestamp: expectedTimestamp))
     }
 
     // MARK: - Helpers
@@ -126,7 +112,22 @@ class CodableFeedStoreTests: XCTestCase {
         return sut
     }
 
-    private func expect(_ sut: CodableFeedStore, toRetreive expectedResult: CacheRetrieveResult, file: StaticString = #filePath, line: UInt = #line) {
+    private func insert(_ sut: CodableFeedStore, feed: [LocalFeedImage], timestamp: Date) {
+        let exp = expectation(description: "wait for insertion to complete")
+
+        sut.persist(images: feed, timestamp: timestamp) { _ in
+            exp.fulfill()
+        }
+
+        wait(for: [exp], timeout: 1.0)
+    }
+
+    private func expect(_ sut: CodableFeedStore, toRetrieveTwice expectedResult: CacheRetrieveResult, file: StaticString = #filePath, line: UInt = #line) {
+        expect(sut, toRetrieve: expectedResult, file: file, line: line)
+        expect(sut, toRetrieve: expectedResult, file: file, line: line)
+    }
+
+    private func expect(_ sut: CodableFeedStore, toRetrieve expectedResult: CacheRetrieveResult, file: StaticString = #filePath, line: UInt = #line) {
         let exp = expectation(description: "wait for insertion and retrieval to complete")
 
         sut.retrieve { receivedResult in
