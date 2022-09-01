@@ -1,3 +1,5 @@
+[![ps1312](https://circleci.com/gh/ps1312/EssentialFeed.svg?style=svg)]([https://circleci.com/gh/circleci/circleci-docs](https://app.circleci.com/pipelines/github/ps1312/EssentialFeed))
+
 # Essential App Case Study
 
 ## Image Feed Feature Specs
