@@ -19,7 +19,7 @@ class CoreDataFeedStore: FeedStore {
 
 class CoreDataFeedStoreTests: XCTestCase, FailableFeedStoreSpec {
     func test_retrieve_deliversEmptyOnEmptyCache() {
-        let sut = CoreDataFeedStore()
+        let sut = makeSUT()
 
         assertThatRetrieveDeliversEmptyOnEmptyCache(on: sut)
     }
@@ -90,6 +90,12 @@ class CoreDataFeedStoreTests: XCTestCase, FailableFeedStoreSpec {
 
     func test_delete_hasNoSideEffectsOnFailure() {
 
+    }
+
+    private func makeSUT(file: StaticString = #filePath, line: UInt = #line) -> CoreDataFeedStore {
+        let sut = CoreDataFeedStore()
+        testMemoryLeak(sut, file: file, line: line)
+        return sut
     }
     
 }
