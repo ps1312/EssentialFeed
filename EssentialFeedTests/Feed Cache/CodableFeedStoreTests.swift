@@ -12,10 +12,10 @@ class CodableFeedStoreTests: XCTestCase, FailableFeedStoreSpec {
         clearTestStore()
     }
 
-    func test_retrieve_deliversEmptyOnNonEmptyCache() {
+    func test_retrieve_deliversEmptyOnEmptyCache() {
         let sut = makeSUT()
 
-        assertThatRetrieveDeliversEmptyOnNonEmptyCache(on: sut)
+        assertThatRetrieveDeliversEmptyOnEmptyCache(on: sut)
     }
 
     func test_retrieve_hasNoSideEffectsOnEmptyCache() {

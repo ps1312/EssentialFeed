@@ -2,7 +2,7 @@ import XCTest
 import EssentialFeed
 
 extension FeedStoreSpecs where Self: XCTestCase {
-    func assertThatRetrieveDeliversEmptyOnNonEmptyCache(on sut: FeedStore, file: StaticString = #filePath, line: UInt = #line) {
+    func assertThatRetrieveDeliversEmptyOnEmptyCache(on sut: FeedStore, file: StaticString = #filePath, line: UInt = #line) {
         expect(sut, toRetrieve: .empty, file: file, line: line)
     }
 
