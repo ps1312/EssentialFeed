@@ -1,22 +1,6 @@
 import XCTest
 import EssentialFeed
 
-class CoreDataFeedStore: FeedStore {
-
-    func delete(completion: @escaping DeletionCompletion) {
-        fatalError("Not implemented yet!")
-    }
-
-    func persist(images: [LocalFeedImage], timestamp: Date, completion: @escaping PersistCompletion) {
-        fatalError("Not implemented yet!")
-    }
-
-    func retrieve(completion: @escaping RetrieveCompletion) {
-        completion(.empty)
-    }
-    
-}
-
 class CoreDataFeedStoreTests: XCTestCase, FailableFeedStoreSpec {
     func test_retrieve_deliversEmptyOnEmptyCache() {
         let sut = makeSUT()
