@@ -1,33 +1,27 @@
 import XCTest
+import EssentialFeed
+
+class CoreDataFeedStore: FeedStore {
+
+    func delete(completion: @escaping DeletionCompletion) {
+        fatalError("Not implemented yet!")
+    }
+
+    func persist(images: [LocalFeedImage], timestamp: Date, completion: @escaping PersistCompletion) {
+        fatalError("Not implemented yet!")
+    }
+
+    func retrieve(completion: @escaping RetrieveCompletion) {
+        completion(.empty)
+    }
+    
+}
 
 class CoreDataFeedStoreTests: XCTestCase, FailableFeedStoreSpec {
-    
-    func test_retrieve_deliversErrorOnRetrievalFailure() {
+    func test_retrieve_deliversEmptyOnEmptyCache() {
+        let sut = CoreDataFeedStore()
 
-    }
-
-    func test_retrieve_hasNoSideEffectsOnFailure() {
-
-    }
-
-    func test_insert_deliversErrorOnInsertionFailure() {
-
-    }
-
-    func test_insert_hasNoSideEffectsOnFailure() {
-
-    }
-
-    func test_delete_deliversErrorOnDeletionFailure() {
-
-    }
-
-    func test_delete_hasNoSideEffectsOnFailure() {
-
-    }
-
-    func test_retrieve_deliversEmptyOnNonEmptyCache() {
-
+        assertThatRetrieveDeliversEmptyOnEmptyCache(on: sut)
     }
 
     func test_retrieve_hasNoSideEffectsOnEmptyCache() {
@@ -74,5 +68,28 @@ class CoreDataFeedStoreTests: XCTestCase, FailableFeedStoreSpec {
 
     }
 
+    func test_retrieve_deliversErrorOnRetrievalFailure() {
 
+    }
+
+    func test_retrieve_hasNoSideEffectsOnFailure() {
+
+    }
+
+    func test_insert_deliversErrorOnInsertionFailure() {
+
+    }
+
+    func test_insert_hasNoSideEffectsOnFailure() {
+
+    }
+
+    func test_delete_deliversErrorOnDeletionFailure() {
+
+    }
+
+    func test_delete_hasNoSideEffectsOnFailure() {
+
+    }
+    
 }
