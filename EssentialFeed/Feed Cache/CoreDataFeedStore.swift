@@ -38,7 +38,7 @@ public class CoreDataFeedStore: FeedStore {
     }
 
     public func persist(images: [LocalFeedImage], timestamp: Date, completion: @escaping PersistCompletion) {
-        fatalError("Not implemented yet!")
+        completion(nil)
     }
 
     public func retrieve(completion: @escaping RetrieveCompletion) {
