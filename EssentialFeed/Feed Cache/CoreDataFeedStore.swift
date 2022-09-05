@@ -73,9 +73,11 @@ public class CoreDataFeedStore: FeedStore {
         context.perform { [context] in
             do {
                 if let cache = try context.fetch(request).first {
-                    let local = cache.feed
-                        .compactMap { $0 as? ManagedFeedImage }
-                        .map { LocalFeedImage(id: $0.id, description: $0.imageDescription, location: $0.location, url: $0.url) }
+                    let local = cache.feed.compactMap {
+                        ($0 as? ManagedFeedImage).map {
+                            LocalFeedImage(id: $0.id, description: $0.imageDescription, location: $0.location, url: $0.url)
+                        }
+                    }
 
                     completion(.found(feed: local, timestamp: cache.timestamp))
                 } else {
