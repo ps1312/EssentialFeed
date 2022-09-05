@@ -46,17 +46,9 @@ public class CoreDataFeedStore: FeedStore {
         context.perform {
             do {
                 let managedCache = ManagedCache(context: context)
+
                 managedCache.timestamp = timestamp
-                managedCache.feed = NSOrderedSet(array: images.map { localFeedImage in
-                    let managedFeedImage = ManagedFeedImage(context: context)
-
-                    managedFeedImage.id = localFeedImage.id
-                    managedFeedImage.imageDescription = localFeedImage.description
-                    managedFeedImage.location = localFeedImage.location
-                    managedFeedImage.url = localFeedImage.url
-
-                    return managedFeedImage
-                })
+                managedCache.feed = ManagedFeedImage.build(with: images, in: context)
 
                 try context.save()
 
@@ -104,4 +96,19 @@ final class ManagedFeedImage: NSManagedObject {
     @NSManaged var location: String?
     @NSManaged var url: URL
     @NSManaged var cache: ManagedCache
+
+    private convenience init(local: LocalFeedImage, context: NSManagedObjectContext) {
+        self.init(context: context)
+
+        id = local.id
+        imageDescription = local.description
+        location = local.location
+        url = local.url
+    }
+
+    static func build(with images: [LocalFeedImage], in context: NSManagedObjectContext) -> NSOrderedSet {
+        return NSOrderedSet(array: images.map { localFeedImage in
+            return ManagedFeedImage(local: localFeedImage, context: context)
+        })
+    }
 }
