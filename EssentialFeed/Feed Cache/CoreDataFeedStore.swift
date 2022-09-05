@@ -6,7 +6,7 @@ public class CoreDataFeedStore: FeedStore {
     private let container: NSPersistentContainer
     private let context: NSManagedObjectContext
 
-    public init() {
+    public init(storeURL: URL) {
         let bundle = Bundle(for: CoreDataFeedStore.self)
 
         guard let modelURL = bundle.url(forResource: "FeedStore", withExtension: "momd") else {
@@ -18,6 +18,9 @@ public class CoreDataFeedStore: FeedStore {
         }
 
         container = NSPersistentContainer(name: "FeedStore", managedObjectModel: mom)
+
+        let description = NSPersistentStoreDescription(url: storeURL)
+        container.persistentStoreDescriptions = [description]
 
         var loadStoresErrors = [Error]()
         container.loadPersistentStores { _, error in
