@@ -12,7 +12,15 @@ public class CoreDataFeedStore: FeedStore {
     }
 
     public func delete(completion: @escaping DeletionCompletion) {
-        completion(nil)
+        context.perform { [context] in
+            do {
+                let request = NSFetchRequest<ManagedCache>(entityName: ManagedCache.entity().name!)
+                request.returnsObjectsAsFaults = false
+                let _ = try context.fetch(request).map(context.delete)
+
+                completion(nil)
+            } catch {}
+        }
     }
 
     public func persist(images: [LocalFeedImage], timestamp: Date, completion: @escaping PersistCompletion) {
