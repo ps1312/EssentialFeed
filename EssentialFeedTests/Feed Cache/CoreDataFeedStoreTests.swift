@@ -111,7 +111,14 @@ class CoreDataFeedStoreTests: XCTestCase, FailableFeedStoreSpec {
     }
 
     func test_delete_deliversErrorOnDeletionFailure() {
+        let stub = NSManagedObjectContext.setupAlwaysFailingSaveStub()
+        let sut = makeSUT()
 
+        insert(sut, feed: uniqueImages().locals, timestamp: Date())
+
+        stub.startIntercepting()
+
+        assertThatDeleteDeliversErrorOnDeletionFailure(on: sut)
     }
 
     func test_delete_hasNoSideEffectsOnFailure() {

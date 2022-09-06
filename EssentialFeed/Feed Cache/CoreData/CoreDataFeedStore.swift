@@ -15,9 +15,12 @@ public class CoreDataFeedStore: FeedStore {
         context.perform { [context] in
             do {
                 try ManagedCache.wipe(from: context)
+                try context.save()
 
                 completion(nil)
-            } catch {}
+            } catch {
+                completion(error)
+            }
         }
     }
 
