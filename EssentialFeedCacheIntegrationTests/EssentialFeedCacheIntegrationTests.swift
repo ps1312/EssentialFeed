@@ -18,12 +18,7 @@ class EssentialFeedCacheIntegrationTests: XCTestCase {
         let sutToPerformSave = makeSUT()
         let sutToPerformLoad = makeSUT()
 
-        let saveExp = expectation(description: "Wait for save to complete")
-        sutToPerformSave.save(feed: images.models) { receivedError in
-            XCTAssertNil(receivedError, "Expected save to succeed")
-            saveExp.fulfill()
-        }
-        wait(for: [saveExp], timeout: 1.0)
+        insert(to: sutToPerformSave, models: images.models)
 
         expect(sutToPerformLoad, toReceive: .success(images.models))
     }
@@ -56,6 +51,17 @@ class EssentialFeedCacheIntegrationTests: XCTestCase {
                 XCTFail("Expected load to complete with empty, instead got \(receivedResult)")
             }
 
+            exp.fulfill()
+        }
+
+        wait(for: [exp], timeout: 1.0)
+    }
+
+    private func insert(to sut: LocalFeedLoader, models: [FeedImage]) {
+        let exp = expectation(description: "Wait for save to complete")
+
+        sut.save(feed: models) { receivedError in
+            XCTAssertNil(receivedError, "Expected save to succeed")
             exp.fulfill()
         }
 
