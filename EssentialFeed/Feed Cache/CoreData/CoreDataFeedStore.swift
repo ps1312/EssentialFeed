@@ -12,7 +12,7 @@ public class CoreDataFeedStore: FeedStore {
     }
 
     public func delete(completion: @escaping DeletionCompletion) {
-        fatalError("Not implemented yet!")
+        completion(nil)
     }
 
     public func persist(images: [LocalFeedImage], timestamp: Date, completion: @escaping PersistCompletion) {
