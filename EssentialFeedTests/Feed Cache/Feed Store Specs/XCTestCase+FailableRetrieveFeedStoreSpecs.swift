@@ -6,7 +6,7 @@ extension FeedStoreSpecs where Self: XCTestCase {
         expect(sut, toRetrieve: .failure(makeNSError()))
     }
 
-    func assertThatRetrieveHasNoSideEffectsOnFailure(on sut: FeedStore, with url: URL, file: StaticString = #filePath, line: UInt = #line) {
+    func assertThatRetrieveHasNoSideEffectsOnFailure(on sut: FeedStore, file: StaticString = #filePath, line: UInt = #line) {
         expect(sut, toRetrieveTwice: .failure(makeNSError()))
     }
 }

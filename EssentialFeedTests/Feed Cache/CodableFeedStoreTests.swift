@@ -100,7 +100,7 @@ class CodableFeedStoreTests: XCTestCase, FailableFeedStoreSpec {
 
         try! "invalid data".write(to: expectedStoreURL, atomically: false, encoding: .utf8)
 
-        assertThatRetrieveHasNoSideEffectsOnFailure(on: sut, with: expectedStoreURL)
+        assertThatRetrieveHasNoSideEffectsOnFailure(on: sut)
     }
 
     func test_insert_deliversErrorOnInsertionFailure() {
