@@ -18,6 +18,9 @@ public final class ManagedCache: NSManagedObject {
         request.returnsObjectsAsFaults = false
 
         return try context.fetch(request).first
+    }
 
+    static func wipe(from context: NSManagedObjectContext) throws {
+        try find(in: context).map(context.delete)
     }
 }

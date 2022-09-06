@@ -14,7 +14,8 @@ public class CoreDataFeedStore: FeedStore {
     public func delete(completion: @escaping DeletionCompletion) {
         context.perform { [context] in
             do {
-                try ManagedCache.find(in: context).map(context.delete)
+                try ManagedCache.wipe(from: context)
+
                 completion(nil)
             } catch {}
         }
@@ -23,11 +24,14 @@ public class CoreDataFeedStore: FeedStore {
     public func persist(images: [LocalFeedImage], timestamp: Date, completion: @escaping PersistCompletion) {
         context.perform { [context] in
             do {
-                try ManagedCache.find(in: context).map(context.delete)
+                try ManagedCache.wipe(from: context)
+
                 let managedCache = ManagedCache(context: context)
                 managedCache.timestamp = timestamp
                 managedCache.feed = ManagedFeedImage.build(with: images, in: context)
+
                 try context.save()
+
                 completion(nil)
             } catch {}
         }
