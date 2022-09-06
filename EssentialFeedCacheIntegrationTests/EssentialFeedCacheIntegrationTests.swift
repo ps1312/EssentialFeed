@@ -14,13 +14,13 @@ class EssentialFeedCacheIntegrationTests: XCTestCase {
     }
 
     func test_LocalFeedLoaderAndCoreDataFeedStore_deliversCachedValuesOnNonEmptyCache() {
-        let images = uniqueImages()
+        let images = uniqueImages().models
         let sutToPerformSave = makeSUT()
         let sutToPerformLoad = makeSUT()
 
-        insert(to: sutToPerformSave, models: images.models)
+        insert(to: sutToPerformSave, models: images)
 
-        expect(sutToPerformLoad, toReceive: .success(images.models))
+        expect(sutToPerformLoad, toReceive: .success(images))
     }
 
     func test_LocalFeedLoaderAndCoreDataFeedStore_deliversAnEmptyFeedImagesArrayOnEmptyCache() {
