@@ -25,37 +25,13 @@ class EssentialFeedCacheIntegrationTests: XCTestCase {
         }
         wait(for: [saveExp], timeout: 1.0)
 
-        let loadExp = expectation(description: "Wait for load to complete")
-        sutToPerformLoad.load { receivedResult in
-            switch (receivedResult) {
-            case .success(let feedImages):
-                XCTAssertEqual(feedImages, images.models)
-            default:
-                XCTFail("Expected success retrieving recent cached values, instead got \(receivedResult)")
-            }
-            loadExp.fulfill()
-        }
-        wait(for: [loadExp], timeout: 1.0)
+        expect(sutToPerformLoad, toReceive: .success(images.models))
     }
 
     func test_LocalFeedLoaderAndCoreDataFeedStore_deliversAnEmptyFeedImagesArrayOnEmptyCache() {
-        let exp = expectation(description: "Wait for save and load to complete")
-
         let sut = makeSUT()
 
-        sut.load { receivedResult in
-            switch (receivedResult) {
-            case .success(let receivedFeedItems):
-                XCTAssertEqual(receivedFeedItems, [])
-
-            default:
-                XCTFail("Expected load to complete with empty, instead got \(receivedResult)")
-            }
-
-            exp.fulfill()
-        }
-
-        wait(for: [exp], timeout: 5.0)
+        expect(sut, toReceive: .success([]))
     }
 
     private func makeSUT(file: StaticString = #filePath, line: UInt = #line) -> LocalFeedLoader {
@@ -66,6 +42,24 @@ class EssentialFeedCacheIntegrationTests: XCTestCase {
         testMemoryLeak(localFeedLoader, file: file, line: line)
 
         return localFeedLoader
+    }
+
+    private func expect(_ sut: LocalFeedLoader, toReceive expectedResult: LoadFeedResult) {
+        let exp = expectation(description: "Wait for save and load to complete")
+
+        sut.load { receivedResult in
+            switch (receivedResult, expectedResult) {
+            case (.success(let receivedFeedItems), .success(let expectedFeedItems)):
+                XCTAssertEqual(receivedFeedItems, expectedFeedItems)
+
+            default:
+                XCTFail("Expected load to complete with empty, instead got \(receivedResult)")
+            }
+
+            exp.fulfill()
+        }
+
+        wait(for: [exp], timeout: 1.0)
     }
 
     private func cachesDirectory() -> URL {
