@@ -19,6 +19,7 @@ public class CoreDataFeedStore: FeedStore {
 
                 completion(nil)
             } catch {
+                context.rollback()
                 completion(error)
             }
         }
@@ -37,8 +38,8 @@ public class CoreDataFeedStore: FeedStore {
 
                 completion(nil)
             } catch {
-                completion(error)
                 context.rollback()
+                completion(error)
             }
         }
 

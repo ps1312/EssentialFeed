@@ -122,7 +122,18 @@ class CoreDataFeedStoreTests: XCTestCase, FailableFeedStoreSpec {
     }
 
     func test_delete_hasNoSideEffectsOnFailure() {
+        let stub = NSManagedObjectContext.setupAlwaysFailingSaveStub()
+        let sut = makeSUT()
+        let locals = uniqueImages().locals
+        let timestamp = Date()
 
+        insert(sut, feed: locals, timestamp: timestamp)
+
+        stub.startIntercepting()
+
+        delete(sut)
+
+        expect(sut, toRetrieve: .found(feed: locals, timestamp: timestamp))
     }
 
     private func makeSUT(file: StaticString = #filePath, line: UInt = #line) -> CoreDataFeedStore {
