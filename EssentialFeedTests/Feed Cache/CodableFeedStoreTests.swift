@@ -107,28 +107,28 @@ class CodableFeedStoreTests: XCTestCase, FailableFeedStoreSpec {
         let invalidStoreURL = URL(string: "//invalid//store//path//")!
         let sut = makeSUT(storeURL: invalidStoreURL)
 
-        assertThatInsertDeliversErrorOnInsertionFailure(on: sut, with: invalidStoreURL)
+        assertThatInsertDeliversErrorOnInsertionFailure(on: sut)
     }
 
     func test_insert_hasNoSideEffectsOnFailure() {
         let invalidStoreURL = URL(string: "//invalid//store//path//")!
         let sut = makeSUT(storeURL: invalidStoreURL)
 
-        assertThatInsertHasNoSideEffectsOnFailure(on: sut, with: invalidStoreURL)
+        assertThatInsertHasNoSideEffectsOnFailure(on: sut)
     }
 
     func test_delete_deliversErrorOnDeletionFailure() {
         let nonPermittedURL = cachesDirectory()
         let sut = makeSUT(storeURL: nonPermittedURL)
 
-        assertThatDeleteDeliversErrorOnDeletionFailure(on: sut, with: nonPermittedURL)
+        assertThatDeleteDeliversErrorOnDeletionFailure(on: sut)
     }
 
     func test_delete_hasNoSideEffectsOnFailure() {
         let nonPermittedURL = cachesDirectory()
         let sut = makeSUT(storeURL: nonPermittedURL)
 
-        assertThatDeleteHasNoSideEffectsOnFailure(on: sut, with: nonPermittedURL)
+        assertThatDeleteHasNoSideEffectsOnFailure(on: sut)
     }
 
     // MARK: - Helpers
