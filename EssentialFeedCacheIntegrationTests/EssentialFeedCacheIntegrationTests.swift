@@ -14,27 +14,28 @@ class EssentialFeedCacheIntegrationTests: XCTestCase {
     }
 
     func test_LocalFeedLoaderAndCoreDataFeedStore_deliversCachedValuesOnNonEmptyCache() {
-        let exp = expectation(description: "Wait for save and load to complete")
-
-        let sut = makeSUT()
-
         let images = uniqueImages()
+        let sutToPerformSave = makeSUT()
+        let sutToPerformLoad = makeSUT()
 
-        sut.save(feed: images.models) { error in
-            sut.load { receivedResult in
-                switch (receivedResult) {
-                case .success(let feedImages):
-                    XCTAssertEqual(feedImages, images.models)
-
-                default:
-                    XCTFail("Expected success retrieving recent cached values, instead got \(receivedResult)")
-                }
-
-                exp.fulfill()
-            }
+        let saveExp = expectation(description: "Wait for save to complete")
+        sutToPerformSave.save(feed: images.models) { receivedError in
+            XCTAssertNil(receivedError, "Expected save to succeed")
+            saveExp.fulfill()
         }
+        wait(for: [saveExp], timeout: 1.0)
 
-        wait(for: [exp], timeout: 5.0)
+        let loadExp = expectation(description: "Wait for load to complete")
+        sutToPerformLoad.load { receivedResult in
+            switch (receivedResult) {
+            case .success(let feedImages):
+                XCTAssertEqual(feedImages, images.models)
+            default:
+                XCTFail("Expected success retrieving recent cached values, instead got \(receivedResult)")
+            }
+            loadExp.fulfill()
+        }
+        wait(for: [loadExp], timeout: 1.0)
     }
 
     func test_LocalFeedLoaderAndCoreDataFeedStore_deliversAnEmptyFeedImagesArrayOnEmptyCache() {
