@@ -16,9 +16,7 @@ public class CoreDataFeedStore: FeedStore {
     }
 
     public func persist(images: [LocalFeedImage], timestamp: Date, completion: @escaping PersistCompletion) {
-        let context = self.context
-
-        context.perform {
+        context.perform { [context] in
             do {
                 let managedCache = ManagedCache(context: context)
 
