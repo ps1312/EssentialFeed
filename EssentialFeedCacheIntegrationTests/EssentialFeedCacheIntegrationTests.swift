@@ -3,6 +3,16 @@ import EssentialFeed
 
 class EssentialFeedCacheIntegrationTests: XCTestCase {
 
+    override func setUp() {
+        super.setUp()
+        clearTestArtifacts()
+    }
+
+    override func tearDown() {
+        super.tearDown()
+        clearTestArtifacts()
+    }
+
     func test_LocalFeedLoaderAndCoreDataFeedStore_deliversCachedValuesOnNonEmptyCache() {
         let exp = expectation(description: "Wait for save and load to complete")
 
@@ -27,9 +37,28 @@ class EssentialFeedCacheIntegrationTests: XCTestCase {
         wait(for: [exp], timeout: 5.0)
     }
 
+    func test_LocalFeedLoaderAndCoreDataFeedStore_deliversAnEmptyFeedImagesArrayOnEmptyCache() {
+        let exp = expectation(description: "Wait for save and load to complete")
+
+        let sut = makeSUT()
+
+        sut.load { receivedResult in
+            switch (receivedResult) {
+            case .success(let receivedFeedItems):
+                XCTAssertEqual(receivedFeedItems, [])
+
+            default:
+                XCTFail("Expected load to complete with empty, instead got \(receivedResult)")
+            }
+
+            exp.fulfill()
+        }
+
+        wait(for: [exp], timeout: 5.0)
+    }
+
     private func makeSUT(file: StaticString = #filePath, line: UInt = #line) -> LocalFeedLoader {
-        let storeURL = cachesDirectory().appendingPathComponent("\(type(of: self)).store")
-        let coreDataFeedStore = try! CoreDataFeedStore(storeURL: storeURL)
+        let coreDataFeedStore = try! CoreDataFeedStore(storeURL: testStoreURL())
         let localFeedLoader = LocalFeedLoader(store: coreDataFeedStore)
 
         testMemoryLeak(coreDataFeedStore, file: file, line: line)
@@ -40,6 +69,14 @@ class EssentialFeedCacheIntegrationTests: XCTestCase {
 
     private func cachesDirectory() -> URL {
         return FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first!
+    }
+
+    private func testStoreURL() -> URL {
+        return cachesDirectory().appendingPathComponent("\(type(of: self)).store")
+    }
+
+    private func clearTestArtifacts() {
+        try? FileManager.default.removeItem(at: testStoreURL())
     }
 
 }
