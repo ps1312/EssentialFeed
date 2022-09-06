@@ -93,7 +93,12 @@ class CoreDataFeedStoreTests: XCTestCase, FailableFeedStoreSpec {
     }
 
     func test_insert_deliversErrorOnInsertionFailure() {
+        let stub = NSManagedObjectContext.setupAlwaysFailingSaveStub()
+        stub.startIntercepting()
 
+        let sut = makeSUT()
+
+        assertThatInsertDeliversErrorOnInsertionFailure(on: sut)
     }
 
     func test_insert_hasNoSideEffectsOnFailure() {
@@ -124,6 +129,13 @@ extension NSManagedObjectContext {
         Stub(
             #selector(NSManagedObjectContext.__execute(_:)),
             #selector(Stub.execute(_:))
+        )
+    }
+
+    static func setupAlwaysFailingSaveStub() -> Stub {
+        Stub(
+            #selector(NSManagedObjectContext.save),
+            #selector(Stub.save)
         )
     }
 
