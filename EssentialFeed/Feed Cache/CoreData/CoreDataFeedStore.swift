@@ -14,10 +14,7 @@ public class CoreDataFeedStore: FeedStore {
     public func delete(completion: @escaping DeletionCompletion) {
         context.perform { [context] in
             do {
-                let request = NSFetchRequest<ManagedCache>(entityName: ManagedCache.entity().name!)
-                request.returnsObjectsAsFaults = false
-                let _ = try context.fetch(request).map(context.delete)
-
+                try ManagedCache.find(in: context).map(context.delete)
                 completion(nil)
             } catch {}
         }
@@ -26,17 +23,11 @@ public class CoreDataFeedStore: FeedStore {
     public func persist(images: [LocalFeedImage], timestamp: Date, completion: @escaping PersistCompletion) {
         context.perform { [context] in
             do {
-                let request = NSFetchRequest<ManagedCache>(entityName: ManagedCache.entity().name!)
-                request.returnsObjectsAsFaults = false
-                let _ = try context.fetch(request).map(context.delete)
-
+                try ManagedCache.find(in: context).map(context.delete)
                 let managedCache = ManagedCache(context: context)
-
                 managedCache.timestamp = timestamp
                 managedCache.feed = ManagedFeedImage.build(with: images, in: context)
-
                 try context.save()
-
                 completion(nil)
             } catch {}
         }
@@ -44,12 +35,9 @@ public class CoreDataFeedStore: FeedStore {
     }
 
     public func retrieve(completion: @escaping RetrieveCompletion) {
-        let request = NSFetchRequest<ManagedCache>(entityName: ManagedCache.entity().name!)
-        request.returnsObjectsAsFaults = false
-
         context.perform { [context] in
             do {
-                if let cache = try context.fetch(request).first {
+                if let cache = try ManagedCache.find(in: context) {
                     completion(.found(feed: cache.locals, timestamp: cache.timestamp))
                 } else {
                     completion(.empty)
