@@ -6,33 +6,8 @@ public class CoreDataFeedStore: FeedStore {
     private let container: NSPersistentContainer
     private let context: NSManagedObjectContext
 
-    public init(storeURL: URL) {
-        let bundle = Bundle(for: CoreDataFeedStore.self)
-
-        guard let modelURL = bundle.url(forResource: "FeedStore", withExtension: "momd") else {
-            fatalError("Failed to find data model")
-        }
-
-        guard let mom = NSManagedObjectModel(contentsOf: modelURL) else {
-            fatalError("Failed to create model from file: \(modelURL)")
-        }
-
-        container = NSPersistentContainer(name: "FeedStore", managedObjectModel: mom)
-
-        let description = NSPersistentStoreDescription(url: storeURL)
-        container.persistentStoreDescriptions = [description]
-
-        var loadStoresErrors = [Error]()
-        container.loadPersistentStores { _, error in
-            if let error = error {
-                loadStoresErrors.append(error)
-            }
-        }
-
-        if !loadStoresErrors.isEmpty {
-            fatalError("Failed to load persistent stores")
-        }
-
+    public init(storeURL: URL) throws {
+        container = try NSPersistentContainer.create(storeURL: storeURL)
         context = container.newBackgroundContext()
     }
 
@@ -73,4 +48,31 @@ public class CoreDataFeedStore: FeedStore {
         }
     }
 
+}
+
+private extension NSPersistentContainer {
+    struct CoreDataSetupFailure: Error {}
+
+    static func create(storeURL: URL) throws -> NSPersistentContainer {
+        let bundle = Bundle(for: CoreDataFeedStore.self)
+
+        guard let modelURL = bundle.url(forResource: "FeedStore", withExtension: "momd") else {
+            fatalError("Failed to find data model")
+        }
+
+        guard let mom = NSManagedObjectModel(contentsOf: modelURL) else {
+            fatalError("Failed to create model from file: \(modelURL)")
+        }
+
+        let container = NSPersistentContainer(name: "FeedStore", managedObjectModel: mom)
+
+        let description = NSPersistentStoreDescription(url: storeURL)
+        container.persistentStoreDescriptions = [description]
+
+        var error: Error?
+        container.loadPersistentStores { error = $1 }
+        try error.map { throw $0 }
+
+        return container
+    }
 }

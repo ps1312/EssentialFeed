@@ -86,7 +86,7 @@ class CoreDataFeedStoreTests: XCTestCase, FailableFeedStoreSpec {
 
     private func makeSUT(file: StaticString = #filePath, line: UInt = #line) -> CoreDataFeedStore {
         let inMemoryStoreURL = URL(fileURLWithPath: "/dev/null")
-        let sut = CoreDataFeedStore(storeURL: inMemoryStoreURL)
+        let sut = try! CoreDataFeedStore(storeURL: inMemoryStoreURL)
 
         testMemoryLeak(sut, file: file, line: line)
 
