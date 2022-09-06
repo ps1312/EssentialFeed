@@ -18,6 +18,10 @@ public class CoreDataFeedStore: FeedStore {
     public func persist(images: [LocalFeedImage], timestamp: Date, completion: @escaping PersistCompletion) {
         context.perform { [context] in
             do {
+                let request = NSFetchRequest<ManagedCache>(entityName: ManagedCache.entity().name!)
+                request.returnsObjectsAsFaults = false
+                let _ = try context.fetch(request).map(context.delete)
+
                 let managedCache = ManagedCache(context: context)
 
                 managedCache.timestamp = timestamp
