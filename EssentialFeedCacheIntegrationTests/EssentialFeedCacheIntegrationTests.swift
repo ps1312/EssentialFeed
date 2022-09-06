@@ -29,6 +29,20 @@ class EssentialFeedCacheIntegrationTests: XCTestCase {
         expect(sut, toReceive: .success([]))
     }
 
+    func test_LocalFeedLoaderAndCoreDataFeedStore_overridesPreviouslyInsertedCache() {
+        let images = uniqueImages().models
+        let lastImages = uniqueImages().models
+
+        let sutToPerformSave = makeSUT()
+        let sutToPerformLastSave = makeSUT()
+        let sutToPerformLoad = makeSUT()
+
+        insert(to: sutToPerformSave, models: images)
+        insert(to: sutToPerformLastSave, models: lastImages)
+
+        expect(sutToPerformLoad, toReceive: .success(lastImages))
+    }
+
     private func makeSUT(file: StaticString = #filePath, line: UInt = #line) -> LocalFeedLoader {
         let coreDataFeedStore = try! CoreDataFeedStore(storeURL: testStoreURL())
         let localFeedLoader = LocalFeedLoader(store: coreDataFeedStore)
