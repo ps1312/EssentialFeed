@@ -28,29 +28,20 @@ class FeedViewController: UITableViewController {
 
 class FeedViewControllerTests: XCTestCase {
 
-    func test_init_doesLoadFeed() {
+    func test_feedLoader_isCalledUponViewActions() {
         let loader = FeedLoaderSpy()
-        let _ = FeedViewController(loader: loader)
+        let sut = FeedViewController(loader: loader)
 
-        XCTAssertEqual(loader.loadCallsCount, 0)
-    }
-
-    func test_viewDidLoad_loadsFeed() {
-        let (sut, loader) = makeSUT()
+        XCTAssertEqual(loader.loadCallsCount, 0, "Feed loader should not be called on init")
 
         sut.loadViewIfNeeded()
-
-        XCTAssertEqual(loader.loadCallsCount, 1)
-    }
-
-    func test_pullToRefresh_reloadsFeed() {
-        let (sut, loader) = makeSUT()
-
-        sut.loadViewIfNeeded()
+        XCTAssertEqual(loader.loadCallsCount, 1, "Feed loader should be first called when view appears")
 
         sut.simulatePullToRefresh()
+        XCTAssertEqual(loader.loadCallsCount, 2, "Feed loader should be called again after user pulls to refresh")
 
-        XCTAssertEqual(loader.loadCallsCount, 2)
+        sut.simulatePullToRefresh()
+        XCTAssertEqual(loader.loadCallsCount, 3, "Feed loader should be called again after user pulls to refresh")
     }
 
     func test_loadingIndicator_isDisplayedWhileLoadingFeed() {
