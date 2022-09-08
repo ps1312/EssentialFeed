@@ -10,14 +10,15 @@ class FeedViewController: UITableViewController {
     }
 
     override func viewDidLoad() {
-        refresh()
-
         refreshControl = UIRefreshControl()
-        refreshControl?.beginRefreshing()
         refreshControl?.addTarget(self, action: #selector(refresh), for: .valueChanged)
+
+        refresh()
     }
 
     @objc func refresh() {
+        refreshControl?.beginRefreshing()
+
         loader?.load { [weak self] _ in
             self?.refreshControl?.endRefreshing()
         }
@@ -52,14 +53,20 @@ class FeedViewControllerTests: XCTestCase {
         XCTAssertEqual(loader.loadCallsCount, 2)
     }
 
-    func test_loadingIndicator_isVisibleWhileLoadingFeed() {
+    func test_loadingIndicator_isDisplayedWhileLoadingFeed() {
         let (sut, loader) = makeSUT()
 
         sut.loadViewIfNeeded()
-        XCTAssertEqual(sut.refreshControl?.isRefreshing, true)
+        XCTAssertTrue(sut.isShowingLoadingIndicator, "Loading indicator should be visible when loading feed after view appear")
 
-        loader.completeFeedLoad()
-        XCTAssertEqual(sut.refreshControl?.isRefreshing, false)
+        loader.completeFeedLoad(at: 0)
+        XCTAssertFalse(sut.isShowingLoadingIndicator, "Loading indicator should be hidden after loading completes")
+
+        sut.simulatePullToRefresh()
+        XCTAssertTrue(sut.isShowingLoadingIndicator, "Loading indicator should be visible when user executes a pull to refresh")
+
+        loader.completeFeedLoad(at: 1)
+        XCTAssertFalse(sut.isShowingLoadingIndicator, "Loading indicator should be hidden after refresh completes")
     }
 
     private func makeSUT(file: StaticString = #filePath, line: UInt = #line) -> (sut: FeedViewController, loader: FeedLoaderSpy) {
@@ -82,14 +89,19 @@ class FeedViewControllerTests: XCTestCase {
             completions.append(completion)
         }
 
-        func completeFeedLoad() {
-            completions[0](.success([]))
+        func completeFeedLoad(at index: Int) {
+            completions[index](.success([]))
         }
     }
 
 }
 
 private extension FeedViewController {
+    var isShowingLoadingIndicator: Bool {
+        guard let refreshControl = refreshControl else { return false }
+        return refreshControl.isRefreshing
+    }
+
     func simulatePullToRefresh() {
         refreshControl?.allTargets.forEach { target in
             refreshControl?.actions(forTarget: target, forControlEvent: .valueChanged)?.forEach {
