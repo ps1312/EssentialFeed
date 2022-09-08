@@ -5,8 +5,7 @@ import EssentialFeed
 class FeedViewControllerTests: XCTestCase {
 
     func test_feedLoader_isCalledUponViewActions() {
-        let loader = FeedLoaderSpy()
-        let sut = FeedViewController(loader: loader)
+        let (sut, loader) = makeSUT()
 
         XCTAssertEqual(loader.loadCallsCount, 0, "Feed loader should not be called on init")
 
@@ -34,6 +33,15 @@ class FeedViewControllerTests: XCTestCase {
 
         loader.completeFeedLoad(at: 1)
         XCTAssertFalse(sut.isShowingLoadingIndicator, "Loading indicator should be hidden after refresh completes")
+    }
+
+    func test_feedLoad_displaysNoItemsWhenFeedLoadCompletesWithEmptyFeed() {
+        let (sut, loader) = makeSUT()
+
+        sut.loadViewIfNeeded()
+        loader.completeFeedLoad(at: 0)
+
+        XCTAssertEqual(sut.numberOfFeedImages, 0)
     }
 
     private func makeSUT(file: StaticString = #filePath, line: UInt = #line) -> (sut: FeedViewController, loader: FeedLoaderSpy) {
@@ -64,6 +72,12 @@ class FeedViewControllerTests: XCTestCase {
 }
 
 private extension FeedViewController {
+    static var feedImagesSection = 0
+
+    var numberOfFeedImages: Int {
+        return tableView(tableView, numberOfRowsInSection: FeedViewController.feedImagesSection)
+    }
+
     var isShowingLoadingIndicator: Bool {
         guard let refreshControl = refreshControl else { return false }
         return refreshControl.isRefreshing
