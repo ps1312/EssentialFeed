@@ -1,13 +1,1 @@
-on:
-  pull_request:
-    types: [opened, reopened, synchronize, assigned, edited]
 
-jobs:
-  trigger-circleci:
-    runs-on: ubuntu-latest
-    steps:
-      - name: CircleCI Trigger on Pull Request
-        id: continuous-integration
-        uses: CircleCI-Public/trigger-circleci-pipeline-action@v1.0.5
-        env:
-          CCI_TOKEN: ${{ secrets.CCI_TOKEN }}
