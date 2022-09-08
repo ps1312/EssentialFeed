@@ -13,11 +13,14 @@ class FeedViewController: UITableViewController {
         refresh()
 
         refreshControl = UIRefreshControl()
+        refreshControl?.beginRefreshing()
         refreshControl?.addTarget(self, action: #selector(refresh), for: .valueChanged)
     }
 
     @objc func refresh() {
-        loader?.load { _ in }
+        loader?.load { _ in
+            self.refreshControl?.endRefreshing()
+        }
     }
 
 }
@@ -51,11 +54,29 @@ class FeedViewControllerTests: XCTestCase {
         XCTAssertEqual(loader.loadCallsCount, 2)
     }
 
+    func test_loadingIndicator_isVisibleWhileLoadingFeed() {
+        let loader = FeedLoaderSpy()
+        let sut = FeedViewController(loader: loader)
+
+        sut.loadViewIfNeeded()
+        XCTAssertEqual(sut.refreshControl?.isRefreshing, true)
+
+        loader.completeFeedLoad()
+        XCTAssertEqual(sut.refreshControl?.isRefreshing, false)
+    }
+
     class FeedLoaderSpy: FeedLoader {
-        var loadCallsCount = 0
+        var completions = [(LoadFeedResult) -> Void]()
+        var loadCallsCount: Int {
+            return completions.count
+        }
 
         func load(completion: @escaping (LoadFeedResult) -> Void) {
-            loadCallsCount += 1
+            completions.append(completion)
+        }
+
+        func completeFeedLoad() {
+            completions[0](.success([]))
         }
     }
 
