@@ -25,8 +25,7 @@ jobs:
       - run: xcodebuild clean build test -project EssentialFeed.xcodeproj -scheme "CI_iOS" CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO -sdk iphonesimulator -destination "platform=iOS Simulator,OS=15.5,name=iPhone 13" ONLY_ACTIVE_ARCH=YES
 
 workflows:
-  when: << pipeline.parameters.GHA_Action >>
-
   continuous-integration:
+    when: << pipeline.parameters.GHA_Action >>
     jobs:
       - build-and-test
