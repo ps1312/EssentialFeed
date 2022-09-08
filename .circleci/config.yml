@@ -26,5 +26,7 @@ jobs:
 
 workflows:
   when: << pipeline.parameters.GHA_Action >>
-  jobs:
-    - build-and-test
+
+  continuous-integration:
+    jobs:
+      - build-and-test
