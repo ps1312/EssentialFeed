@@ -35,13 +35,22 @@ class FeedViewControllerTests: XCTestCase {
         XCTAssertFalse(sut.isShowingLoadingIndicator, "Loading indicator should be hidden after refresh completes")
     }
 
-    func test_feedLoad_displaysNoItemsWhenFeedLoadCompletesWithEmptyFeed() {
+    func test_feedLoad_displaysACellWhenFeedLoadsOneFeedImage() {
+        let image1 = uniqueImage()
         let (sut, loader) = makeSUT()
 
         sut.loadViewIfNeeded()
         loader.completeFeedLoad(at: 0)
 
         XCTAssertEqual(sut.numberOfFeedImages, 0)
+
+        sut.simulatePullToRefresh()
+        loader.completeFeedLoad(at: 1, with: [image1])
+
+        let cell1 = sut.feedImage(at: 0) as? FeedImageCell
+        XCTAssertNotNil(cell1)
+        XCTAssertEqual(cell1?.descriptionText, image1.description)
+        XCTAssertEqual(cell1?.locationText, image1.location)
     }
 
     private func makeSUT(file: StaticString = #filePath, line: UInt = #line) -> (sut: FeedViewController, loader: FeedLoaderSpy) {
@@ -54,6 +63,10 @@ class FeedViewControllerTests: XCTestCase {
         return (sut, loader)
     }
 
+    private func uniqueImage(description: String? = nil, location: String? = nil) -> FeedImage {
+        return FeedImage(id: UUID(), description: description, location: location, url: makeURL())
+    }
+
     class FeedLoaderSpy: FeedLoader {
         var completions = [(LoadFeedResult) -> Void]()
         var loadCallsCount: Int {
@@ -64,18 +77,20 @@ class FeedViewControllerTests: XCTestCase {
             completions.append(completion)
         }
 
-        func completeFeedLoad(at index: Int) {
-            completions[index](.success([]))
+        func completeFeedLoad(at index: Int, with images: [FeedImage] = []) {
+            completions[index](.success(images))
         }
     }
 
 }
 
 private extension FeedViewController {
-    static var feedImagesSection = 0
+    var feedImagesSection: Int {
+        return 0
+    }
 
     var numberOfFeedImages: Int {
-        return tableView(tableView, numberOfRowsInSection: FeedViewController.feedImagesSection)
+        return tableView(tableView, numberOfRowsInSection: feedImagesSection)
     }
 
     var isShowingLoadingIndicator: Bool {
@@ -89,5 +104,20 @@ private extension FeedViewController {
                 (target as NSObject).perform(Selector($0))
             }
         }
+    }
+
+    func feedImage(at row: Int) -> UITableViewCell {
+        let indexPath = IndexPath(row: row, section: feedImagesSection)
+        return tableView(tableView, cellForRowAt: indexPath)
+    }
+}
+
+private extension FeedImageCell {
+    var descriptionText: String? {
+        return descriptionLabel.text
+    }
+
+    var locationText: String? {
+        return locationLabel.text
     }
 }
