@@ -50,18 +50,12 @@ class FeedViewControllerTests: XCTestCase {
 
         expect(sut: sut, toLoadFeedImage: firstImage, inPosition: 0)
         expect(sut: sut, toLoadFeedImage: lastImage, inPosition: 1)
-    }
-
-    func test_refreshFailure_doesNotChangePreviouslyLoadedFeedImages() {
-        let (sut, loader) = makeSUT()
-
-        sut.loadViewIfNeeded()
-        loader.completeFeedLoad(at: 0, with: [uniqueImage(), uniqueImage()])
 
         sut.simulatePullToRefresh()
         loader.completeFeedLoad(at: 1, with: makeNSError())
 
-        XCTAssertEqual(sut.numberOfFeedImages, 2)
+        expect(sut: sut, toLoadFeedImage: firstImage, inPosition: 0)
+        expect(sut: sut, toLoadFeedImage: lastImage, inPosition: 1)
     }
 
     func test_feedLoadFailure_stopsLoadingAnimation() {
