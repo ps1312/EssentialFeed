@@ -84,16 +84,16 @@ class FeedViewControllerTests: XCTestCase {
     }
 
     private func expect(sut: FeedViewController, toLoadFeedImage image: FeedImage, inPosition index: Int) {
-        let lastCell = sut.feedImage(at: index) as? FeedImageCell
-        XCTAssertNotNil(lastCell)
+        let cell = sut.feedImage(at: index) as? FeedImageCell
+        XCTAssertNotNil(cell)
 
         let shouldDescriptionBeHidden = image.description == nil
-        XCTAssertEqual(lastCell?.isDescriptionHidden, shouldDescriptionBeHidden, "Expected cell to have a description when model has one")
-        XCTAssertEqual(lastCell?.descriptionText, image.description, "Expected cell description to match model")
+        XCTAssertEqual(cell?.isDescriptionHidden, shouldDescriptionBeHidden, "Expected cell to have a description when model has one")
+        XCTAssertEqual(cell?.descriptionText, image.description, "Expected cell description to match model")
 
         let shouldLocationBeHidden = image.location == nil
-        XCTAssertEqual(lastCell?.isLocationHidden, shouldLocationBeHidden, "Expected cell to have a location when model has one")
-        XCTAssertEqual(lastCell?.locationText, image.location, "Expected cell location to match model")
+        XCTAssertEqual(cell?.isLocationHidden, shouldLocationBeHidden, "Expected cell to have a location when model has one")
+        XCTAssertEqual(cell?.locationText, image.location, "Expected cell location to match model")
     }
 
     private func uniqueImage(description: String? = nil, location: String? = nil) -> FeedImage {
