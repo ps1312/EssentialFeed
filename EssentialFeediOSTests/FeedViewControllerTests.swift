@@ -64,6 +64,15 @@ class FeedViewControllerTests: XCTestCase {
         XCTAssertEqual(sut.numberOfFeedImages, 2)
     }
 
+    func test_feedLoadFailure_stopsLoadingAnimation() {
+        let (sut, loader) = makeSUT()
+
+        sut.loadViewIfNeeded()
+        loader.completeFeedLoad(at: 0, with: makeNSError())
+
+        XCTAssertFalse(sut.isShowingLoadingIndicator)
+    }
+
     private func makeSUT(file: StaticString = #filePath, line: UInt = #line) -> (sut: FeedViewController, loader: FeedLoaderSpy) {
         let loader = FeedLoaderSpy()
         let sut = FeedViewController(loader: loader)

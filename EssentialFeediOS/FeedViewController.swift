@@ -31,10 +31,12 @@ public final class FeedViewController: UITableViewController {
             case .success(let images):
                 self?.feed = images
                 self?.tableView.reloadData()
-                self?.refreshControl?.endRefreshing()
 
             default: break
+
             }
+
+            self?.refreshControl?.endRefreshing()
         }
     }
 
