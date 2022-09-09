@@ -43,19 +43,17 @@ class FeedViewControllerTests: XCTestCase {
         sut.loadViewIfNeeded()
         loader.completeFeedLoad(at: 0)
 
-        XCTAssertEqual(sut.numberOfFeedImages, 0)
+        expect(sut, toRender: [])
 
         sut.simulatePullToRefresh()
         loader.completeFeedLoad(at: 1, with: [firstImage, lastImage])
 
-        expect(sut: sut, toLoadFeedImage: firstImage, inPosition: 0)
-        expect(sut: sut, toLoadFeedImage: lastImage, inPosition: 1)
+        expect(sut, toRender: [firstImage, lastImage])
 
         sut.simulatePullToRefresh()
         loader.completeFeedLoad(at: 1, with: makeNSError())
 
-        expect(sut: sut, toLoadFeedImage: firstImage, inPosition: 0)
-        expect(sut: sut, toLoadFeedImage: lastImage, inPosition: 1)
+        expect(sut, toRender: [firstImage, lastImage])
     }
 
     func test_feedLoadFailure_stopsLoadingAnimation() {
@@ -77,7 +75,12 @@ class FeedViewControllerTests: XCTestCase {
         return (sut, loader)
     }
 
-    private func expect(sut: FeedViewController, toLoadFeedImage image: FeedImage, inPosition index: Int) {
+    private func expect(_ sut: FeedViewController, toRender expectedImages: [FeedImage]) {
+        expectedImages.enumerated().forEach { index, image in expect(sut, toLoadFeedImage: image, inPosition: index) }
+        XCTAssertEqual(sut.numberOfFeedImages, expectedImages.count)
+    }
+
+    private func expect(_ sut: FeedViewController, toLoadFeedImage image: FeedImage, inPosition index: Int) {
         let cell = sut.feedImage(at: index) as? FeedImageCell
         XCTAssertNotNil(cell)
 
