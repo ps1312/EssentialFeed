@@ -7,13 +7,19 @@ public class FeedImageCell: UITableViewCell {
     let locationLabel = UILabel()
 }
 
+public protocol FeedImageLoader {
+    func load(from url: URL)
+}
+
 public final class FeedViewController: UITableViewController {
     private var feed = [FeedImage]()
     private var loader: FeedLoader?
+    private var imageLoader: FeedImageLoader?
 
-    convenience init(loader: FeedLoader) {
+    convenience init(loader: FeedLoader, imageLoader: FeedImageLoader) {
         self.init()
         self.loader = loader
+        self.imageLoader = imageLoader
     }
 
     public override func viewDidLoad() {
@@ -53,6 +59,8 @@ public final class FeedViewController: UITableViewController {
 
         cell.locationContainer.isHidden = item.location == nil
         cell.locationLabel.text = item.location
+
+        imageLoader?.load(from: item.url)
 
         return cell
     }
