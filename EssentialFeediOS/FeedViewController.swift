@@ -7,14 +7,19 @@ public class FeedImageCell: UITableViewCell {
     let locationLabel = UILabel()
 }
 
+public protocol FeedImageLoaderTask {
+    func cancel()
+}
+
 public protocol FeedImageLoader {
-    func load(from url: URL)
+    func load(from url: URL) -> FeedImageLoaderTask
 }
 
 public final class FeedViewController: UITableViewController {
     private var feed = [FeedImage]()
     private var loader: FeedLoader?
     private var imageLoader: FeedImageLoader?
+    private var tasks = [Int: FeedImageLoaderTask]()
 
     convenience init(loader: FeedLoader, imageLoader: FeedImageLoader) {
         self.init()
@@ -60,8 +65,12 @@ public final class FeedViewController: UITableViewController {
         cell.locationContainer.isHidden = item.location == nil
         cell.locationLabel.text = item.location
 
-        imageLoader?.load(from: item.url)
+        tasks[indexPath.row] = imageLoader?.load(from: item.url)
 
         return cell
+    }
+
+    public override func tableView(_ tableView: UITableView, didEndDisplaying cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+        tasks[indexPath.row]?.cancel()
     }
 }

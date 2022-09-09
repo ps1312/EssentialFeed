@@ -82,6 +82,26 @@ class FeedViewControllerTests: XCTestCase {
         XCTAssertEqual(loader.imageLoadRequests, [firstImageURL, lastImageURL])
     }
 
+    func test_feedImageLoading_cancelsRequestWhenFeedImageCellGoesOffScreen() {
+        let firstImageURL = URL(string: "https://url-1.com")!
+        let firstFeedImage = uniqueImage(url: firstImageURL)
+
+        let lastImageURL = URL(string: "https://url-2.com")!
+        let lastFeedImage = uniqueImage(url: lastImageURL)
+
+        let (sut, loader) = makeSUT()
+
+        sut.loadViewIfNeeded()
+        loader.completeFeedLoad(at: 0, with: [firstFeedImage, lastFeedImage])
+        XCTAssertEqual(loader.canceledLoadRequests, [])
+
+        sut.endFeedImageCellDiplay(at: 0)
+        XCTAssertEqual(loader.canceledLoadRequests, [firstImageURL])
+
+        sut.endFeedImageCellDiplay(at: 1)
+        XCTAssertEqual(loader.canceledLoadRequests, [firstImageURL, lastImageURL])
+    }
+
     private func makeSUT(file: StaticString = #filePath, line: UInt = #line) -> (sut: FeedViewController, loader: FeedLoaderSpy) {
         let loader = FeedLoaderSpy()
         let sut = FeedViewController(loader: loader, imageLoader: loader)
@@ -134,8 +154,26 @@ class FeedViewControllerTests: XCTestCase {
             completions[index](.failure(error))
         }
 
-        func load(from url: URL) {
+        // MARK: - FeedImageLoaderSpy
+
+        var canceledLoadRequests = [URL]()
+
+        private struct TaskSpy: FeedImageLoaderTask {
+            let cancelCallback: () -> Void
+
+            func cancel() {
+                cancelCallback()
+            }
+        }
+
+        func load(from url: URL) -> FeedImageLoaderTask {
             imageLoadRequests.append(url)
+
+            let task = TaskSpy(cancelCallback: { [weak self] in
+                self?.canceledLoadRequests.append(url)
+            })
+
+            return task
         }
     }
 
@@ -170,6 +208,12 @@ private extension FeedViewController {
 
     func displayFeedImageCell(at row: Int) {
         let _ = feedImage(at: row)
+    }
+
+    func endFeedImageCellDiplay(at row: Int) {
+        let indexPath = IndexPath(row: row, section: feedImagesSection)
+        let currentCell = feedImage(at: row)
+        tableView(tableView, didEndDisplaying: currentCell, forRowAt: indexPath)
     }
 }
 
