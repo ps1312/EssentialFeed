@@ -35,8 +35,9 @@ class FeedViewControllerTests: XCTestCase {
         XCTAssertFalse(sut.isShowingLoadingIndicator, "Loading indicator should be hidden after refresh completes")
     }
 
-    func test_feedLoad_displaysACellWhenFeedLoadsOneFeedImage() {
-        let image1 = uniqueImage()
+    func test_feedLoad_displaysFeedImageCellsWhenFeedLoadsWithImages() {
+        let firstImage = uniqueImage()
+        let lastImage = uniqueImage(description: "a description", location: "a location")
         let (sut, loader) = makeSUT()
 
         sut.loadViewIfNeeded()
@@ -45,12 +46,19 @@ class FeedViewControllerTests: XCTestCase {
         XCTAssertEqual(sut.numberOfFeedImages, 0)
 
         sut.simulatePullToRefresh()
-        loader.completeFeedLoad(at: 1, with: [image1])
+        loader.completeFeedLoad(at: 1, with: [firstImage, lastImage])
 
-        let cell1 = sut.feedImage(at: 0) as? FeedImageCell
-        XCTAssertNotNil(cell1)
-        XCTAssertEqual(cell1?.descriptionText, image1.description)
-        XCTAssertEqual(cell1?.locationText, image1.location)
+        let firstCell = sut.feedImage(at: 0) as? FeedImageCell
+        XCTAssertNotNil(firstCell)
+        XCTAssertEqual(firstCell?.isDescriptionHidden, true)
+        XCTAssertEqual(firstCell?.isLocationHidden, true)
+
+        let lastCell = sut.feedImage(at: 1) as? FeedImageCell
+        XCTAssertNotNil(lastCell)
+        XCTAssertEqual(lastCell?.isDescriptionHidden, false)
+        XCTAssertEqual(lastCell?.descriptionText, lastImage.description)
+        XCTAssertEqual(lastCell?.isLocationHidden, false)
+        XCTAssertEqual(lastCell?.locationText, lastImage.location)
     }
 
     private func makeSUT(file: StaticString = #filePath, line: UInt = #line) -> (sut: FeedViewController, loader: FeedLoaderSpy) {
@@ -119,5 +127,13 @@ private extension FeedImageCell {
 
     var locationText: String? {
         return locationLabel.text
+    }
+
+    var isLocationHidden: Bool {
+        return locationContainer.isHidden
+    }
+
+    var isDescriptionHidden: Bool {
+        return descriptionLabel.isHidden
     }
 }

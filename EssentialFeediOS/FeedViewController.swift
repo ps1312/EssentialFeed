@@ -3,6 +3,7 @@ import EssentialFeed
 
 public class FeedImageCell: UITableViewCell {
     let descriptionLabel = UILabel()
+    let locationContainer = UIView()
     let locationLabel = UILabel()
 }
 
@@ -45,7 +46,10 @@ public final class FeedViewController: UITableViewController {
         let item = feed[indexPath.row]
 
         let cell = FeedImageCell()
+        cell.descriptionLabel.isHidden = item.description == nil
         cell.descriptionLabel.text = item.description
+
+        cell.locationContainer.isHidden = item.location == nil
         cell.locationLabel.text = item.location
 
         return cell
