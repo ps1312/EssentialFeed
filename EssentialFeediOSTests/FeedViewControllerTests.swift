@@ -52,6 +52,18 @@ class FeedViewControllerTests: XCTestCase {
         expect(sut: sut, toLoadFeedImage: lastImage, in: 1)
     }
 
+    func test_refreshFailure_doesNotChangePreviouslyLoadedFeedImages() {
+        let (sut, loader) = makeSUT()
+
+        sut.loadViewIfNeeded()
+        loader.completeFeedLoad(at: 0, with: [uniqueImage(), uniqueImage()])
+
+        sut.simulatePullToRefresh()
+        loader.completeFeedLoad(at: 1, with: makeNSError())
+
+        XCTAssertEqual(sut.numberOfFeedImages, 2)
+    }
+
     private func makeSUT(file: StaticString = #filePath, line: UInt = #line) -> (sut: FeedViewController, loader: FeedLoaderSpy) {
         let loader = FeedLoaderSpy()
         let sut = FeedViewController(loader: loader)
@@ -91,6 +103,10 @@ class FeedViewControllerTests: XCTestCase {
 
         func completeFeedLoad(at index: Int, with images: [FeedImage] = []) {
             completions[index](.success(images))
+        }
+
+        func completeFeedLoad(at index: Int, with error: Error) {
+            completions[index](.failure(error))
         }
     }
 
