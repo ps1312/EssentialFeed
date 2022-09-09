@@ -48,17 +48,8 @@ class FeedViewControllerTests: XCTestCase {
         sut.simulatePullToRefresh()
         loader.completeFeedLoad(at: 1, with: [firstImage, lastImage])
 
-        let firstCell = sut.feedImage(at: 0) as? FeedImageCell
-        XCTAssertNotNil(firstCell)
-        XCTAssertEqual(firstCell?.isDescriptionHidden, true)
-        XCTAssertEqual(firstCell?.isLocationHidden, true)
-
-        let lastCell = sut.feedImage(at: 1) as? FeedImageCell
-        XCTAssertNotNil(lastCell)
-        XCTAssertEqual(lastCell?.isDescriptionHidden, false)
-        XCTAssertEqual(lastCell?.descriptionText, lastImage.description)
-        XCTAssertEqual(lastCell?.isLocationHidden, false)
-        XCTAssertEqual(lastCell?.locationText, lastImage.location)
+        expect(sut: sut, toLoadFeedImage: firstImage, in: 0)
+        expect(sut: sut, toLoadFeedImage: lastImage, in: 1)
     }
 
     private func makeSUT(file: StaticString = #filePath, line: UInt = #line) -> (sut: FeedViewController, loader: FeedLoaderSpy) {
@@ -69,6 +60,19 @@ class FeedViewControllerTests: XCTestCase {
         testMemoryLeak(sut, file: file, line: line)
 
         return (sut, loader)
+    }
+
+    private func expect(sut: FeedViewController, toLoadFeedImage image: FeedImage, in index: Int) {
+        let lastCell = sut.feedImage(at: index) as? FeedImageCell
+        XCTAssertNotNil(lastCell)
+
+        let shouldDescriptionBeHidden = image.description == nil
+        XCTAssertEqual(lastCell?.isDescriptionHidden, shouldDescriptionBeHidden, "Expected cell to have a description when model has one")
+        XCTAssertEqual(lastCell?.descriptionText, image.description, "Expected cell description to match model")
+
+        let shouldLocationBeHidden = image.location == nil
+        XCTAssertEqual(lastCell?.isLocationHidden, shouldLocationBeHidden, "Expected cell to have a location when model has one")
+        XCTAssertEqual(lastCell?.locationText, image.location, "Expected cell location to match model")
     }
 
     private func uniqueImage(description: String? = nil, location: String? = nil) -> FeedImage {
