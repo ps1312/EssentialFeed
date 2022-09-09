@@ -67,19 +67,22 @@ class FeedViewControllerTests: XCTestCase {
 
     func test_feedImage_requestsImageDataFromURL() {
         let firstImageURL = URL(string: "https://url-1.com")!
-        let lastImageURL = URL(string: "https://url-2.com")!
         let firstFeedImage = uniqueImage(url: firstImageURL)
+
+        let lastImageURL = URL(string: "https://url-2.com")!
         let secondFeedImage = uniqueImage(url: lastImageURL)
+
         let (sut, loader) = makeSUT()
 
         sut.loadViewIfNeeded()
         loader.completeFeedLoad(at: 0, with: [firstFeedImage, secondFeedImage])
+        XCTAssertEqual(loader.imageLoadRequests, [], "Expected no loaded images until a cell is displayed")
 
         sut.displayFeedImageCell(at: 0)
-        XCTAssertEqual(loader.imageLoadRequests, [firstImageURL])
+        XCTAssertEqual(loader.imageLoadRequests, [firstImageURL], "Expected first image to start loading after the cell is displayed")
 
         sut.displayFeedImageCell(at: 1)
-        XCTAssertEqual(loader.imageLoadRequests, [firstImageURL, lastImageURL])
+        XCTAssertEqual(loader.imageLoadRequests, [firstImageURL, lastImageURL], "Expected images to start loading after cells are displayed")
     }
 
     func test_feedImageLoading_cancelsRequestWhenFeedImageCellGoesOffScreen() {
@@ -93,13 +96,13 @@ class FeedViewControllerTests: XCTestCase {
 
         sut.loadViewIfNeeded()
         loader.completeFeedLoad(at: 0, with: [firstFeedImage, lastFeedImage])
-        XCTAssertEqual(loader.canceledLoadRequests, [])
+        XCTAssertEqual(loader.canceledLoadRequests, [], "Expected no canceled downloads until a cell ends displaying")
 
         sut.endFeedImageCellDiplay(at: 0)
-        XCTAssertEqual(loader.canceledLoadRequests, [firstImageURL])
+        XCTAssertEqual(loader.canceledLoadRequests, [firstImageURL], "Expected first image to cancel loading after the cell ends displaying")
 
         sut.endFeedImageCellDiplay(at: 1)
-        XCTAssertEqual(loader.canceledLoadRequests, [firstImageURL, lastImageURL])
+        XCTAssertEqual(loader.canceledLoadRequests, [firstImageURL, lastImageURL], "Expected images to cancel loading after cells ends displaying")
     }
 
     private func makeSUT(file: StaticString = #filePath, line: UInt = #line) -> (sut: FeedViewController, loader: FeedLoaderSpy) {
