@@ -48,8 +48,8 @@ class FeedViewControllerTests: XCTestCase {
         sut.simulatePullToRefresh()
         loader.completeFeedLoad(at: 1, with: [firstImage, lastImage])
 
-        expect(sut: sut, toLoadFeedImage: firstImage, in: 0)
-        expect(sut: sut, toLoadFeedImage: lastImage, in: 1)
+        expect(sut: sut, toLoadFeedImage: firstImage, inPosition: 0)
+        expect(sut: sut, toLoadFeedImage: lastImage, inPosition: 1)
     }
 
     func test_refreshFailure_doesNotChangePreviouslyLoadedFeedImages() {
@@ -83,7 +83,7 @@ class FeedViewControllerTests: XCTestCase {
         return (sut, loader)
     }
 
-    private func expect(sut: FeedViewController, toLoadFeedImage image: FeedImage, in index: Int) {
+    private func expect(sut: FeedViewController, toLoadFeedImage image: FeedImage, inPosition index: Int) {
         let lastCell = sut.feedImage(at: index) as? FeedImageCell
         XCTAssertNotNil(lastCell)
 
