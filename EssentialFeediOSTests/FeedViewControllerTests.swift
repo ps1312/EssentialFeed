@@ -209,13 +209,14 @@ private extension FeedViewController {
         return tableView(tableView, cellForRowAt: indexPath)
     }
 
-    func displayFeedImageCell(at row: Int) {
-        let _ = feedImage(at: row)
+    @discardableResult
+    func displayFeedImageCell(at row: Int) -> FeedImageCell? {
+        return feedImage(at: row) as? FeedImageCell
     }
 
     func endFeedImageCellDiplay(at row: Int) {
         let indexPath = IndexPath(row: row, section: feedImagesSection)
-        let currentCell = feedImage(at: row)
+        let currentCell = displayFeedImageCell(at: row)!
         tableView(tableView, didEndDisplaying: currentCell, forRowAt: indexPath)
     }
 }
