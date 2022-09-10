@@ -125,6 +125,26 @@ class FeedViewControllerTests: XCTestCase {
         XCTAssertEqual(lastCell?.isShowingLoadingIndicator, false, "Expected no indicators after second image load completes")
     }
 
+    func test_feedImage_displaysARetryButtonWhenLoadingFails() {
+        let (sut, loader) = makeSUT()
+        sut.loadViewIfNeeded()
+        loader.completeFeedLoad(at: 0, with: [uniqueImage(), uniqueImage()])
+
+        let firstCell = sut.displayFeedImageCell(at: 0)
+        let lastCell = sut.displayFeedImageCell(at: 1)
+
+        loader.finishImageLoading(at: 0)
+        loader.finishImageLoadingSuccessfully(at: 1)
+
+        XCTAssertEqual(firstCell?.isShowingRetryButton, true, "Expected retry button to be displayed after loading failure")
+        XCTAssertEqual(lastCell?.isShowingRetryButton, false, "Expected retry button to remain invisible after successfully load")
+
+        firstCell?.simulateImageLoadRetry()
+        loader.finishImageLoadingSuccessfully(at: 2)
+
+        XCTAssertEqual(firstCell?.isShowingRetryButton, false, "Expected retry button to be invisible after reloading successfully")
+    }
+
     private func makeSUT(file: StaticString = #filePath, line: UInt = #line) -> (sut: FeedViewController, loader: FeedLoaderSpy) {
         let loader = FeedLoaderSpy()
         let sut = FeedViewController(feedLoader: loader, imageLoader: loader)
@@ -203,6 +223,10 @@ class FeedViewControllerTests: XCTestCase {
         func finishImageLoading(at index: Int) {
             imageLoadRequests[index].completion(.failure(makeNSError()))
         }
+
+        func finishImageLoadingSuccessfully(at index: Int) {
+            imageLoadRequests[index].completion(.success(Data()))
+        }
     }
 
 }
@@ -265,5 +289,17 @@ private extension FeedImageCell {
 
     var isShowingLoadingIndicator: Bool {
         return imageContainer.isShimmering
+    }
+
+    var isShowingRetryButton: Bool {
+        return !retryButton.isHidden
+    }
+
+    func simulateImageLoadRetry() {
+        retryButton.allTargets.forEach { target in
+            retryButton.actions(forTarget: target, forControlEvent: .touchUpInside)?.forEach {
+                (target as NSObject).perform(Selector($0))
+            }
+        }
     }
 }
