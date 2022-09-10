@@ -123,6 +123,17 @@ class FeedViewControllerTests: XCTestCase {
         loader.finishImageLoading(at: 1)
         XCTAssertEqual(firstCell?.isShowingLoadingIndicator, false, "Expected no indicators because image is already loaded")
         XCTAssertEqual(lastCell?.isShowingLoadingIndicator, false, "Expected no indicators after second image load completes")
+
+        firstCell?.simulateImageLoadRetry()
+        lastCell?.simulateImageLoadRetry()
+        XCTAssertEqual(firstCell?.isShowingLoadingIndicator, true, "Expected a indicator when image is retrying to load")
+        XCTAssertEqual(lastCell?.isShowingLoadingIndicator, true, "Expected a indicator when image is retrying to load")
+
+        loader.finishImageLoadingSuccessfully(at: 2)
+        loader.finishImageLoadingSuccessfully(at: 3)
+        XCTAssertEqual(firstCell?.isShowingLoadingIndicator, false, "Expected no indicators because image loaded successfully")
+        XCTAssertEqual(lastCell?.isShowingLoadingIndicator, false, "Expected no indicators because image loaded successfully")
+
     }
 
     func test_feedImage_displaysARetryButtonWhenLoadingFails() {

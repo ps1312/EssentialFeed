@@ -80,9 +80,10 @@ public final class FeedViewController: UITableViewController {
         cell.locationLabel.text = item.location
 
         cell.retryButton.isHidden = true
-        cell.imageContainer.startShimmering()
 
-        let loadImage: () -> Void = { [weak self, weak cell] in
+        let loadImage = { [weak self, weak cell] in
+            cell?.imageContainer.startShimmering()
+
             self?.tasks[indexPath] = self?.imageLoader?.load(from: item.url) { result in
                 switch (result) {
                 case .failure:
