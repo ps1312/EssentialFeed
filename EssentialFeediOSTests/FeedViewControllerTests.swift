@@ -76,13 +76,13 @@ class FeedViewControllerTests: XCTestCase {
 
         sut.loadViewIfNeeded()
         loader.completeFeedLoad(at: 0, with: [firstFeedImage, secondFeedImage])
-        XCTAssertEqual(loader.imageLoadRequests, [], "Expected no loaded images until a cell is displayed")
+        XCTAssertEqual(loader.imageLoadedURLs, [], "Expected no loaded images until a cell is displayed")
 
         sut.displayFeedImageCell(at: 0)
-        XCTAssertEqual(loader.imageLoadRequests, [firstImageURL], "Expected first image to start loading after the cell is displayed")
+        XCTAssertEqual(loader.imageLoadedURLs, [firstImageURL], "Expected first image to start loading after the cell is displayed")
 
         sut.displayFeedImageCell(at: 1)
-        XCTAssertEqual(loader.imageLoadRequests, [firstImageURL, lastImageURL], "Expected images to start loading after cells are displayed")
+        XCTAssertEqual(loader.imageLoadedURLs, [firstImageURL, lastImageURL], "Expected images to start loading after cells are displayed")
     }
 
     func test_feedImageLoading_cancelsRequestWhenFeedImageCellGoesOffScreen() {
@@ -178,9 +178,9 @@ class FeedViewControllerTests: XCTestCase {
 
         // MARK: - FeedImageLoaderSpy
 
-        var imageLoadRequests = [URL]()
+        var imageLoadRequests = [(url: URL, completion: (FeedImageLoader.Result) -> Void)]()
+        var imageLoadedURLs: [URL] { return imageLoadRequests.map { $0.url } }
         var canceledLoadRequests = [URL]()
-        var imageLoadCompletions = [(FeedImageLoader.Result) -> Void]()
 
         private struct TaskSpy: FeedImageLoaderTask {
             let cancelCallback: () -> Void
@@ -191,8 +191,7 @@ class FeedViewControllerTests: XCTestCase {
         }
 
         func load(from url: URL, completion: @escaping (FeedImageLoader.Result) -> Void) -> FeedImageLoaderTask {
-            imageLoadRequests.append(url)
-            imageLoadCompletions.append(completion)
+            imageLoadRequests.append((url, completion))
 
             let task = TaskSpy(cancelCallback: { [weak self] in
                 self?.canceledLoadRequests.append(url)
@@ -202,7 +201,7 @@ class FeedViewControllerTests: XCTestCase {
         }
 
         func finishImageLoading(at index: Int) {
-            imageLoadCompletions[index](.failure(makeNSError()))
+            imageLoadRequests[index].completion(.failure(makeNSError()))
         }
     }
 
