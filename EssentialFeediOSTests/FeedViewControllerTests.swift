@@ -151,13 +151,13 @@ class FeedViewControllerTests: XCTestCase {
         let lastCell = sut.displayFeedImageCell(at: 1)
 
         loader.finishImageLoading(at: 0)
-        loader.finishImageLoadingSuccessfully(at: 1)
+        loader.finishImageLoadingSuccessfully(at: 1, with: UIImage.make(withColor: .blue).pngData()!)
 
         XCTAssertEqual(firstCell?.isShowingRetryButton, true, "Expected retry button to be displayed after loading failure")
         XCTAssertEqual(lastCell?.isShowingRetryButton, false, "Expected retry button to remain invisible after successfully load")
 
         firstCell?.simulateImageLoadRetry()
-        loader.finishImageLoadingSuccessfully(at: 2)
+        loader.finishImageLoadingSuccessfully(at: 2, with: UIImage.make(withColor: .blue).pngData()!)
 
         XCTAssertEqual(firstCell?.isShowingRetryButton, false, "Expected retry button to be invisible after reloading successfully")
         XCTAssertEqual(loader.imageLoadedURLs, [firstImageURL, lastImageURL, firstImageURL], "Expected \(firstImageURL) to be called twice because of it's retry")
@@ -179,6 +179,22 @@ class FeedViewControllerTests: XCTestCase {
 
         XCTAssertEqual(firstCell?.feedImageView.image?.pngData(), firstImageData)
         XCTAssertEqual(lastCell?.feedImageView.image?.pngData(), lastImageData)
+    }
+
+    func test_feedImage_shouldDisplayARetryButtonWhenLoadedDataIsInvalid() {
+        let (sut, loader) = makeSUT()
+        sut.loadViewIfNeeded()
+        loader.completeFeedLoad(at: 0, with: [uniqueImage()])
+
+        let firstCell = sut.displayFeedImageCell(at: 0)
+        loader.finishImageLoadingSuccessfully(at: 0, with: Data("invalid png data".utf8))
+
+        XCTAssertEqual(firstCell?.isShowingRetryButton, true, "Expected retry button to be visible when loaded data is invalid")
+
+        firstCell?.simulateImageLoadRetry()
+        loader.finishImageLoadingSuccessfully(at: 1, with: UIImage.make(withColor: .blue).pngData()!)
+
+        XCTAssertEqual(firstCell?.isShowingRetryButton, false, "Expected retry button to not be visible after retrying with valid data")
     }
 
     private func makeSUT(file: StaticString = #filePath, line: UInt = #line) -> (sut: FeedViewController, loader: FeedLoaderSpy) {

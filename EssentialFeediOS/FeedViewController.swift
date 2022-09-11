@@ -92,7 +92,13 @@ public final class FeedViewController: UITableViewController {
 
                 case .success(let data):
                     cell?.retryButton.isHidden = true
-                    cell?.feedImageView.image = UIImage(data: data)
+                    let image = UIImage(data: data)
+
+                    if image != nil {
+                        cell?.feedImageView.image = image
+                    } else {
+                        cell?.retryButton.isHidden = false
+                    }
                 }
 
                 cell?.imageContainer.stopShimmering()
