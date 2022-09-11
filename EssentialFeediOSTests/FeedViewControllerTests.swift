@@ -148,12 +148,12 @@ class FeedViewControllerTests: XCTestCase {
         loader.completeFeedLoad(at: 0, with: [uniqueImage(), uniqueImage()])
 
         let firstCell = sut.simulateFeedImageCellIsDisplayed(at: 0)
-        let lastCell = sut.simulateFeedImageCellIsDisplayed(at: 0)
+        let lastCell = sut.simulateFeedImageCellIsDisplayed(at: 1)
         loader.finishImageLoadingSuccessfully(at: 0, with: firstImageData)
         loader.finishImageLoadingSuccessfully(at: 1, with: lastImageData)
 
-        XCTAssertEqual(firstCell.feedImageView.image?.pngData(), firstImageData, "Expected feed image to have loaded with the correct image data")
-        XCTAssertEqual(lastCell.feedImageView.image?.pngData(), lastImageData, "Expected feed image to have loaded with the correct image data")
+        XCTAssertEqual(firstCell.feedImageData, firstImageData, "Expected feed image to have loaded with the correct image data")
+        XCTAssertEqual(lastCell.feedImageData, lastImageData, "Expected feed image to have loaded with the correct image data")
     }
 
     func test_feedImageCell_feedImageView_displaysARetryButtonWhenLoadingFails() {
@@ -392,6 +392,10 @@ private extension FeedImageCell {
 
     var isShowingRetryButton: Bool {
         return !retryButton.isHidden
+    }
+
+    var feedImageData: Data? {
+        return feedImageView.image?.pngData()
     }
 
     func simulateImageLoadRetry() {
