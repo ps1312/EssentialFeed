@@ -54,13 +54,9 @@ public final class FeedViewController: UITableViewController, UITableViewDataSou
         refreshControl?.beginRefreshing()
 
         feedLoader?.load { [weak self] result in
-            switch (result) {
-            case .success(let images):
+            if let images = try? result.get() {
                 self?.feed = images
                 self?.tableView.reloadData()
-
-            default: break
-
             }
 
             self?.refreshControl?.endRefreshing()
