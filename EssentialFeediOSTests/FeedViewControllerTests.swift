@@ -197,6 +197,19 @@ class FeedViewControllerTests: XCTestCase {
         XCTAssertEqual(firstCell?.isShowingRetryButton, false, "Expected retry button to not be visible after retrying with valid data")
     }
 
+    func test_feedImageCell_shouldLoadFeedImageDataWhenPrefetching() {
+        let firstImageURL = URL(string: "https://www.image-1.com")!
+        let lastImageURL = URL(string: "https://www.image-2.com")!
+
+        let (sut, loader) = makeSUT()
+        sut.loadViewIfNeeded()
+        loader.completeFeedLoad(at: 0, with: [uniqueImage(url: firstImageURL), uniqueImage(url: lastImageURL)])
+
+        sut.prefetchCell(at: 0)
+        sut.prefetchCell(at: 1)
+        XCTAssertEqual(loader.imageLoadedURLs, [firstImageURL, lastImageURL])
+    }
+
     private func makeSUT(file: StaticString = #filePath, line: UInt = #line) -> (sut: FeedViewController, loader: FeedLoaderSpy) {
         let loader = FeedLoaderSpy()
         let sut = FeedViewController(feedLoader: loader, imageLoader: loader)
@@ -319,6 +332,11 @@ private extension FeedViewController {
         let indexPath = IndexPath(row: row, section: feedImagesSection)
         let currentCell = displayFeedImageCell(at: row)!
         tableView(tableView, didEndDisplaying: currentCell, forRowAt: indexPath)
+    }
+
+    func prefetchCell(at row: Int) {
+        let indexPath = IndexPath(row: row, section: feedImagesSection)
+        tableView(tableView, prefetchRowsAt: [indexPath])
     }
 }
 

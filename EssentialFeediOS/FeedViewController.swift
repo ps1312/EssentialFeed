@@ -30,7 +30,7 @@ public protocol FeedImageLoader {
     func load(from url: URL, completion: @escaping (Result) -> Void) -> FeedImageLoaderTask
 }
 
-public final class FeedViewController: UITableViewController {
+public final class FeedViewController: UITableViewController, UITableViewDataSourcePrefetching {
     private var feed = [FeedImage]()
     private var feedLoader: FeedLoader?
     private var imageLoader: FeedImageLoader?
@@ -68,6 +68,13 @@ public final class FeedViewController: UITableViewController {
 
     public override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return feed.count
+    }
+
+    public func tableView(_ tableView: UITableView, prefetchRowsAt indexPaths: [IndexPath]) {
+        indexPaths.forEach { indexPath in
+            let item = feed[indexPath.row]
+            let _ = imageLoader?.load(from: item.url) { _ in }
+        }
     }
 
     public override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
