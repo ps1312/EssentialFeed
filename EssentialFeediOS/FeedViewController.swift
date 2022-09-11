@@ -5,6 +5,7 @@ public class FeedImageCell: UITableViewCell {
     let descriptionLabel = UILabel()
     let locationContainer = UIView()
     let locationLabel = UILabel()
+    let feedImageView = UIImageView()
     let imageContainer = UIView()
     private(set) public lazy var retryButton: UIButton = {
         let button = UIButton()
@@ -89,9 +90,9 @@ public final class FeedViewController: UITableViewController {
                 case .failure:
                     cell?.retryButton.isHidden = false
 
-                case .success:
+                case .success(let data):
                     cell?.retryButton.isHidden = true
-
+                    cell?.feedImageView.image = UIImage(data: data)
                 }
 
                 cell?.imageContainer.stopShimmering()

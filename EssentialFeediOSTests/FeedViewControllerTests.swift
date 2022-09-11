@@ -156,6 +156,24 @@ class FeedViewControllerTests: XCTestCase {
         XCTAssertEqual(firstCell?.isShowingRetryButton, false, "Expected retry button to be invisible after reloading successfully")
     }
 
+    func test_feedImage_shouldDisplayImageOnLoadSccess() {
+        let firstImageData = UIImage.make(withColor: .green).pngData()!
+        let lastImageData = UIImage.make(withColor: .blue).pngData()!
+
+        let (sut, loader) = makeSUT()
+
+        sut.loadViewIfNeeded()
+        loader.completeFeedLoad(at: 0, with: [uniqueImage(), uniqueImage()])
+
+        let firstCell = sut.displayFeedImageCell(at: 0)
+        let lastCell = sut.displayFeedImageCell(at: 0)
+        loader.finishImageLoadingSuccessfully(at: 0, with: firstImageData)
+        loader.finishImageLoadingSuccessfully(at: 1, with: lastImageData)
+
+        XCTAssertEqual(firstCell?.feedImageView.image?.pngData(), firstImageData)
+        XCTAssertEqual(lastCell?.feedImageView.image?.pngData(), lastImageData)
+    }
+
     private func makeSUT(file: StaticString = #filePath, line: UInt = #line) -> (sut: FeedViewController, loader: FeedLoaderSpy) {
         let loader = FeedLoaderSpy()
         let sut = FeedViewController(feedLoader: loader, imageLoader: loader)
@@ -235,8 +253,8 @@ class FeedViewControllerTests: XCTestCase {
             imageLoadRequests[index].completion(.failure(makeNSError()))
         }
 
-        func finishImageLoadingSuccessfully(at index: Int) {
-            imageLoadRequests[index].completion(.success(Data()))
+        func finishImageLoadingSuccessfully(at index: Int, with data: Data = Data()) {
+            imageLoadRequests[index].completion(.success(data))
         }
     }
 
@@ -312,5 +330,18 @@ private extension FeedImageCell {
                 (target as NSObject).perform(Selector($0))
             }
         }
+    }
+}
+
+private extension UIImage {
+    static func make(withColor color: UIColor) -> UIImage {
+        let rect = CGRect(x: 0, y: 0, width: 1, height: 1)
+        UIGraphicsBeginImageContext(rect.size)
+        let context = UIGraphicsGetCurrentContext()!
+        context.setFillColor(color.cgColor)
+        context.fill(rect)
+        let img = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+        return img!
     }
 }
