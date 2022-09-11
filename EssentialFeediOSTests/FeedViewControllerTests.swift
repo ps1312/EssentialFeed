@@ -210,6 +210,19 @@ class FeedViewControllerTests: XCTestCase {
         XCTAssertEqual(loader.imageLoadedURLs, [firstImageURL, lastImageURL], "Expected cells to have called image loader with the correct URLs when prefetching")
     }
 
+    func test_feedImageCell_shouldCancelFeedImageLoadingWhenPrefetchingIsCanceled() {
+        let firstImageURL = URL(string: "https://www.image-1.com")!
+        let lastImageURL = URL(string: "https://www.image-2.com")!
+
+        let (sut, loader) = makeSUT()
+        sut.loadViewIfNeeded()
+        loader.completeFeedLoad(at: 0, with: [uniqueImage(url: firstImageURL), uniqueImage(url: lastImageURL)])
+
+        sut.simulateCancelPrefetching(at: 0)
+        sut.simulateCancelPrefetching(at: 1)
+        XCTAssertEqual(loader.canceledLoadRequests, [firstImageURL, lastImageURL])
+    }
+
     private func makeSUT(file: StaticString = #filePath, line: UInt = #line) -> (sut: FeedViewController, loader: FeedLoaderSpy) {
         let loader = FeedLoaderSpy()
         let sut = FeedViewController(feedLoader: loader, imageLoader: loader)
@@ -337,6 +350,15 @@ private extension FeedViewController {
     func prefetchCell(at row: Int) {
         let indexPath = IndexPath(row: row, section: feedImagesSection)
         tableView(tableView, prefetchRowsAt: [indexPath])
+    }
+
+    func simulateCancelPrefetching(at row: Int) {
+        prefetchCell(at: row)
+
+        let ds = tableView.prefetchDataSource
+        let indexPath = IndexPath(row: row, section: feedImagesSection)
+        ds?.tableView?(tableView, cancelPrefetchingForRowsAt: [indexPath])
+
     }
 }
 
