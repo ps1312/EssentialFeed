@@ -25,14 +25,14 @@ class FeedViewControllerTests: XCTestCase {
         sut.loadViewIfNeeded()
         XCTAssertTrue(sut.isShowingLoadingIndicator, "Loading indicator should be visible when loading feed after view appear")
 
-        loader.completeFeedLoad(at: 0)
-        XCTAssertFalse(sut.isShowingLoadingIndicator, "Loading indicator should be hidden after loading completes")
+        loader.completeFeedLoad(at: 0, with: makeNSError())
+        XCTAssertFalse(sut.isShowingLoadingIndicator, "Loading indicator should disappear after loading completes with an error")
 
         sut.simulatePullToRefresh()
         XCTAssertTrue(sut.isShowingLoadingIndicator, "Loading indicator should be visible when user executes a pull to refresh")
 
-        loader.completeFeedLoad(at: 1)
-        XCTAssertFalse(sut.isShowingLoadingIndicator, "Loading indicator should be hidden after refresh completes")
+        loader.completeFeedLoad(at: 0, with: [])
+        XCTAssertFalse(sut.isShowingLoadingIndicator, "Loading indicator should disappear after refresh completes with a success")
     }
 
     func test_feedLoad_displaysFeedImageCellsWhenFeedLoadsWithImages() {
@@ -62,10 +62,10 @@ class FeedViewControllerTests: XCTestCase {
         sut.loadViewIfNeeded()
         loader.completeFeedLoad(at: 0, with: makeNSError())
 
-        XCTAssertFalse(sut.isShowingLoadingIndicator)
+        XCTAssertFalse(sut.isShowingLoadingIndicator, "Expected loading indicator to not be visible after loading finishes with an error")
     }
 
-    func test_feedImage_requestsImageDataFromURL() {
+    func test_feedImageCell_requestsImageDataLoadFromURL() {
         let firstImageURL = URL(string: "https://url-1.com")!
         let firstFeedImage = uniqueImage(url: firstImageURL)
 
@@ -78,14 +78,14 @@ class FeedViewControllerTests: XCTestCase {
         loader.completeFeedLoad(at: 0, with: [firstFeedImage, secondFeedImage])
         XCTAssertEqual(loader.imageLoadedURLs, [], "Expected no loaded images until a cell is displayed")
 
-        sut.displayFeedImageCell(at: 0)
+        sut.simulateFeedImageCellIsDisplayed(at: 0)
         XCTAssertEqual(loader.imageLoadedURLs, [firstImageURL], "Expected first image to start loading after the cell is displayed")
 
-        sut.displayFeedImageCell(at: 1)
-        XCTAssertEqual(loader.imageLoadedURLs, [firstImageURL, lastImageURL], "Expected images to start loading after cells are displayed")
+        sut.simulateFeedImageCellIsDisplayed(at: 1)
+        XCTAssertEqual(loader.imageLoadedURLs, [firstImageURL, lastImageURL], "Expected both images to start loading after cells are displayed")
     }
 
-    func test_feedImageLoading_cancelsRequestWhenFeedImageCellGoesOffScreen() {
+    func test_feedImageCell_cancelsRequestWhenFeedImageCellEndsDisplaying() {
         let firstImageURL = URL(string: "https://url-1.com")!
         let firstFeedImage = uniqueImage(url: firstImageURL)
 
@@ -98,29 +98,29 @@ class FeedViewControllerTests: XCTestCase {
         loader.completeFeedLoad(at: 0, with: [firstFeedImage, lastFeedImage])
         XCTAssertEqual(loader.canceledLoadRequests, [], "Expected no canceled downloads until a cell ends displaying")
 
-        sut.endFeedImageCellDiplay(at: 0)
+        sut.simulateFeedImageCellEndsDiplaying(at: 0)
         XCTAssertEqual(loader.canceledLoadRequests, [firstImageURL], "Expected first image to cancel loading after the cell ends displaying")
 
-        sut.endFeedImageCellDiplay(at: 1)
+        sut.simulateFeedImageCellEndsDiplaying(at: 1)
         XCTAssertEqual(loader.canceledLoadRequests, [firstImageURL, lastImageURL], "Expected images to cancel loading after cells ends displaying")
     }
 
-    func test_feedImage_displaysAnIndicatorWhileLoadingData() {
+    func test_feedImageCell_feedImageView_displaysAnIndicatorWhileLoadingData() {
         let (sut, loader) = makeSUT()
         sut.loadViewIfNeeded()
         loader.completeFeedLoad(at: 0, with: [uniqueImage(), uniqueImage()])
 
-        let firstCell = sut.displayFeedImageCell(at: 0)
-        let lastCell = sut.displayFeedImageCell(at: 1)
+        let firstCell = sut.simulateFeedImageCellIsDisplayed(at: 0)
+        let lastCell = sut.simulateFeedImageCellIsDisplayed(at: 1)
 
         XCTAssertEqual(firstCell?.isShowingLoadingIndicator, true, "Expected an indicator while waiting for image load completion")
         XCTAssertEqual(lastCell?.isShowingLoadingIndicator, true, "Expected an indicator while waiting for image load completion")
 
-        loader.finishImageLoading(at: 0)
+        loader.finishImageLoadingFailing(at: 0)
         XCTAssertEqual(firstCell?.isShowingLoadingIndicator, false, "Expected no indicators after first image load completes")
         XCTAssertEqual(lastCell?.isShowingLoadingIndicator, true, "Expected an indicator while waiting for image load completion even after first image loads")
 
-        loader.finishImageLoading(at: 1)
+        loader.finishImageLoadingFailing(at: 1)
         XCTAssertEqual(firstCell?.isShowingLoadingIndicator, false, "Expected no indicators because image is already loaded")
         XCTAssertEqual(lastCell?.isShowingLoadingIndicator, false, "Expected no indicators after second image load completes")
 
@@ -136,34 +136,36 @@ class FeedViewControllerTests: XCTestCase {
 
     }
 
-    func test_feedImage_displaysARetryButtonWhenLoadingFails() {
-        let firstImageURL = URL(string: "https://www.image-1.com")!
+    func test_feedImageCell_feedImageView_displaysARetryButtonWhenLoadingFails() {
+        let firstImageURL = URL(string: "https://url-1.com")!
         let firstImage = uniqueImage(url: firstImageURL)
+        let firstImageData = UIImage.make(withColor: .blue).pngData()!
 
-        let lastImageURL = URL(string: "https://www.image-1.com")!
+        let lastImageURL = URL(string: "https://url-2.com")!
         let lastImage = uniqueImage(url: lastImageURL)
+        let lastImageData = UIImage.make(withColor: .blue).pngData()!
 
         let (sut, loader) = makeSUT()
         sut.loadViewIfNeeded()
         loader.completeFeedLoad(at: 0, with: [firstImage, lastImage])
 
-        let firstCell = sut.displayFeedImageCell(at: 0)
-        let lastCell = sut.displayFeedImageCell(at: 1)
+        let firstCell = sut.simulateFeedImageCellIsDisplayed(at: 0)
+        let lastCell = sut.simulateFeedImageCellIsDisplayed(at: 1)
 
-        loader.finishImageLoading(at: 0)
-        loader.finishImageLoadingSuccessfully(at: 1, with: UIImage.make(withColor: .blue).pngData()!)
+        loader.finishImageLoadingFailing(at: 0)
+        XCTAssertEqual(firstCell?.isShowingRetryButton, true, "Expected retry button to be displayed after first cell image loading failure")
 
-        XCTAssertEqual(firstCell?.isShowingRetryButton, true, "Expected retry button to be displayed after loading failure")
-        XCTAssertEqual(lastCell?.isShowingRetryButton, false, "Expected retry button to remain invisible after successfully load")
+        loader.finishImageLoadingSuccessfully(at: 1, with: firstImageData)
+        XCTAssertEqual(lastCell?.isShowingRetryButton, false, "Expected retry button to remain hidden after last cell image loaded successfully")
 
         firstCell?.simulateImageLoadRetry()
-        loader.finishImageLoadingSuccessfully(at: 2, with: UIImage.make(withColor: .blue).pngData()!)
-
-        XCTAssertEqual(firstCell?.isShowingRetryButton, false, "Expected retry button to be invisible after reloading successfully")
         XCTAssertEqual(loader.imageLoadedURLs, [firstImageURL, lastImageURL, firstImageURL], "Expected \(firstImageURL) to be called twice because of it's retry")
+
+        loader.finishImageLoadingSuccessfully(at: 2, with: lastImageData)
+        XCTAssertEqual(firstCell?.isShowingRetryButton, false, "Expected retry button to be invisible after reloading first cell image successfully")
     }
 
-    func test_feedImage_shouldDisplayImageOnLoadSccess() {
+    func test_feedImageCell_feedImageView_displaysImageDataWhenLoadSucceeds() {
         let firstImageData = UIImage.make(withColor: .green).pngData()!
         let lastImageData = UIImage.make(withColor: .blue).pngData()!
 
@@ -172,8 +174,8 @@ class FeedViewControllerTests: XCTestCase {
         sut.loadViewIfNeeded()
         loader.completeFeedLoad(at: 0, with: [uniqueImage(), uniqueImage()])
 
-        let firstCell = sut.displayFeedImageCell(at: 0)
-        let lastCell = sut.displayFeedImageCell(at: 0)
+        let firstCell = sut.simulateFeedImageCellIsDisplayed(at: 0)
+        let lastCell = sut.simulateFeedImageCellIsDisplayed(at: 0)
         loader.finishImageLoadingSuccessfully(at: 0, with: firstImageData)
         loader.finishImageLoadingSuccessfully(at: 1, with: lastImageData)
 
@@ -181,46 +183,49 @@ class FeedViewControllerTests: XCTestCase {
         XCTAssertEqual(lastCell?.feedImageView.image?.pngData(), lastImageData, "Expected feed image to have loaded with the correct image data")
     }
 
-    func test_feedImage_shouldDisplayARetryButtonWhenLoadedDataIsInvalid() {
+    func test_feedImageCell_feedImageView_displaysARetryButtonWhenLoadedDataIsInvalid() {
+        let invalidImageData = makeData()
+        let validImageData = UIImage.make(withColor: .blue).pngData()!
+
         let (sut, loader) = makeSUT()
         sut.loadViewIfNeeded()
         loader.completeFeedLoad(at: 0, with: [uniqueImage()])
 
-        let firstCell = sut.displayFeedImageCell(at: 0)
-        loader.finishImageLoadingSuccessfully(at: 0, with: Data("invalid png data".utf8))
+        let firstCell = sut.simulateFeedImageCellIsDisplayed(at: 0)
+        loader.finishImageLoadingSuccessfully(at: 0, with: invalidImageData)
 
         XCTAssertEqual(firstCell?.isShowingRetryButton, true, "Expected retry button to be visible when loaded data is invalid")
 
         firstCell?.simulateImageLoadRetry()
-        loader.finishImageLoadingSuccessfully(at: 1, with: UIImage.make(withColor: .blue).pngData()!)
+        loader.finishImageLoadingSuccessfully(at: 1, with: validImageData)
 
         XCTAssertEqual(firstCell?.isShowingRetryButton, false, "Expected retry button to not be visible after retrying with valid data")
     }
 
-    func test_feedImageCell_shouldLoadFeedImageDataWhenPrefetching() {
-        let firstImageURL = URL(string: "https://www.image-1.com")!
-        let lastImageURL = URL(string: "https://www.image-2.com")!
+    func test_feedImageCell_loadsFeedImageDataWhenPrefetching() {
+        let firstImageURL = URL(string: "https://url-1.com")!
+        let lastImageURL = URL(string: "https://url-2.com")!
 
         let (sut, loader) = makeSUT()
         sut.loadViewIfNeeded()
         loader.completeFeedLoad(at: 0, with: [uniqueImage(url: firstImageURL), uniqueImage(url: lastImageURL)])
 
-        sut.prefetchCell(at: 0)
-        sut.prefetchCell(at: 1)
-        XCTAssertEqual(loader.imageLoadedURLs, [firstImageURL, lastImageURL], "Expected cells to have called image loader with the correct URLs when prefetching")
+        sut.simulateFeedImageCellPrefetch(at: 0)
+        sut.simulateFeedImageCellPrefetch(at: 1)
+        XCTAssertEqual(loader.imageLoadedURLs, [firstImageURL, lastImageURL], "Expected cells to have loaded images with the correct URLs when prefetching")
     }
 
-    func test_feedImageCell_shouldCancelFeedImageLoadingWhenPrefetchingIsCanceled() {
-        let firstImageURL = URL(string: "https://www.image-1.com")!
-        let lastImageURL = URL(string: "https://www.image-2.com")!
+    func test_feedImageCell_cancelsFeedImageLoadingWhenPrefetchingIsCanceled() {
+        let firstImageURL = URL(string: "https://url-1.com")!
+        let lastImageURL = URL(string: "https://url-2.com")!
 
         let (sut, loader) = makeSUT()
         sut.loadViewIfNeeded()
         loader.completeFeedLoad(at: 0, with: [uniqueImage(url: firstImageURL), uniqueImage(url: lastImageURL)])
 
-        sut.simulateCancelPrefetching(at: 0)
-        sut.simulateCancelPrefetching(at: 1)
-        XCTAssertEqual(loader.canceledLoadRequests, [firstImageURL, lastImageURL])
+        sut.simulateFeedImageCellPrefetchingCanceling(at: 0)
+        sut.simulateFeedImageCellPrefetchingCanceling(at: 1)
+        XCTAssertEqual(loader.canceledLoadRequests, [firstImageURL, lastImageURL], "Expected cells to cancel image loading when prefetching is canceled")
     }
 
     private func makeSUT(file: StaticString = #filePath, line: UInt = #line) -> (sut: FeedViewController, loader: FeedLoaderSpy) {
@@ -298,7 +303,7 @@ class FeedViewControllerTests: XCTestCase {
             return task
         }
 
-        func finishImageLoading(at index: Int) {
+        func finishImageLoadingFailing(at index: Int) {
             imageLoadRequests[index].completion(.failure(makeNSError()))
         }
 
@@ -337,23 +342,23 @@ private extension FeedViewController {
     }
 
     @discardableResult
-    func displayFeedImageCell(at row: Int) -> FeedImageCell? {
+    func simulateFeedImageCellIsDisplayed(at row: Int) -> FeedImageCell? {
         return feedImage(at: row) as? FeedImageCell
     }
 
-    func endFeedImageCellDiplay(at row: Int) {
+    func simulateFeedImageCellEndsDiplaying(at row: Int) {
         let indexPath = IndexPath(row: row, section: feedImagesSection)
-        let currentCell = displayFeedImageCell(at: row)!
+        let currentCell = simulateFeedImageCellIsDisplayed(at: row)!
         tableView(tableView, didEndDisplaying: currentCell, forRowAt: indexPath)
     }
 
-    func prefetchCell(at row: Int) {
+    func simulateFeedImageCellPrefetch(at row: Int) {
         let indexPath = IndexPath(row: row, section: feedImagesSection)
         tableView(tableView, prefetchRowsAt: [indexPath])
     }
 
-    func simulateCancelPrefetching(at row: Int) {
-        prefetchCell(at: row)
+    func simulateFeedImageCellPrefetchingCanceling(at row: Int) {
+        simulateFeedImageCellPrefetch(at: row)
 
         let ds = tableView.prefetchDataSource
         let indexPath = IndexPath(row: row, section: feedImagesSection)
