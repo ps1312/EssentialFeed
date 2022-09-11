@@ -34,7 +34,7 @@ public final class FeedViewController: UITableViewController, UITableViewDataSou
     }
 
     public func tableView(_ tableView: UITableView, prefetchRowsAt indexPaths: [IndexPath]) {
-        indexPaths.forEach {  let _ = createFeedImageCell(for: $0).view }
+        indexPaths.forEach { cellControllerForRow(at: $0).preload() }
     }
 
     public func tableView(_ tableView: UITableView, cancelPrefetchingForRowsAt indexPaths: [IndexPath]) {
@@ -42,7 +42,8 @@ public final class FeedViewController: UITableViewController, UITableViewDataSou
     }
 
     public override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cellController = createFeedImageCell(for: indexPath)
+        let cellController = cellControllerForRow(at: indexPath)
+        cellController.configureView()
         feedCellControllers[indexPath] = cellController
         return cellController.view
     }
@@ -51,10 +52,8 @@ public final class FeedViewController: UITableViewController, UITableViewDataSou
         removeCellController(at: indexPath)
     }
 
-    private func createFeedImageCell(for indexPath: IndexPath) -> FeedImageCellViewController {
+    private func cellControllerForRow(at indexPath: IndexPath) -> FeedImageCellViewController {
         let cellController = FeedImageCellViewController(model: feed[indexPath.row], imageLoader: imageLoader!)
-        cellController.configureView()
-
         return cellController
     }
 

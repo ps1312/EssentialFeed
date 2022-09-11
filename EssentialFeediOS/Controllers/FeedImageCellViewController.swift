@@ -3,7 +3,7 @@ import EssentialFeed
 import UIKit
 
 final class FeedImageCellViewController: NSObject {
-    private(set) var view: FeedImageCell = FeedImageCell()
+    private(set) lazy var view: FeedImageCell = FeedImageCell()
     private var task: FeedImageLoaderTask? = nil
 
     private let model: FeedImage
@@ -26,6 +26,10 @@ final class FeedImageCellViewController: NSObject {
         view.onRetry = {[weak self] in
             self?.loadImage()
         }
+        loadImage()
+    }
+
+    func preload() {
         loadImage()
     }
 
