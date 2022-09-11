@@ -133,7 +133,24 @@ class FeedViewControllerTests: XCTestCase {
         loader.finishImageLoadingSuccessfully(at: 3)
         XCTAssertEqual(firstCell?.isShowingLoadingIndicator, false, "Expected no indicators because image loaded successfully")
         XCTAssertEqual(lastCell?.isShowingLoadingIndicator, false, "Expected no indicators because image loaded successfully")
+    }
 
+    func test_feedImageCell_feedImageView_displaysImageDataWhenLoadSucceeds() {
+        let firstImageData = UIImage.make(withColor: .green).pngData()!
+        let lastImageData = UIImage.make(withColor: .blue).pngData()!
+
+        let (sut, loader) = makeSUT()
+
+        sut.loadViewIfNeeded()
+        loader.completeFeedLoad(at: 0, with: [uniqueImage(), uniqueImage()])
+
+        let firstCell = sut.simulateFeedImageCellIsDisplayed(at: 0)
+        let lastCell = sut.simulateFeedImageCellIsDisplayed(at: 0)
+        loader.finishImageLoadingSuccessfully(at: 0, with: firstImageData)
+        loader.finishImageLoadingSuccessfully(at: 1, with: lastImageData)
+
+        XCTAssertEqual(firstCell?.feedImageView.image?.pngData(), firstImageData, "Expected feed image to have loaded with the correct image data")
+        XCTAssertEqual(lastCell?.feedImageView.image?.pngData(), lastImageData, "Expected feed image to have loaded with the correct image data")
     }
 
     func test_feedImageCell_feedImageView_displaysARetryButtonWhenLoadingFails() {
@@ -163,24 +180,6 @@ class FeedViewControllerTests: XCTestCase {
 
         loader.finishImageLoadingSuccessfully(at: 2, with: lastImageData)
         XCTAssertEqual(firstCell?.isShowingRetryButton, false, "Expected retry button to be invisible after reloading first cell image successfully")
-    }
-
-    func test_feedImageCell_feedImageView_displaysImageDataWhenLoadSucceeds() {
-        let firstImageData = UIImage.make(withColor: .green).pngData()!
-        let lastImageData = UIImage.make(withColor: .blue).pngData()!
-
-        let (sut, loader) = makeSUT()
-
-        sut.loadViewIfNeeded()
-        loader.completeFeedLoad(at: 0, with: [uniqueImage(), uniqueImage()])
-
-        let firstCell = sut.simulateFeedImageCellIsDisplayed(at: 0)
-        let lastCell = sut.simulateFeedImageCellIsDisplayed(at: 0)
-        loader.finishImageLoadingSuccessfully(at: 0, with: firstImageData)
-        loader.finishImageLoadingSuccessfully(at: 1, with: lastImageData)
-
-        XCTAssertEqual(firstCell?.feedImageView.image?.pngData(), firstImageData, "Expected feed image to have loaded with the correct image data")
-        XCTAssertEqual(lastCell?.feedImageView.image?.pngData(), lastImageData, "Expected feed image to have loaded with the correct image data")
     }
 
     func test_feedImageCell_feedImageView_displaysARetryButtonWhenLoadedDataIsInvalid() {
