@@ -177,8 +177,8 @@ class FeedViewControllerTests: XCTestCase {
         loader.finishImageLoadingSuccessfully(at: 0, with: firstImageData)
         loader.finishImageLoadingSuccessfully(at: 1, with: lastImageData)
 
-        XCTAssertEqual(firstCell?.feedImageView.image?.pngData(), firstImageData)
-        XCTAssertEqual(lastCell?.feedImageView.image?.pngData(), lastImageData)
+        XCTAssertEqual(firstCell?.feedImageView.image?.pngData(), firstImageData, "Expected feed image to have loaded with the correct image data")
+        XCTAssertEqual(lastCell?.feedImageView.image?.pngData(), lastImageData, "Expected feed image to have loaded with the correct image data")
     }
 
     func test_feedImage_shouldDisplayARetryButtonWhenLoadedDataIsInvalid() {
@@ -207,7 +207,7 @@ class FeedViewControllerTests: XCTestCase {
 
         sut.prefetchCell(at: 0)
         sut.prefetchCell(at: 1)
-        XCTAssertEqual(loader.imageLoadedURLs, [firstImageURL, lastImageURL])
+        XCTAssertEqual(loader.imageLoadedURLs, [firstImageURL, lastImageURL], "Expected cells to have called image loader with the correct URLs when prefetching")
     }
 
     private func makeSUT(file: StaticString = #filePath, line: UInt = #line) -> (sut: FeedViewController, loader: FeedLoaderSpy) {
