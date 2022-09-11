@@ -44,7 +44,7 @@ class FeedViewControllerTests: XCTestCase {
         let (sut, loader) = makeSUT()
 
         sut.loadViewIfNeeded()
-        loader.completeFeedLoad(at: 0)
+        loader.completeFeedLoad(at: 0, with: [])
 
         expect(sut, toRender: [])
 
@@ -240,18 +240,18 @@ class FeedViewControllerTests: XCTestCase {
         return (sut, loader)
     }
 
-    private func expect(_ sut: FeedViewController, toRender expectedImages: [FeedImage]) {
-        expectedImages.enumerated().forEach { index, image in expect(sut, toLoadFeedImage: image, inPosition: index) }
+    private func expect(_ sut: FeedViewController, toRender expectedImages: [FeedImage], file: StaticString = #filePath, line: UInt = #line) {
+        expectedImages.enumerated().forEach { index, image in expect(sut, toLoadFeedImage: image, inPosition: index, file: file, line: line) }
         XCTAssertEqual(sut.numberOfFeedImages, expectedImages.count)
     }
 
-    private func expect(_ sut: FeedViewController, toLoadFeedImage image: FeedImage, inPosition index: Int) {
+    private func expect(_ sut: FeedViewController, toLoadFeedImage image: FeedImage, inPosition index: Int, file: StaticString = #filePath, line: UInt = #line) {
         let cell = sut.feedImage(at: index) as! FeedImageCell
         XCTAssertNotNil(cell)
 
         let shouldDescriptionBeHidden = image.description == nil
-        XCTAssertEqual(cell.isDescriptionHidden, shouldDescriptionBeHidden, "Expected cell to have a description when model has one")
-        XCTAssertEqual(cell.descriptionText, image.description, "Expected cell description to match model")
+        XCTAssertEqual(cell.isDescriptionHidden, shouldDescriptionBeHidden, "Expected cell to have a description when model has one", file: file, line: line)
+        XCTAssertEqual(cell.descriptionText, image.description, "Expected cell description to match model", file: file, line: line)
 
         let shouldLocationBeHidden = image.location == nil
         XCTAssertEqual(cell.isLocationHidden, shouldLocationBeHidden, "Expected cell to have a location when model has one")
