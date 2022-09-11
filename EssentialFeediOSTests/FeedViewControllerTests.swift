@@ -137,9 +137,15 @@ class FeedViewControllerTests: XCTestCase {
     }
 
     func test_feedImage_displaysARetryButtonWhenLoadingFails() {
+        let firstImageURL = URL(string: "https://www.image-1.com")!
+        let firstImage = uniqueImage(url: firstImageURL)
+
+        let lastImageURL = URL(string: "https://www.image-1.com")!
+        let lastImage = uniqueImage(url: lastImageURL)
+
         let (sut, loader) = makeSUT()
         sut.loadViewIfNeeded()
-        loader.completeFeedLoad(at: 0, with: [uniqueImage(), uniqueImage()])
+        loader.completeFeedLoad(at: 0, with: [firstImage, lastImage])
 
         let firstCell = sut.displayFeedImageCell(at: 0)
         let lastCell = sut.displayFeedImageCell(at: 1)
@@ -154,6 +160,7 @@ class FeedViewControllerTests: XCTestCase {
         loader.finishImageLoadingSuccessfully(at: 2)
 
         XCTAssertEqual(firstCell?.isShowingRetryButton, false, "Expected retry button to be invisible after reloading successfully")
+        XCTAssertEqual(loader.imageLoadedURLs, [firstImageURL, lastImageURL, firstImageURL], "Expected \(firstImageURL) to be called twice because of it's retry")
     }
 
     func test_feedImage_shouldDisplayImageOnLoadSccess() {
