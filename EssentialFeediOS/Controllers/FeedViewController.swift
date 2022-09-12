@@ -7,12 +7,16 @@ final class FeedUIComposer {
         let refreshController = FeedRefreshViewController(viewModel: refreshViewModel)
         let feedViewController = FeedViewController()
 
-        refreshViewModel.onFeedLoad = { [weak feedViewController] feedImages in
-            feedViewController?.tableModel = feedImages.map { FeedImageCellViewController(model: $0, imageLoader: imageLoader) }
-        }
+        refreshViewModel.onFeedLoad = FeedUIComposer.adaptFeedImagesToCells(forwardingTo: feedViewController, imageLoader: imageLoader)
         feedViewController.refreshController = refreshController
 
         return feedViewController
+    }
+
+    private static func adaptFeedImagesToCells(forwardingTo feedViewController: FeedViewController, imageLoader: FeedImageLoader) -> ([FeedImage]) -> Void {
+        return { [weak feedViewController] feedImages in
+            feedViewController?.tableModel = feedImages.map { FeedImageCellViewController(model: $0, imageLoader: imageLoader) }
+        }
     }
 }
 
