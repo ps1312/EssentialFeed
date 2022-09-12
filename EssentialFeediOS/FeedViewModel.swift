@@ -11,7 +11,7 @@ final class FeedViewModel {
     var onLoadingChanged: ((Bool) -> Void)?
     var onFeedLoad: (([FeedImage]) -> Void)?
 
-    func loadImages() {
+    func loadFeed() {
         onLoadingChanged?(true)
 
         feedLoader.load { [weak self] result in

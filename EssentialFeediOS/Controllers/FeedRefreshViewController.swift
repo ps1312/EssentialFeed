@@ -22,6 +22,6 @@ final class FeedRefreshViewController: NSObject {
     }
 
     @objc func refresh() {
-        viewModel.loadImages()
+        viewModel.loadFeed()
     }
 }
