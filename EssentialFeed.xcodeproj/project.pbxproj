@@ -218,6 +218,15 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		3A04C8B728CFECC200E2125A /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+				3A7AF32628CFA22D006598D8 /* FeedViewModel.swift */,
+				3A4DEA4E28CFCCA0001760A3 /* FeedImageViewModel.swift */,
+			);
+			path = ViewModels;
+			sourceTree = "<group>";
+		};
 		3A0C28D928BD4483009989AD /* Helpers */ = {
 			isa = PBXGroup;
 			children = (
@@ -279,8 +288,7 @@
 				3A8A138B28CE1EB700F2D5DB /* FeedImageLoader.swift */,
 				3A8A138F28CE1FB300F2D5DB /* Controllers */,
 				3A8A138E28CE1FA900F2D5DB /* Views */,
-				3A7AF32628CFA22D006598D8 /* FeedViewModel.swift */,
-				3A4DEA4E28CFCCA0001760A3 /* FeedImageViewModel.swift */,
+				3A04C8B728CFECC200E2125A /* ViewModels */,
 			);
 			path = EssentialFeediOS;
 			sourceTree = "<group>";

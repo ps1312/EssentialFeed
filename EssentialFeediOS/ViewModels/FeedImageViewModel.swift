@@ -2,6 +2,7 @@ import Foundation
 import EssentialFeed
 
 final class FeedImageViewModel {
+    typealias Observer<T> = (T) -> Void
 
     private let model: FeedImage
     private let imageLoader: FeedImageLoader
@@ -12,8 +13,8 @@ final class FeedImageViewModel {
         self.imageLoader = imageLoader
     }
 
-    var onLoadingChange: ((Bool) -> Void)?
-    var onImageLoad: ((Data) -> Void)?
+    var onLoadingChange: Observer<Bool>?
+    var onImageLoad: Observer<Data>?
     var onLoadError: (() -> Void)?
 
     var description: String? {
