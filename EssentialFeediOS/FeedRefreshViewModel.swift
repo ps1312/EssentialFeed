@@ -8,22 +8,18 @@ final class FeedRefreshViewModel {
         self.feedLoader = feedLoader
     }
 
-    var onChange: ((FeedRefreshViewModel) -> Void)?
+    var onLoadingChanged: ((Bool) -> Void)?
     var onFeedLoad: (([FeedImage]) -> Void)?
 
-    private(set) var isLoading = false {
-        didSet { onChange?(self) }
-    }
-
     func loadImages() {
-        isLoading = true
+        onLoadingChanged?(true)
 
         feedLoader.load { [weak self] result in
             if let feedImages = try? result.get() {
                 self?.onFeedLoad?(feedImages)
             }
 
-            self?.isLoading = false
+            self?.onLoadingChanged?(false)
         }
     }
 
