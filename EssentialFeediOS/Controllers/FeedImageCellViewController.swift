@@ -30,7 +30,7 @@ final class FeedImageCellViewController: NSObject {
     }
 
     func preload() {
-        loadImage()
+        task = imageLoader.load(from: model.url) { _ in }
     }
 
     @objc private func loadImage() {
@@ -56,7 +56,7 @@ final class FeedImageCellViewController: NSObject {
         }
     }
 
-    deinit {
+    func cancelLoad() {
         task?.cancel()
         task = nil
     }
