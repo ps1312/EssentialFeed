@@ -272,6 +272,7 @@
 		3A5C698428CA331900E0E759 /* EssentialFeediOS */ = {
 			isa = PBXGroup;
 			children = (
+				3A8A138B28CE1EB700F2D5DB /* FeedImageLoader.swift */,
 				3A8A138F28CE1FB300F2D5DB /* Controllers */,
 				3A8A138E28CE1FA900F2D5DB /* Views */,
 			);
@@ -358,7 +359,6 @@
 			children = (
 				3A6EE47828B16B70001AC8C2 /* FeedImage.swift */,
 				3A6EE47A28B16BC4001AC8C2 /* FeedLoader.swift */,
-				3A8A138B28CE1EB700F2D5DB /* FeedImageLoader.swift */,
 			);
 			path = "Feed Feature";
 			sourceTree = "<group>";
