@@ -170,7 +170,10 @@ class FeedViewControllerTests: XCTestCase {
         loader.completeFeedLoad(at: 0, with: [firstImage, lastImage])
 
         let firstCell = sut.simulateFeedImageCellIsDisplayed(at: 0)
+        XCTAssertFalse(firstCell.isShowingRetryButton, "Expected retry button not to be displayed until error occours")
+
         let lastCell = sut.simulateFeedImageCellIsDisplayed(at: 1)
+        XCTAssertFalse(lastCell.isShowingRetryButton, "Expected retry button not to be displayed until error occours")
 
         loader.finishImageLoadingFailing(at: 0)
         XCTAssertTrue(firstCell.isShowingRetryButton, "Expected retry button to be displayed after first cell image loading failure")

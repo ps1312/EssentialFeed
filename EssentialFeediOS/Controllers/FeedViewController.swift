@@ -15,7 +15,12 @@ final class FeedUIComposer {
 
     private static func adaptFeedImagesToCells(forwardingTo feedViewController: FeedViewController, imageLoader: FeedImageLoader) -> ([FeedImage]) -> Void {
         return { [weak feedViewController] feedImages in
-            feedViewController?.tableModel = feedImages.map { FeedImageCellViewController(model: $0, imageLoader: imageLoader) }
+            feedViewController?.tableModel = feedImages.map { model in
+                let feedImageViewModel = FeedImageViewModel(model: model, imageLoader: imageLoader)
+                let cellController = FeedImageCellViewController(viewModel: feedImageViewModel)
+
+                return cellController
+            }
         }
     }
 }
@@ -47,9 +52,7 @@ public final class FeedViewController: UITableViewController, UITableViewDataSou
     }
 
     public override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let controller = tableModel[indexPath.row]
-        controller.configureView()
-        return controller.view
+        return tableModel[indexPath.row].view
     }
 
     public override func tableView(_ tableView: UITableView, didEndDisplaying cell: UITableViewCell, forRowAt indexPath: IndexPath) {

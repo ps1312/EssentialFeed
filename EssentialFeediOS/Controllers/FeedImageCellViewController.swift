@@ -3,61 +3,59 @@ import EssentialFeed
 import UIKit
 
 final class FeedImageCellViewController: NSObject {
-    private(set) lazy var view: FeedImageCell = FeedImageCell()
+    private(set) lazy var view = bind(FeedImageCell())
     private var task: FeedImageLoaderTask? = nil
 
-    private let model: FeedImage
-    private let imageLoader: FeedImageLoader
+    private let viewModel: FeedImageViewModel
 
-    init(model: FeedImage, imageLoader: FeedImageLoader) {
-        self.model = model
-        self.imageLoader = imageLoader
+    init(viewModel: FeedImageViewModel) {
+        self.viewModel = viewModel
     }
 
-    func configureView() {
-        view.descriptionLabel.isHidden = model.description == nil
-        view.descriptionLabel.text = model.description
+    func bind(_ view: FeedImageCell) -> FeedImageCell {
+        let cell = FeedImageCell()
 
-        view.locationContainer.isHidden = model.location == nil
-        view.locationLabel.text = model.location
+        cell.descriptionLabel.isHidden = !viewModel.hasDescription
+        cell.descriptionLabel.text = viewModel.description
+        cell.locationContainer.isHidden = !viewModel.hasLocation
+        cell.locationLabel.text = viewModel.location
+        cell.retryButton.isHidden = true
+        cell.onRetry = viewModel.loadImage
 
-        view.retryButton.isHidden = true
-
-        view.onRetry = {[weak self] in
-            self?.loadImage()
+        viewModel.onLoadingChange = { [weak cell] isLoading in
+            if isLoading {
+                cell?.imageContainer.startShimmering()
+            } else {
+                cell?.imageContainer.stopShimmering()
+            }
         }
-        loadImage()
+
+        viewModel.onImageLoad = { [weak cell] imageData in
+            cell?.retryButton.isHidden = true
+
+            let image = UIImage(data: imageData)
+
+            if image != nil {
+                cell?.feedImageView.image = image
+            } else {
+                cell?.retryButton.isHidden = false
+            }
+        }
+
+        viewModel.onLoadError = { [weak cell] in
+            cell?.retryButton.isHidden = false
+        }
+
+        viewModel.loadImage()
+
+        return cell
     }
 
     func preload() {
-        task = imageLoader.load(from: model.url) { _ in }
-    }
-
-    @objc private func loadImage() {
-        view.imageContainer.startShimmering()
-
-        task = self.imageLoader.load(from: model.url) { [weak self] result in
-            switch (result) {
-            case .failure:
-                self?.view.retryButton.isHidden = false
-
-            case .success(let data):
-                self?.view.retryButton.isHidden = true
-                let image = UIImage(data: data)
-
-                if image != nil {
-                    self?.view.feedImageView.image = image
-                } else {
-                    self?.view.retryButton.isHidden = false
-                }
-            }
-
-            self?.view.imageContainer.stopShimmering()
-        }
+        viewModel.loadImage()
     }
 
     func cancelLoad() {
-        task?.cancel()
-        task = nil
+        viewModel.cancelLoad()
     }
 }
