@@ -1,7 +1,7 @@
 import Foundation
 import EssentialFeed
 
-final class FeedRefreshViewModel {
+final class FeedViewModel {
     private let feedLoader: FeedLoader
 
     init(feedLoader: FeedLoader) {

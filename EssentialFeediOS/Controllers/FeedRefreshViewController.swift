@@ -2,9 +2,9 @@ import UIKit
 
 final class FeedRefreshViewController: NSObject {
     private(set) lazy var view = bind(view: UIRefreshControl())
-    private var viewModel: FeedRefreshViewModel
+    private var viewModel: FeedViewModel
 
-    init(viewModel: FeedRefreshViewModel) {
+    init(viewModel: FeedViewModel) {
         self.viewModel = viewModel
     }
 

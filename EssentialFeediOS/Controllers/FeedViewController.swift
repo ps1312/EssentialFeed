@@ -3,7 +3,7 @@ import EssentialFeed
 
 final class FeedUIComposer {
     static func composeWith(feedLoader: FeedLoader, imageLoader: FeedImageLoader) -> FeedViewController {
-        let refreshViewModel = FeedRefreshViewModel(feedLoader: feedLoader)
+        let refreshViewModel = FeedViewModel(feedLoader: feedLoader)
         let refreshController = FeedRefreshViewController(viewModel: refreshViewModel)
         let feedViewController = FeedViewController()
 
