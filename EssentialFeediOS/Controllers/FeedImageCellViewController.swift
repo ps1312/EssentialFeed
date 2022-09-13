@@ -1,10 +1,8 @@
 import Foundation
-import EssentialFeed
 import UIKit
 
-final class FeedImageCellViewController: NSObject {
+final class FeedImageCellViewController {
     private(set) lazy var view = bind(FeedImageCell())
-    private var task: FeedImageLoaderTask? = nil
 
     private let viewModel: FeedImageViewModel
 
