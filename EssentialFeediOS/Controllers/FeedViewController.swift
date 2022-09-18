@@ -2,21 +2,9 @@ import UIKit
 import EssentialFeed
 
 public final class FeedViewController: UITableViewController, UITableViewDataSourcePrefetching {
-    private var feed = [FeedImage]() {
+    var refreshController: FeedRefreshViewController?
+    var cellControllers = [FeedImageCellController]() {
         didSet { tableView.reloadData() }
-    }
-    private var feedLoader: FeedLoader?
-    private var imageLoader: FeedImageLoader?
-    private var refreshController: FeedRefreshViewController?
-    private var cellControllers = [IndexPath: FeedImageCellController]()
-
-    convenience init(feedLoader: FeedLoader, imageLoader: FeedImageLoader) {
-        self.init()
-
-        self.feedLoader = feedLoader
-        self.imageLoader = imageLoader
-        self.refreshController = FeedRefreshViewController(feedLoader: feedLoader, onFeedLoad: { [weak self] in self?.feed = $0 })
-
     }
 
     public override func viewDidLoad() {
@@ -27,13 +15,11 @@ public final class FeedViewController: UITableViewController, UITableViewDataSou
     }
 
     public override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return feed.count
+        return cellControllers.count
     }
 
     public func tableView(_ tableView: UITableView, prefetchRowsAt indexPaths: [IndexPath]) {
-        indexPaths.forEach { indexPath in
-            cellController(at: indexPath).preload()
-        }
+        indexPaths.forEach { cellController(at: $0).preload() }
     }
 
     public func tableView(_ tableView: UITableView, cancelPrefetchingForRowsAt indexPaths: [IndexPath]) {
@@ -49,13 +35,10 @@ public final class FeedViewController: UITableViewController, UITableViewDataSou
     }
 
     private func cellController(at indexPath: IndexPath) -> FeedImageCellController {
-        let model = feed[indexPath.row]
-        let cellController = FeedImageCellController(model: model, imageLoader: imageLoader!)
-        cellControllers[indexPath] = cellController
-        return cellController
+        return cellControllers[indexPath.row]
     }
 
     private func cancelTask(at indexPath: IndexPath) {
-        cellControllers[indexPath] = nil
+        cellControllers[indexPath.row].cancelLoad()
     }
 }

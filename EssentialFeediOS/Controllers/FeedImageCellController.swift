@@ -15,7 +15,7 @@ final class FeedImageCellController {
         task = imageLoader.load(from: model.url) { _ in }
     }
 
-    func view() -> UITableViewCell {
+    func view() -> FeedImageCell {
         let cell = FeedImageCell()
         cell.descriptionLabel.isHidden = model.description == nil
         cell.descriptionLabel.text = model.description
@@ -57,7 +57,7 @@ final class FeedImageCellController {
         return cell
     }
 
-    deinit {
+    func cancelLoad() {
         task?.cancel()
         task = nil
     }
