@@ -31,8 +31,26 @@ final class FeedViewAdapter: FeedView {
 
     func display(feed: [FeedImage]) {
         feedController?.cellControllers = feed.map { model in
-            let feedImageViewModel = FeedImageViewModel(model: model, imageLoader: imageLoader, imageTransformer: UIImage.init)
-            return FeedImageCellController(viewModel: feedImageViewModel)
+            let feedImagePresenter = FeedImagePresenter<WeakRefVirtualProxy<FeedImageCellController>, UIImage>(model: model, imageLoader: imageLoader, imageTransformer: UIImage.init)
+
+            let feedImageView = FeedImageCellController(presenter: feedImagePresenter)
+            feedImagePresenter.feedImageView = WeakRefVirtualProxy(feedImageView)
+
+            return feedImageView
         }
+    }
+}
+
+class WeakRefVirtualProxy<T: AnyObject> {
+    private weak var object: T?
+
+    init(_ object: T) {
+        self.object = object
+    }
+}
+
+extension WeakRefVirtualProxy: FeedImageView where T: FeedImageView, T.Image == UIImage {
+    func display(isLoading: Bool, shouldRetry: Bool, image: UIImage?, description: String?, location: String?) {
+        object?.display(isLoading: isLoading, shouldRetry: shouldRetry, image: image, description: description, location: location)
     }
 }

@@ -1,50 +1,43 @@
 import UIKit
 
-final class FeedImageCellController {
-    private let viewModel: FeedImageViewModel<UIImage>
-    private(set) lazy var view: FeedImageCell = bind(FeedImageCell())
+final class FeedImageCellController: FeedImageView {
+    private let presenter: FeedImagePresenter<WeakRefVirtualProxy<FeedImageCellController>, UIImage>
 
-    init(viewModel: FeedImageViewModel<UIImage>) {
-        self.viewModel = viewModel
+    private(set) lazy var cell = FeedImageCell()
+
+    init(presenter: FeedImagePresenter<WeakRefVirtualProxy<FeedImageCellController>, UIImage>) {
+        self.presenter = presenter
     }
 
     func preload() {
-        viewModel.loadImage()
+        presenter.loadImage()
     }
 
-    func bind(_ cell: FeedImageCell) -> FeedImageCell {
-        cell.descriptionLabel.isHidden = !viewModel.hasDescription
-        cell.descriptionLabel.text = viewModel.description
-
-        cell.locationContainer.isHidden = !viewModel.hasLocation
-        cell.locationLabel.text = viewModel.location
-
-        cell.retryButton.isHidden = true
-
-        viewModel.onLoadingChange = { [weak cell] isLoading in
-            if isLoading {
-                cell?.imageContainer.startShimmering()
-            } else {
-                cell?.imageContainer.stopShimmering()
-            }
-        }
-
-        viewModel.onImageLoad = { [weak cell] image in
-            cell?.retryButton.isHidden = true
-            cell?.feedImageView.image = image
-        }
-
-        viewModel.onImageLoadedWithError = { [weak cell] in
-            cell?.retryButton.isHidden = false
-        }
-
-        cell.onRetry = viewModel.loadImage
-        viewModel.loadImage()
-
+    func view() -> FeedImageCell {
+        presenter.loadImage()
         return cell
     }
 
+    func display(isLoading: Bool, shouldRetry: Bool, image: UIImage?, description: String?, location: String?) {
+        cell.descriptionLabel.isHidden = description == nil
+        cell.descriptionLabel.text = description
+
+        cell.locationContainer.isHidden = location == nil
+        cell.locationLabel.text = location
+
+        cell.retryButton.isHidden = !shouldRetry
+        cell.onRetry = presenter.loadImage
+
+        cell.feedImageView.image = image
+
+        if isLoading {
+            cell.imageContainer.startShimmering()
+        } else {
+            cell.imageContainer.stopShimmering()
+        }
+    }
+
     func cancelLoad() {
-        viewModel.cancelLoad()
+        presenter.cancelLoad()
     }
 }
