@@ -1,20 +1,22 @@
 import Foundation
 import EssentialFeed
 
-final class FeedImageViewModel {
+final class FeedImageViewModel<Image> {
     typealias Observer<T> = ((T) -> Void)
 
     private let model: FeedImage
     private let imageLoader: FeedImageLoader
+    private let imageTransformer: (Data) -> Image?
     private var task: FeedImageLoaderTask?
 
-    init(model: FeedImage, imageLoader: FeedImageLoader) {
+    init(model: FeedImage, imageLoader: FeedImageLoader, imageTransformer: @escaping (Data) -> Image?) {
         self.model = model
         self.imageLoader = imageLoader
+        self.imageTransformer = imageTransformer
     }
 
     var onLoadingChange: Observer<Bool>?
-    var onImageLoad: Observer<Data>?
+    var onImageLoad: Observer<Image>?
     var onImageLoadedWithError: (() -> Void)?
 
     var description: String? {
@@ -42,7 +44,11 @@ final class FeedImageViewModel {
                 self?.onImageLoadedWithError?()
 
             case .success(let data):
-                self?.onImageLoad?(data)
+                if let image = self?.imageTransformer(data) {
+                    self?.onImageLoad?(image)
+                } else {
+                    self?.onImageLoadedWithError?()
+                }
             }
 
             self?.onLoadingChange?(false)

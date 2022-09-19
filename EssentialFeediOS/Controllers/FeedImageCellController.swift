@@ -1,10 +1,10 @@
 import UIKit
 
 final class FeedImageCellController {
-    private let viewModel: FeedImageViewModel
+    private let viewModel: FeedImageViewModel<UIImage>
     private(set) lazy var view: FeedImageCell = bind(FeedImageCell())
 
-    init(viewModel: FeedImageViewModel) {
+    init(viewModel: FeedImageViewModel<UIImage>) {
         self.viewModel = viewModel
     }
 
@@ -29,15 +29,9 @@ final class FeedImageCellController {
             }
         }
 
-        viewModel.onImageLoad = { [weak cell] imageData in
+        viewModel.onImageLoad = { [weak cell] image in
             cell?.retryButton.isHidden = true
-            let image = UIImage(data: imageData)
-
-            if image != nil {
-                cell?.feedImageView.image = image
-            } else {
-                cell?.retryButton.isHidden = false
-            }
+            cell?.feedImageView.image = image
         }
 
         viewModel.onImageLoadedWithError = { [weak cell] in

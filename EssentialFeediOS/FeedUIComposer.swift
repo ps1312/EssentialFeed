@@ -1,4 +1,5 @@
 import EssentialFeed
+import UIKit
 
 final class FeedUIComposer {
     static func composeWith(feedLoader: FeedLoader, imageLoader: FeedImageLoader) -> FeedViewController {
@@ -14,7 +15,7 @@ final class FeedUIComposer {
     static func adaptFeedImageToCellControllers(_ feedController: FeedViewController, _ imageLoader: FeedImageLoader) -> ([FeedImage]) -> Void {
         return { [weak feedController] feed in
             feedController?.cellControllers = feed.map { model in
-                let feedImageViewModel = FeedImageViewModel(model: model, imageLoader: imageLoader)
+                let feedImageViewModel = FeedImageViewModel(model: model, imageLoader: imageLoader, imageTransformer: UIImage.init)
                 return FeedImageCellController(viewModel: feedImageViewModel)
             }
         }
