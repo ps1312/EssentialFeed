@@ -148,7 +148,7 @@ class FeedViewControllerTests: XCTestCase {
         loader.completeFeedLoad(at: 0, with: [uniqueImage(), uniqueImage()])
 
         let firstCell = sut.simulateFeedImageCellIsDisplayed(at: 0)
-        let lastCell = sut.simulateFeedImageCellIsDisplayed(at: 0)
+        let lastCell = sut.simulateFeedImageCellIsDisplayed(at: 1)
         loader.finishImageLoadingSuccessfully(at: 0, with: firstImageData)
         loader.finishImageLoadingSuccessfully(at: 1, with: lastImageData)
 
