@@ -281,8 +281,7 @@
 				3A92328228D75A13008C879F /* FeedUIComposer.swift */,
 				3A8A138F28CE1FB300F2D5DB /* Controllers */,
 				3A8A138E28CE1FA900F2D5DB /* Views */,
-				3A92328428D85BF5008C879F /* FeedRefreshViewModel.swift */,
-				3A92328628D89A8F008C879F /* FeedImageViewModel.swift */,
+				3A92328828D89E15008C879F /* ViewModels */,
 			);
 			path = EssentialFeediOS;
 			sourceTree = "<group>";
@@ -405,6 +404,15 @@
 				3A8B9F9528B51A0400F0AABD /* RemoteFeedLoaderURLSessionHTTPClientTests.swift */,
 			);
 			path = EssentialFeedEndToEndTests;
+			sourceTree = "<group>";
+		};
+		3A92328828D89E15008C879F /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+				3A92328428D85BF5008C879F /* FeedRefreshViewModel.swift */,
+				3A92328628D89A8F008C879F /* FeedImageViewModel.swift */,
+			);
+			path = ViewModels;
 			sourceTree = "<group>";
 		};
 		3A9F010F28C6C0F5000B0299 /* CoreData */ = {
