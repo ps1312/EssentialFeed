@@ -7,6 +7,14 @@ struct FeedImageViewModel<Image> {
     let image: Image?
     let description: String?
     let location: String?
+
+    var hasDescription: Bool {
+        return description != nil
+    }
+
+    var hasLocation: Bool {
+        return location != nil
+    }
 }
 
 protocol FeedImageView {
@@ -15,20 +23,9 @@ protocol FeedImageView {
 }
 
 final class FeedImagePresenter<View: FeedImageView, Image> where View.Image == Image  {
-    private let model: FeedImage
-    private let imageLoader: FeedImageLoader
-    private let imageTransformer: (Data) -> Image?
-    private var task: FeedImageLoaderTask?
-
-    init(model: FeedImage, imageLoader: FeedImageLoader, imageTransformer: @escaping (Data) -> Image?) {
-        self.model = model
-        self.imageLoader = imageLoader
-        self.imageTransformer = imageTransformer
-    }
-
     var feedImageView: View?
 
-    func loadImage() {
+    func didStartLoadingImage(model: FeedImage) {
         feedImageView?.display(
             FeedImageViewModel(
                 isLoading: true,
@@ -38,34 +35,29 @@ final class FeedImagePresenter<View: FeedImageView, Image> where View.Image == I
                 location: model.location
             )
         )
-
-        task = imageLoader.load(from: model.url) { [weak self] result in
-            if let imageData = try? result.get(), let image = self?.imageTransformer(imageData) {
-                self?.feedImageView?.display(
-                    FeedImageViewModel(
-                        isLoading: false,
-                        shouldRetry: false,
-                        image: image,
-                        description: self?.model.description,
-                        location: self?.model.location
-                    )
-                )
-            } else {
-                self?.feedImageView?.display(
-                    FeedImageViewModel(
-                        isLoading: false,
-                        shouldRetry: true,
-                        image: nil,
-                        description: self?.model.description,
-                        location: self?.model.location
-                    )
-                )
-            }
-        }
     }
 
-    func cancelLoad() {
-        task?.cancel()
-        task = nil
+    func didFinishLoadingImage(model: FeedImage, image: Image?) {
+        feedImageView?.display(
+            FeedImageViewModel(
+                isLoading: false,
+                shouldRetry: false,
+                image: image,
+                description: model.description,
+                location: model.location
+            )
+        )
+    }
+
+    func didFinishLoadingImageWithError(model: FeedImage) {
+        feedImageView?.display(
+            FeedImageViewModel(
+                isLoading: false,
+                shouldRetry: true,
+                image: nil,
+                description: model.description,
+                location: model.location
+            )
+        )
     }
 }

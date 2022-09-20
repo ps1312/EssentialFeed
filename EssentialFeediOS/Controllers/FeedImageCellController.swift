@@ -1,32 +1,37 @@
 import UIKit
 
+protocol FeedImageCellControllerDelegate {
+    func didRequestImageLoad()
+    func didCancelImageLoad()
+}
+
 final class FeedImageCellController: FeedImageView {
-    private let presenter: FeedImagePresenter<WeakRefVirtualProxy<FeedImageCellController>, UIImage>
+    private let delegate: FeedImageCellControllerDelegate
 
     private(set) lazy var cell = FeedImageCell()
 
-    init(presenter: FeedImagePresenter<WeakRefVirtualProxy<FeedImageCellController>, UIImage>) {
-        self.presenter = presenter
+    init(delegate: FeedImageCellControllerDelegate) {
+        self.delegate = delegate
     }
 
     func preload() {
-        presenter.loadImage()
+        delegate.didRequestImageLoad()
     }
 
     func view() -> FeedImageCell {
-        presenter.loadImage()
+        delegate.didRequestImageLoad()
         return cell
     }
 
     func display(_ viewModel: FeedImageViewModel<UIImage>) {
-        cell.descriptionLabel.isHidden = viewModel.description == nil
+        cell.descriptionLabel.isHidden = !viewModel.hasDescription
         cell.descriptionLabel.text = viewModel.description
 
-        cell.locationContainer.isHidden = viewModel.location == nil
+        cell.locationContainer.isHidden = !viewModel.hasLocation
         cell.locationLabel.text = viewModel.location
 
         cell.retryButton.isHidden = !viewModel.shouldRetry
-        cell.onRetry = presenter.loadImage
+        cell.onRetry = delegate.didRequestImageLoad
 
         cell.feedImageView.image = viewModel.image
 
@@ -38,6 +43,6 @@ final class FeedImageCellController: FeedImageView {
     }
 
     func cancelLoad() {
-        presenter.cancelLoad()
+        delegate.didCancelImageLoad()
     }
 }
