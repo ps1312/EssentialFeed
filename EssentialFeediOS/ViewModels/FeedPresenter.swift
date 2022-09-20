@@ -17,26 +17,26 @@ protocol FeedView {
     func display(_ viewModel: FeedViewModel)
 }
 
-final class FeedPresenter {
-    private let feedLoader: FeedLoader
+protocol FeedPresenterDelegate {
+    func didStartLoadingFeed()
+    func didFinishLoadingFeed(with feed: [FeedImage])
+    func didFinishLoadingFeedWithError()
+}
 
-    init(feedLoader: FeedLoader) {
-        self.feedLoader = feedLoader
-    }
-
+final class FeedPresenter: FeedPresenterDelegate {
     var loadingView: FeedLoadingView?
     var feedView: FeedView?
 
-    func loadFeed() {
+    func didStartLoadingFeed() {
         loadingView?.display(FeedLoadingViewModel(isLoading: true))
+    }
 
-        feedLoader.load { [weak self] result in
-            if let feed = try? result.get() {
-                self?.feedView?.display(FeedViewModel(feed: feed))
-            }
+    func didFinishLoadingFeed(with feed: [FeedImage]) {
+        feedView?.display(FeedViewModel(feed: feed))
+    }
 
-            self?.loadingView?.display(FeedLoadingViewModel(isLoading: false))
-        }
+    func didFinishLoadingFeedWithError() {
+        loadingView?.display(FeedLoadingViewModel(isLoading: false))
     }
 
 }
