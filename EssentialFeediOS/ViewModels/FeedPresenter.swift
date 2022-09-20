@@ -19,8 +19,8 @@ protocol FeedView {
 
 protocol FeedPresenterDelegate {
     func didStartLoadingFeed()
-    func didFinishLoadingFeed(with feed: [FeedImage])
-    func didFinishLoadingFeedWithError()
+    func didLoadFeed(_ feed: [FeedImage])
+    func didFinishLoadingFeed()
 }
 
 final class FeedPresenter: FeedPresenterDelegate {
@@ -31,11 +31,11 @@ final class FeedPresenter: FeedPresenterDelegate {
         loadingView?.display(FeedLoadingViewModel(isLoading: true))
     }
 
-    func didFinishLoadingFeed(with feed: [FeedImage]) {
+    func didLoadFeed(_ feed: [FeedImage]) {
         feedView?.display(FeedViewModel(feed: feed))
     }
 
-    func didFinishLoadingFeedWithError() {
+    func didFinishLoadingFeed() {
         loadingView?.display(FeedLoadingViewModel(isLoading: false))
     }
 

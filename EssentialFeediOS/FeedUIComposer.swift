@@ -36,10 +36,10 @@ final class FeedRefreshDelegate: FeedRefreshViewControllerDelegate {
 
         feedLoader.load { [weak self] result in
             if let feed = try? result.get() {
-                self?.presenter.didFinishLoadingFeed(with: feed)
+                self?.presenter.didLoadFeed(feed)
             }
 
-            self?.presenter.didFinishLoadingFeedWithError()
+            self?.presenter.didFinishLoadingFeed()
         }
     }
 }
