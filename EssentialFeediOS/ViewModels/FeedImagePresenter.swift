@@ -40,8 +40,17 @@ final class FeedImagePresenter<View: FeedImageView, Image> where View.Image == I
         )
 
         task = imageLoader.load(from: model.url) { [weak self] result in
-            switch (result) {
-            case .failure:
+            if let imageData = try? result.get(), let image = self?.imageTransformer(imageData) {
+                self?.feedImageView?.display(
+                    FeedImageViewModel(
+                        isLoading: false,
+                        shouldRetry: false,
+                        image: image,
+                        description: self?.model.description,
+                        location: self?.model.location
+                    )
+                )
+            } else {
                 self?.feedImageView?.display(
                     FeedImageViewModel(
                         isLoading: false,
@@ -51,31 +60,6 @@ final class FeedImagePresenter<View: FeedImageView, Image> where View.Image == I
                         location: self?.model.location
                     )
                 )
-
-            case .success(let data):
-                if let image = self?.imageTransformer(data) {
-                    self?.feedImageView?.display(
-                        FeedImageViewModel(
-                            isLoading: false,
-                            shouldRetry: false,
-                            image: image,
-                            description: self?.model.description,
-                            location: self?.model.location
-                        )
-                    )
-
-
-                } else {
-                    self?.feedImageView?.display(
-                        FeedImageViewModel(
-                            isLoading: false,
-                            shouldRetry: true,
-                            image: nil,
-                            description: self?.model.description,
-                            location: self?.model.location
-                        )
-                    )
-                }
             }
         }
     }
