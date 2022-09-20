@@ -1,9 +1,17 @@
 import Foundation
 import EssentialFeed
 
+struct FeedImageViewModel<Image> {
+    let isLoading: Bool
+    let shouldRetry: Bool
+    let image: Image?
+    let description: String?
+    let location: String?
+}
+
 protocol FeedImageView {
     associatedtype Image
-    func display(isLoading: Bool, shouldRetry: Bool, image: Image?, description: String?, location: String?)
+    func display(_ viewModel: FeedImageViewModel<Image>)
 }
 
 final class FeedImagePresenter<View: FeedImageView, Image> where View.Image == Image  {
@@ -21,18 +29,52 @@ final class FeedImagePresenter<View: FeedImageView, Image> where View.Image == I
     var feedImageView: View?
 
     func loadImage() {
-        feedImageView?.display(isLoading: true, shouldRetry: false, image: nil, description: model.description, location: model.location)
+        feedImageView?.display(
+            FeedImageViewModel(
+                isLoading: true,
+                shouldRetry: false,
+                image: nil,
+                description: model.description,
+                location: model.location
+            )
+        )
 
         task = imageLoader.load(from: model.url) { [weak self] result in
             switch (result) {
             case .failure:
-                self?.feedImageView?.display(isLoading: false, shouldRetry: true, image: nil, description: self?.model.description, location: self?.model.location)
+                self?.feedImageView?.display(
+                    FeedImageViewModel(
+                        isLoading: false,
+                        shouldRetry: true,
+                        image: nil,
+                        description: self?.model.description,
+                        location: self?.model.location
+                    )
+                )
 
             case .success(let data):
                 if let image = self?.imageTransformer(data) {
-                    self?.feedImageView?.display(isLoading: false, shouldRetry: false, image: image, description: self?.model.description, location: self?.model.location)
+                    self?.feedImageView?.display(
+                        FeedImageViewModel(
+                            isLoading: false,
+                            shouldRetry: false,
+                            image: image,
+                            description: self?.model.description,
+                            location: self?.model.location
+                        )
+                    )
+
+
                 } else {
-                    self?.feedImageView?.display(isLoading: false, shouldRetry: true, image: nil, description: self?.model.description, location: self?.model.location)
+                    self?.feedImageView?.display(
+                        FeedImageViewModel(
+                            isLoading: false,
+                            shouldRetry: true,
+                            image: nil,
+                            description: self?.model.description,
+                            location: self?.model.location
+                        )
+                    )
                 }
             }
         }

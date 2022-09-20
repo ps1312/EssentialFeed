@@ -18,19 +18,19 @@ final class FeedImageCellController: FeedImageView {
         return cell
     }
 
-    func display(isLoading: Bool, shouldRetry: Bool, image: UIImage?, description: String?, location: String?) {
-        cell.descriptionLabel.isHidden = description == nil
-        cell.descriptionLabel.text = description
+    func display(_ viewModel: FeedImageViewModel<UIImage>) {
+        cell.descriptionLabel.isHidden = viewModel.description == nil
+        cell.descriptionLabel.text = viewModel.description
 
-        cell.locationContainer.isHidden = location == nil
-        cell.locationLabel.text = location
+        cell.locationContainer.isHidden = viewModel.location == nil
+        cell.locationLabel.text = viewModel.location
 
-        cell.retryButton.isHidden = !shouldRetry
+        cell.retryButton.isHidden = !viewModel.shouldRetry
         cell.onRetry = presenter.loadImage
 
-        cell.feedImageView.image = image
+        cell.feedImageView.image = viewModel.image
 
-        if isLoading {
+        if viewModel.isLoading {
             cell.imageContainer.startShimmering()
         } else {
             cell.imageContainer.stopShimmering()
