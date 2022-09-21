@@ -7,7 +7,7 @@
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
-        <!--My Feed-->
+        <!--Feed View Controller-->
         <scene sceneID="wzq-hk-3sX">
             <objects>
                 <tableViewController id="tMq-bd-Box" customClass="FeedViewController" customModule="EssentialFeediOS" customModuleProvider="target" sceneMemberID="viewController">
@@ -109,13 +109,23 @@
                             <outlet property="delegate" destination="tMq-bd-Box" id="dsG-iO-TxL"/>
                         </connections>
                     </tableView>
-                    <navigationItem key="navigationItem" title="My Feed" id="PC6-Ew-KIH"/>
                     <refreshControl key="refreshControl" opaque="NO" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" enabled="NO" contentHorizontalAlignment="center" contentVerticalAlignment="center" id="KIk-jh-tiv">
                         <rect key="frame" x="0.0" y="0.0" width="1000" height="1000"/>
                         <autoresizingMask key="autoresizingMask"/>
+                        <connections>
+                            <action selector="refresh" destination="p1c-WR-x2H" eventType="valueChanged" id="XG7-Kc-Wga"/>
+                        </connections>
                     </refreshControl>
+                    <connections>
+                        <outlet property="refreshController" destination="p1c-WR-x2H" id="Aww-ur-5fX"/>
+                    </connections>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="X8Y-TW-1DV" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+                <customObject id="p1c-WR-x2H" userLabel="FeedRefreshViewController" customClass="FeedRefreshViewController" customModule="EssentialFeediOS" customModuleProvider="target">
+                    <connections>
+                        <outlet property="view" destination="KIk-jh-tiv" id="P8K-bK-hUj"/>
+                    </connections>
+                </customObject>
             </objects>
             <point key="canvasLocation" x="992.75362318840587" y="110.49107142857143"/>
         </scene>
