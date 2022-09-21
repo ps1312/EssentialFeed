@@ -230,6 +230,19 @@ class FeedViewControllerTests: XCTestCase {
         XCTAssertEqual(loader.canceledLoadRequests, [firstImageURL, lastImageURL], "Expected cells to cancel image loading when prefetching is canceled")
     }
 
+    func test_feedImageCell_doesNotRenderImageWhenLoadingFinishesAfterCellGoesOffScreen() {
+        let validImageData = UIImage.make(withColor: .blue).pngData()!
+
+        let (sut, loader) = makeSUT()
+        sut.loadViewIfNeeded()
+        loader.completeFeedLoad(at: 0, with: [uniqueImage()])
+
+        let view = sut.simulateFeedImageCellEndsDiplaying(at: 0)
+        loader.finishImageLoadingSuccessfully(at: 0, with: validImageData)
+
+        XCTAssertNil(view.feedImageData)
+    }
+
     private func makeSUT(file: StaticString = #filePath, line: UInt = #line) -> (sut: FeedViewController, loader: FeedLoaderSpy) {
         let loader = FeedLoaderSpy()
         let sut = FeedUIComposer.composeWith(feedLoader: loader, imageLoader: loader)
@@ -348,10 +361,12 @@ private extension FeedViewController {
         return feedImage(at: row) as! FeedImageCell
     }
 
-    func simulateFeedImageCellEndsDiplaying(at row: Int) {
+    @discardableResult
+    func simulateFeedImageCellEndsDiplaying(at row: Int) -> FeedImageCell {
         let indexPath = IndexPath(row: row, section: feedImagesSection)
         let currentCell = simulateFeedImageCellIsDisplayed(at: row)
         tableView(tableView, didEndDisplaying: currentCell, forRowAt: indexPath)
+        return currentCell
     }
 
     func simulateFeedImageCellPrefetch(at row: Int) {
@@ -392,6 +407,10 @@ private extension FeedImageCell {
 
     var isShowingRetryButton: Bool {
         return !retryButton.isHidden
+    }
+
+    var feedImageData: Data? {
+        return feedImageView.image?.pngData()
     }
 
     func simulateImageLoadRetry() {
