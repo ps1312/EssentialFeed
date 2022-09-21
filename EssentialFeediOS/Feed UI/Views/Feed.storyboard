@@ -107,6 +107,7 @@
                         <connections>
                             <outlet property="dataSource" destination="tMq-bd-Box" id="l7n-1W-Ix4"/>
                             <outlet property="delegate" destination="tMq-bd-Box" id="dsG-iO-TxL"/>
+                            <outlet property="prefetchDataSource" destination="tMq-bd-Box" id="nZN-iZ-TdX"/>
                         </connections>
                     </tableView>
                     <refreshControl key="refreshControl" opaque="NO" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" enabled="NO" contentHorizontalAlignment="center" contentVerticalAlignment="center" id="KIk-jh-tiv">

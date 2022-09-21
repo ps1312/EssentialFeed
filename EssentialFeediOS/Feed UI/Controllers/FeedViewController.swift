@@ -7,8 +7,6 @@ public final class FeedViewController: UITableViewController, UITableViewDataSou
     }
 
     public override func viewDidLoad() {
-        tableView.prefetchDataSource = self
-
         refreshController?.refresh()
     }
 
