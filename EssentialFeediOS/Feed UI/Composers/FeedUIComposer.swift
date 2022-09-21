@@ -3,19 +3,18 @@ import UIKit
 
 final class FeedUIComposer {
     static func composeWith(feedLoader: FeedLoader, imageLoader: FeedImageLoader) -> FeedViewController {
+        let feedPresenter = FeedPresenter()
+
         let bundle = Bundle(for: FeedUIComposer.self)
         let storyboard = UIStoryboard(name: "Feed", bundle: bundle)
         let feedController = storyboard.instantiateInitialViewController() as! FeedViewController
-
-        let feedPresenter = FeedPresenter()
+        feedController.delegate = FeedRefreshDelegate(feedLoader: feedLoader, presenter: feedPresenter)
 
         let feedViewAdapter = FeedViewAdapter(imageLoader: imageLoader)
         feedViewAdapter.feedController = feedController
 
-        let refreshController = feedController.refreshController!
-        refreshController.delegate = FeedRefreshDelegate(feedLoader: feedLoader, presenter: feedPresenter)
-
-        feedPresenter.loadingView = WeakRefVirtualProxy(refreshController)
+        // add views to presenter
+        feedPresenter.loadingView = WeakRefVirtualProxy(feedController)
         feedPresenter.feedView = feedViewAdapter
 
         return feedController
