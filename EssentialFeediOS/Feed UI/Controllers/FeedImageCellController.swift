@@ -7,8 +7,7 @@ protocol FeedImageCellControllerDelegate {
 
 final class FeedImageCellController: FeedImageView {
     private let delegate: FeedImageCellControllerDelegate
-
-    private(set) lazy var cell = FeedImageCell()
+    private(set) var cell: FeedImageCell?
 
     init(delegate: FeedImageCellControllerDelegate) {
         self.delegate = delegate
@@ -18,27 +17,28 @@ final class FeedImageCellController: FeedImageView {
         delegate.didRequestImageLoad()
     }
 
-    func view() -> FeedImageCell {
+    func view(in tableView: UITableView) -> FeedImageCell {
+        cell = tableView.dequeueReusableCell(withIdentifier: "FeedImageCell") as? FeedImageCell
         delegate.didRequestImageLoad()
-        return cell
+        return cell!
     }
 
     func display(_ viewModel: FeedImageViewModel<UIImage>) {
-        cell.descriptionLabel.isHidden = !viewModel.hasDescription
-        cell.descriptionLabel.text = viewModel.description
+        cell?.descriptionLabel.isHidden = !viewModel.hasDescription
+        cell?.descriptionLabel.text = viewModel.description
 
-        cell.locationContainer.isHidden = !viewModel.hasLocation
-        cell.locationLabel.text = viewModel.location
+        cell?.locationContainer.isHidden = !viewModel.hasLocation
+        cell?.locationLabel.text = viewModel.location
 
-        cell.retryButton.isHidden = !viewModel.shouldRetry
-        cell.onRetry = delegate.didRequestImageLoad
+        cell?.retryButton.isHidden = !viewModel.shouldRetry
+        cell?.onRetry = delegate.didRequestImageLoad
 
-        cell.feedImageView.image = viewModel.image
+        cell?.feedImageView.image = viewModel.image
 
         if viewModel.isLoading {
-            cell.imageContainer.startShimmering()
+            cell?.imageContainer.startShimmering()
         } else {
-            cell.imageContainer.stopShimmering()
+            cell?.imageContainer.stopShimmering()
         }
     }
 
