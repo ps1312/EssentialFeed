@@ -1,7 +1,7 @@
 import Foundation
 import EssentialFeed
 
-final class FeedPresenter {
+public final class FeedPresenter {
     private let loadingView: FeedLoadingView
     private let feedView: FeedView
 
