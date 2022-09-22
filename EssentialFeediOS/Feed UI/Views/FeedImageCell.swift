@@ -1,12 +1,12 @@
 import UIKit
 
 public class FeedImageCell: UITableViewCell {
-    @IBOutlet var descriptionLabel: UILabel!
-    @IBOutlet var locationContainer: UIView!
-    @IBOutlet var locationLabel: UILabel!
-    @IBOutlet var feedImageView: UIImageView!
-    @IBOutlet var imageContainer: UIView!
-    @IBOutlet var retryButton: UIButton!
+    @IBOutlet private(set) public var descriptionLabel: UILabel!
+    @IBOutlet private(set) public var locationContainer: UIView!
+    @IBOutlet private(set) public var locationLabel: UILabel!
+    @IBOutlet private(set) public var feedImageView: UIImageView!
+    @IBOutlet private(set) public var imageContainer: UIView!
+    @IBOutlet private(set) public var retryButton: UIButton!
 
     var onRetry: (() -> Void)?
 
