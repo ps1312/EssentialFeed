@@ -23,9 +23,9 @@ final class FeedUIComposer {
 
 final class FeedRefreshDelegate: FeedRefreshViewControllerDelegate {
     private let feedLoader: FeedLoader
-    private let presenter: FeedPresenterDelegate
+    private let presenter: FeedPresenter
 
-    init(feedLoader: FeedLoader, presenter: FeedPresenterDelegate) {
+    init(feedLoader: FeedLoader, presenter: FeedPresenter) {
         self.feedLoader = feedLoader
         self.presenter = presenter
     }

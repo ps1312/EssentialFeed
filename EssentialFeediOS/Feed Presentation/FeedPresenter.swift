@@ -1,13 +1,7 @@
 import Foundation
 import EssentialFeed
 
-protocol FeedPresenterDelegate {
-    func didStartLoadingFeed()
-    func didLoadFeed(_ feed: [FeedImage])
-    func didFinishLoadingFeed()
-}
-
-final class FeedPresenter: FeedPresenterDelegate {
+final class FeedPresenter {
     var loadingView: FeedLoadingView?
     var feedView: FeedView?
 
