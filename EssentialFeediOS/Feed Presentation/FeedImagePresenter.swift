@@ -1,27 +1,6 @@
 import Foundation
 import EssentialFeed
 
-struct FeedImageViewModel<Image> {
-    let isLoading: Bool
-    let shouldRetry: Bool
-    let image: Image?
-    let description: String?
-    let location: String?
-
-    var hasDescription: Bool {
-        return description != nil
-    }
-
-    var hasLocation: Bool {
-        return location != nil
-    }
-}
-
-protocol FeedImageView {
-    associatedtype Image
-    func display(_ viewModel: FeedImageViewModel<Image>)
-}
-
 final class FeedImagePresenter<View: FeedImageView, Image> where View.Image == Image  {
     var feedImageView: View?
 
