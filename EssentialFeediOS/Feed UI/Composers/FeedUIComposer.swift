@@ -44,6 +44,19 @@ final class FeedRefreshDelegate: FeedRefreshViewControllerDelegate {
     }
 }
 
+private extension FeedViewController {
+    static func makeWith(delegate: FeedRefreshViewControllerDelegate, title: String) -> FeedViewController {
+        let bundle = Bundle(for: FeedUIComposer.self)
+        let storyboard = UIStoryboard(name: "Feed", bundle: bundle)
+        let feedController = storyboard.instantiateInitialViewController() as! FeedViewController
+        feedController.title = title
+        feedController.delegate = delegate
+
+        return feedController
+    }
+}
+
+
 final class FeedViewAdapter: FeedView {
     private let imageLoader: FeedImageLoader
     weak var feedController: FeedViewController?
@@ -130,17 +143,5 @@ extension WeakRefVirtualProxy: FeedLoadingView where T: FeedLoadingView {
 extension WeakRefVirtualProxy: FeedImageView where T: FeedImageView, T.Image == UIImage {
     func display(_ viewModel: FeedImageViewModel<UIImage>) {
         object?.display(viewModel)
-    }
-}
-
-private extension FeedViewController {
-    static func makeWith(delegate: FeedRefreshViewControllerDelegate, title: String) -> FeedViewController {
-        let bundle = Bundle(for: FeedUIComposer.self)
-        let storyboard = UIStoryboard(name: "Feed", bundle: bundle)
-        let feedController = storyboard.instantiateInitialViewController() as! FeedViewController
-        feedController.title = title
-        feedController.delegate = delegate
-
-        return feedController
     }
 }
