@@ -4,13 +4,7 @@ import UIKit
 final class FeedUIComposer {
     static func composeWith(feedLoader: FeedLoader, imageLoader: FeedImageLoader) -> FeedViewController {
         let feedPresenter = FeedPresenter()
-
-        let bundle = Bundle(for: FeedUIComposer.self)
-        let storyboard = UIStoryboard(name: "Feed", bundle: bundle)
-        let feedController = storyboard.instantiateInitialViewController() as! FeedViewController
-        feedController.delegate = FeedRefreshDelegate(feedLoader: feedLoader, presenter: feedPresenter)
-        feedController.title = FeedPresenter.title
-        
+        let feedController = FeedViewController.makeWith(feedLoader: feedLoader, presenter: feedPresenter)
         let feedViewAdapter = FeedViewAdapter(imageLoader: imageLoader)
         feedViewAdapter.feedController = feedController
 
@@ -122,5 +116,17 @@ extension WeakRefVirtualProxy: FeedLoadingView where T: FeedLoadingView {
 extension WeakRefVirtualProxy: FeedImageView where T: FeedImageView, T.Image == UIImage {
     func display(_ viewModel: FeedImageViewModel<UIImage>) {
         object?.display(viewModel)
+    }
+}
+
+private extension FeedViewController {
+    static func makeWith(feedLoader: FeedLoader, presenter: FeedPresenter) -> FeedViewController {
+        let bundle = Bundle(for: FeedUIComposer.self)
+        let storyboard = UIStoryboard(name: "Feed", bundle: bundle)
+        let feedController = storyboard.instantiateInitialViewController() as! FeedViewController
+        feedController.delegate = FeedRefreshDelegate(feedLoader: feedLoader, presenter: presenter)
+        feedController.title = FeedPresenter.title
+
+        return feedController
     }
 }
