@@ -2,8 +2,13 @@ import Foundation
 import EssentialFeed
 
 final class FeedPresenter {
-    var loadingView: FeedLoadingView?
-    var feedView: FeedView?
+    private let loadingView: FeedLoadingView
+    private let feedView: FeedView
+
+    init(loadingView: FeedLoadingView, feedView: FeedView) {
+        self.loadingView = loadingView
+        self.feedView = feedView
+    }
 
     static var title: String {
         NSLocalizedString(
@@ -15,15 +20,15 @@ final class FeedPresenter {
     }
 
     func didStartLoadingFeed() {
-        loadingView?.display(FeedLoadingViewModel(isLoading: true))
+        loadingView.display(FeedLoadingViewModel(isLoading: true))
     }
 
     func didLoadFeed(_ feed: [FeedImage]) {
-        feedView?.display(FeedViewModel(feed: feed))
+        feedView.display(FeedViewModel(feed: feed))
     }
 
     func didFinishLoadingFeed() {
-        loadingView?.display(FeedLoadingViewModel(isLoading: false))
+        loadingView.display(FeedLoadingViewModel(isLoading: false))
     }
 
 }
