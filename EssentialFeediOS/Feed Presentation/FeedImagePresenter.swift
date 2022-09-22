@@ -2,10 +2,14 @@ import Foundation
 import EssentialFeed
 
 final class FeedImagePresenter<View: FeedImageView, Image> where View.Image == Image  {
-    var feedImageView: View?
+    private let feedImageView: View
+
+    init(feedImageView: View) {
+        self.feedImageView = feedImageView
+    }
 
     func didStartLoadingImage(model: FeedImage) {
-        feedImageView?.display(
+        feedImageView.display(
             FeedImageViewModel(
                 isLoading: true,
                 shouldRetry: false,
@@ -17,7 +21,7 @@ final class FeedImagePresenter<View: FeedImageView, Image> where View.Image == I
     }
 
     func didFinishLoadingImage(model: FeedImage, image: Image?) {
-        feedImageView?.display(
+        feedImageView.display(
             FeedImageViewModel(
                 isLoading: false,
                 shouldRetry: false,
@@ -29,7 +33,7 @@ final class FeedImagePresenter<View: FeedImageView, Image> where View.Image == I
     }
 
     func didFinishLoadingImageWithError(model: FeedImage) {
-        feedImageView?.display(
+        feedImageView.display(
             FeedImageViewModel(
                 isLoading: false,
                 shouldRetry: true,

@@ -54,15 +54,23 @@ final class FeedViewAdapter: FeedView {
 
     func display(_ viewModel: FeedViewModel) {
         feedController?.cellControllers = viewModel.feed.map { model in
-            let feedImagePresenter = FeedImagePresenter<WeakRefVirtualProxy<FeedImageCellController>, UIImage>()
-
+            // abstracts the communication between domain and presentation (by *adapting the image load output to the presenter input)
             let cellControllerDelegate = FeedImageLoadPresentationAdapter<WeakRefVirtualProxy<FeedImageCellController>, UIImage>(
-                model: model, imageLoader: imageLoader, imageTransformer: UIImage.init
+                model: model,
+                imageLoader: imageLoader,
+                imageTransformer: UIImage.init
             )
-            cellControllerDelegate.presenter = feedImagePresenter
 
+            // configures cell and requests for image load through a protocol
             let feedImageView = FeedImageCellController(delegate: cellControllerDelegate)
-            feedImagePresenter.feedImageView = WeakRefVirtualProxy(feedImageView)
+
+            // present views by using display() methods
+            let feedImagePresenter = FeedImagePresenter<WeakRefVirtualProxy<FeedImageCellController>, UIImage>(
+                feedImageView: WeakRefVirtualProxy(feedImageView)
+            )
+
+            // handle composition details...
+            cellControllerDelegate.presenter = feedImagePresenter
 
             return feedImageView
         }
