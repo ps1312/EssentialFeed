@@ -4,6 +4,7 @@ import EssentialFeed
 final class FeedPresenter {
     var loadingView: FeedLoadingView?
     var feedView: FeedView?
+    static var title = "Feed"
 
     func didStartLoadingFeed() {
         loadingView?.display(FeedLoadingViewModel(isLoading: true))

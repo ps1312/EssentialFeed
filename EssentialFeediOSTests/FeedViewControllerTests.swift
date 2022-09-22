@@ -4,6 +4,14 @@ import EssentialFeed
 
 class FeedViewControllerTests: XCTestCase {
 
+    func test_feedView_hasTitle() {
+        let (sut,_) = makeSUT()
+
+        sut.loadViewIfNeeded()
+
+        XCTAssertEqual(sut.title, "Feed")
+    }
+
     func test_feedLoader_isCalledUponViewActions() {
         let (sut, loader) = makeSUT()
 
