@@ -10,7 +10,7 @@ final class FeedUIComposer {
         let feedController = FeedViewController.makeWith(delegate: feedRefreshDelegate, title: FeedPresenter.title)
 
         // adapts [FeedImage] to [FeedImageCellControllers]
-        let feedViewAdapter = FeedViewAdapter(imageLoader: imageLoader)
+        let feedViewAdapter = FeedViewAdapter(imageLoader: MainQueueDispatchDecorator(decoratee: imageLoader))
 
         // present views by using display() methods
         let feedPresenter = FeedPresenter(loadingView: WeakRefVirtualProxy(feedController), feedView: feedViewAdapter)
@@ -34,6 +34,20 @@ class MainQueueDispatchDecorator<T> {
 extension MainQueueDispatchDecorator: FeedLoader where T == FeedLoader {
     func load(completion: @escaping (LoadFeedResult) -> Void) {
         decoratee.load { result in
+            if Thread.isMainThread {
+                completion(result)
+            } else {
+                DispatchQueue.main.async {
+                    completion(result)
+                }
+            }
+        }
+    }
+}
+
+extension MainQueueDispatchDecorator: FeedImageLoader where T == FeedImageLoader {
+    func load(from url: URL, completion: @escaping (FeedImageLoader.Result) -> Void) -> FeedImageLoaderTask {
+        decoratee.load(from: url) { result in
             if Thread.isMainThread {
                 completion(result)
             } else {
