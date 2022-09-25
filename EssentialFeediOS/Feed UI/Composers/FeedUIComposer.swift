@@ -4,7 +4,7 @@ import UIKit
 final class FeedUIComposer {
     static func composeWith(feedLoader: FeedLoader, imageLoader: FeedImageLoader) -> FeedViewController {
         // abstracts the communication between domain and presentation (by *adapting* the domain api output to presenter input)
-        let feedRefreshDelegate = FeedRefreshDelegate(feedLoader: MainQueueDispatchDecorator<FeedLoader>(decoratee: feedLoader))
+        let feedRefreshDelegate = FeedLoadPresentationAdapter(feedLoader: MainQueueDispatchDecorator<FeedLoader>(decoratee: feedLoader))
 
         // controls refresh and cells instantiation
         let feedController = FeedViewController.makeWith(delegate: feedRefreshDelegate, title: FeedPresenter.title)
@@ -20,27 +20,6 @@ final class FeedUIComposer {
         feedRefreshDelegate.presenter = feedPresenter
 
         return feedController
-    }
-}
-
-final class FeedRefreshDelegate: FeedRefreshViewControllerDelegate {
-    private let feedLoader: FeedLoader
-    var presenter: FeedPresenter?
-
-    init(feedLoader: FeedLoader) {
-        self.feedLoader = feedLoader
-    }
-
-    func didRequestFeedLoad() {
-         presenter?.didStartLoadingFeed()
-
-        feedLoader.load { [weak self] result in
-            if let feed = try? result.get() {
-                self?.presenter?.didLoadFeed(feed)
-            }
-
-            self?.presenter?.didFinishLoadingFeed()
-        }
     }
 }
 
