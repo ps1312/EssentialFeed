@@ -256,7 +256,7 @@ class FeedUIIntegrationTests: XCTestCase {
         XCTAssertNil(view.feedImageData)
     }
 
-    func test_feedLoader_finishesLoadingOutOfMainQueue() {
+    func test_feedLoader_completesLoadingInMainQueue() {
         let (sut, loader) = makeSUT()
         sut.loadViewIfNeeded()
 
@@ -269,7 +269,7 @@ class FeedUIIntegrationTests: XCTestCase {
         wait(for: [exp], timeout: 1.0)
     }
 
-    func test_feedImageLoader_finishesLoadingOutOfMainQueue() {
+    func test_feedImageLoader_completesLoadingInMainQueue() {
         let (sut, loader) = makeSUT()
         sut.loadViewIfNeeded()
         loader.completeFeedLoad(at: 0, with: [uniqueImage()])
