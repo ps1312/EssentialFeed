@@ -1,14 +1,6 @@
 import Foundation
 import EssentialFeed
 
-struct FeedErrorViewModel {
-    var message: String?
-}
-
-protocol FeedErrorView {
-    func display(_ viewModel: FeedErrorViewModel)
-}
-
 public final class FeedPresenter {
     private let loadingView: FeedLoadingView
     private let feedView: FeedView
