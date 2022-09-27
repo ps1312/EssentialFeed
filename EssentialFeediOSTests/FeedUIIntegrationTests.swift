@@ -87,7 +87,8 @@ class FeedUIIntegrationTests: XCTestCase {
         sut.loadViewIfNeeded()
         loader.completeFeedLoad(at: 0, with: makeNSError())
 
-        XCTAssertEqual(sut.errorMessage, "VAI TOMAR NO C#", "Expected error message to be displayed on feed load failure")
+        let localizedTitle = localized(key: "FEED_VIEW_CONNECTION_ERROR", in: "Feed")
+        XCTAssertEqual(sut.errorMessage, localizedTitle, "Expected error message to be displayed on feed load failure")
     }
 
     func test_feedImageCell_requestsImageDataLoadFromURL() {
@@ -323,6 +324,12 @@ class FeedUIIntegrationTests: XCTestCase {
 
     private func uniqueImage(description: String? = nil, location: String? = nil, url: URL = makeURL()) -> FeedImage {
         return FeedImage(id: UUID(), description: description, location: location, url: url)
+    }
+
+    private func localized(key: String, in table: String) -> String {
+        let bundle = Bundle(for: FeedPresenter.self)
+        return bundle.localizedString(forKey: key, value: nil, table: table)
+
     }
 
 }

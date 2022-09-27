@@ -21,6 +21,15 @@ public final class FeedPresenter {
         )
     }
 
+    static var loadError: String {
+        NSLocalizedString(
+            "FEED_VIEW_CONNECTION_ERROR",
+            tableName: "Feed",
+            bundle: Bundle(for: FeedPresenter.self),
+            comment: "The error message for feed load failure"
+        )
+    }
+
     func didStartLoadingFeed() {
         loadingView.display(FeedLoadingViewModel(isLoading: true))
     }
@@ -32,7 +41,7 @@ public final class FeedPresenter {
 
     func didFinishLoadingFeedWithError() {
         loadingView.display(FeedLoadingViewModel(isLoading: false))
-        errorView.display(FeedErrorViewModel(message: "VAI TOMAR NO C#"))
+        errorView.display(FeedErrorViewModel(message: FeedPresenter.loadError))
     }
 
 }
