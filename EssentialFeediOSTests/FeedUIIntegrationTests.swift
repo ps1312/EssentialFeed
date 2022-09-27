@@ -9,12 +9,10 @@ class FeedUIIntegrationTests: XCTestCase {
 
         sut.loadViewIfNeeded()
 
-        let bundle = Bundle(for: FeedPresenter.self)
         let localizedKey = "FEED_VIEW_TITLE"
-        let localized = bundle.localizedString(forKey: localizedKey, value: nil, table: "Feed")
-
-        XCTAssertNotEqual(localizedKey, localized, "Expect localized value to be different from key \(localizedKey)")
-        XCTAssertEqual(sut.title, localized)
+        let localizedTitle = localized(key: localizedKey, in: "Feed")
+        XCTAssertNotEqual(localizedKey, localizedTitle, "Expect localized value to be different from key \(localizedKey)")
+        XCTAssertEqual(sut.title, localizedTitle)
     }
 
     func test_feedLoader_isCalledUponViewActions() {
