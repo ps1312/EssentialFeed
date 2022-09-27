@@ -85,7 +85,10 @@ class FeedUIIntegrationTests: XCTestCase {
         sut.loadViewIfNeeded()
         loader.completeFeedLoad(at: 0, with: makeNSError())
 
-        let localizedTitle = localized(key: "FEED_VIEW_CONNECTION_ERROR", in: "Feed")
+        let localizedKey = "FEED_VIEW_CONNECTION_ERROR"
+        let localizedTitle = localized(key: localizedKey, in: "Feed")
+
+        XCTAssertNotEqual(localizedKey, localizedTitle)
         XCTAssertEqual(sut.errorMessage, localizedTitle, "Expected error message to be displayed on feed load failure")
     }
 
