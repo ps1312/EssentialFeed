@@ -12,11 +12,14 @@ final class FeedLoadPresentationAdapter: FeedRefreshViewControllerDelegate {
          presenter?.didStartLoadingFeed()
 
         feedLoader.load { [weak self] result in
-            if let feed = try? result.get() {
+            switch (result) {
+            case .success(let feed):
                 self?.presenter?.didLoadFeed(feed)
-            }
 
-            self?.presenter?.didFinishLoadingFeed()
+            case .failure:
+                self?.presenter?.didFinishLoadingFeedWithError()
+        
+            }
         }
     }
 }

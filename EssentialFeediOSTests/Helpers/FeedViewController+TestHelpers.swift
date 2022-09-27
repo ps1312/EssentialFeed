@@ -16,6 +16,10 @@ extension FeedViewController {
         return refreshControl.isRefreshing
     }
 
+    var errorMessage: String? {
+        return errorView?.errorLabel.text
+    }
+
     func simulatePullToRefresh() {
         refreshControl?.allTargets.forEach { target in
             refreshControl?.actions(forTarget: target, forControlEvent: .valueChanged)?.forEach {

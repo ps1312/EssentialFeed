@@ -1,13 +1,23 @@
 import Foundation
 import EssentialFeed
 
+struct FeedErrorViewModel {
+    var message: String?
+}
+
+protocol FeedErrorView {
+    func display(_ viewModel: FeedErrorViewModel)
+}
+
 public final class FeedPresenter {
     private let loadingView: FeedLoadingView
     private let feedView: FeedView
+    private let errorView: FeedErrorView
 
-    init(loadingView: FeedLoadingView, feedView: FeedView) {
+    init(loadingView: FeedLoadingView, feedView: FeedView, errorView: FeedErrorView) {
         self.loadingView = loadingView
         self.feedView = feedView
+        self.errorView = errorView
     }
 
     static var title: String {
@@ -24,11 +34,13 @@ public final class FeedPresenter {
     }
 
     func didLoadFeed(_ feed: [FeedImage]) {
+        loadingView.display(FeedLoadingViewModel(isLoading: false))
         feedView.display(FeedViewModel(feed: feed))
     }
 
-    func didFinishLoadingFeed() {
+    func didFinishLoadingFeedWithError() {
         loadingView.display(FeedLoadingViewModel(isLoading: false))
+        errorView.display(FeedErrorViewModel(message: "VAI TOMAR NO C#"))
     }
 
 }

@@ -13,7 +13,11 @@ final class FeedUIComposer {
         let viewAdapter = FeedViewAdapter(imageLoader: MainQueueDispatchDecorator(decoratee: imageLoader))
 
         // present views by using display() methods
-        let presenter = FeedPresenter(loadingView: WeakRefVirtualProxy(viewController), feedView: viewAdapter)
+        let presenter = FeedPresenter(
+            loadingView: WeakRefVirtualProxy(viewController),
+            feedView: viewAdapter,
+            errorView: WeakRefVirtualProxy(viewController)
+        )
 
         // handle composition details... (by setting up the variables)
         viewAdapter.feedController = viewController

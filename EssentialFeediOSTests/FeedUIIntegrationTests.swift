@@ -81,6 +81,15 @@ class FeedUIIntegrationTests: XCTestCase {
         XCTAssertFalse(sut.isShowingLoadingIndicator, "Expected loading indicator to not be visible after loading finishes with an error")
     }
 
+    func test_feedLoadFailure_displaysAnErrorMessage() {
+        let (sut, loader) = makeSUT()
+
+        sut.loadViewIfNeeded()
+        loader.completeFeedLoad(at: 0, with: makeNSError())
+
+        XCTAssertEqual(sut.errorMessage, "VAI TOMAR NO C#", "Expected error message to be displayed on feed load failure")
+    }
+
     func test_feedImageCell_requestsImageDataLoadFromURL() {
         let firstImageURL = URL(string: "https://url-1.com")!
         let firstFeedImage = uniqueImage(url: firstImageURL)
