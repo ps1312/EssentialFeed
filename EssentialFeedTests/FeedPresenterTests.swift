@@ -1,36 +1,5 @@
 import XCTest
-
-struct FeedLoadingViewModel: Equatable {
-    let isLoading: Bool
-}
-
-protocol FeedLoadingView {
-    func display(_ viewModel: FeedLoadingViewModel)
-}
-
-class FeedViewSpy: FeedLoadingView {
-    enum Message: Equatable {
-    case display(FeedLoadingViewModel)
-    }
-
-    var messages = [Message]()
-
-    func display(_ viewModel: FeedLoadingViewModel) {
-        messages.append(.display(viewModel))
-    }
-}
-
-class FeedPresenter {
-    private let loadingView: FeedLoadingView
-
-    init(loadingView: FeedLoadingView) {
-        self.loadingView = loadingView
-    }
-
-    func didStartLoadingFeed() {
-        loadingView.display(FeedLoadingViewModel(isLoading: true))
-    }
-}
+import EssentialFeed
 
 class FeedPresenterTests: XCTestCase {
 
@@ -48,6 +17,18 @@ class FeedPresenterTests: XCTestCase {
         sut.didStartLoadingFeed()
 
         XCTAssertEqual(spy.messages, [.display(FeedLoadingViewModel(isLoading: true))])
+    }
+
+    private class FeedViewSpy: FeedLoadingView {
+        enum Message: Equatable {
+        case display(FeedLoadingViewModel)
+        }
+
+        var messages = [Message]()
+
+        func display(_ viewModel: FeedLoadingViewModel) {
+            messages.append(.display(viewModel))
+        }
     }
 
 }
