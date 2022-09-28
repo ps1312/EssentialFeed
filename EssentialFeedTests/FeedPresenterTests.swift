@@ -37,9 +37,20 @@ class FeedPresenterTests: XCTestCase {
         ])
     }
 
+    func test_didFinishLoadingFeedWithError_stopsLoadingAndPresentsAnError() {
+        let (sut, spy) = makeSUT()
+
+        sut.didFinishLoadingFeedWithError()
+
+        XCTAssertEqual(spy.messages, [
+            .loadingView(FeedLoadingViewModel(isLoading: false)),
+            .errorView(FeedErrorViewModel(message: FeedPresenter.loadError))
+        ])
+    }
+
     private func makeSUT(file: StaticString = #filePath, line: UInt = #line) -> (sut: FeedPresenter, spy: FeedViewSpy) {
         let spy = FeedViewSpy()
-        let sut = FeedPresenter(loadingView: spy, feedView: spy)
+        let sut = FeedPresenter(loadingView: spy, feedView: spy, errorView: spy)
 
         testMemoryLeak(spy, file: file, line: line)
         testMemoryLeak(sut, file: file, line: line)
@@ -47,10 +58,11 @@ class FeedPresenterTests: XCTestCase {
         return (sut, spy)
     }
 
-    private class FeedViewSpy: FeedLoadingView, FeedView {
+    private class FeedViewSpy: FeedLoadingView, FeedView, FeedErrorView {
         enum Message: Equatable {
         case loadingView(FeedLoadingViewModel)
         case feedView(FeedViewModel)
+        case errorView(FeedErrorViewModel)
         }
 
         var messages = [Message]()
@@ -61,6 +73,10 @@ class FeedPresenterTests: XCTestCase {
 
         func display(_ viewModel: FeedViewModel) {
             messages.append(.feedView(viewModel))
+        }
+
+        func display(_ viewModel: EssentialFeed.FeedErrorViewModel) {
+            messages.append(.errorView(viewModel))
         }
     }
 
