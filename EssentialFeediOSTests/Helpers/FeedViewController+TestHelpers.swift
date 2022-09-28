@@ -20,6 +20,10 @@ extension FeedViewController {
         return errorView?.button.titleLabel?.text
     }
 
+    var isShowingErrorMessage: Bool? {
+        return errorView?.isVisible
+    }
+
     func simulatePullToRefresh() {
         refreshControl?.allTargets.forEach { target in
             refreshControl?.actions(forTarget: target, forControlEvent: .valueChanged)?.forEach {

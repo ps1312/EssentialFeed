@@ -84,7 +84,8 @@ class FeedUIIntegrationTests: XCTestCase {
         loader.completeFeedLoad(at: 0, with: makeNSError())
 
         let localizedTitle = fetchLocalizedValue(sut, key: "FEED_VIEW_CONNECTION_ERROR")
-        XCTAssertEqual(sut.errorMessage, localizedTitle, "Expected error message to be displayed on feed load failure")
+        XCTAssertEqual(sut.isShowingErrorMessage, true, "Expected error message to be displayed on feed load failure")
+        XCTAssertEqual(sut.errorMessage, localizedTitle, "Expected message to be set on feed load failure")
     }
 
     func test_feedRefresh_hidesErrorMessage() {
@@ -94,7 +95,8 @@ class FeedUIIntegrationTests: XCTestCase {
         loader.completeFeedLoad(at: 0, with: makeNSError())
         sut.simulatePullToRefresh()
 
-        XCTAssertEqual(sut.errorMessage, nil, "Expected error message to be nil while reloading feed")
+        XCTAssertEqual(sut.isShowingErrorMessage, false, "Expected error message not to be displayed after reloading feed")
+        XCTAssertEqual(sut.errorMessage, nil, "Expected message to be nil after reloading feed")
     }
 
     func test_feedImageCell_requestsImageDataLoadFromURL() {
