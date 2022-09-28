@@ -106,7 +106,7 @@ class CacheFeedUseCaseTests: XCTestCase {
 
         action()
 
-        wait(for: [exp], timeout: 0.1)
+        wait(for: [exp], timeout: 1.0)
 
         XCTAssertEqual(capturedError as? NSError, expectedError)
     }

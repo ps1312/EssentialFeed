@@ -145,7 +145,7 @@ class LoadFeedFromRemoteUseCase: XCTestCase {
 
         action()
 
-        wait(for: [exp], timeout: 0.1)
+        wait(for: [exp], timeout: 1.0)
     }
 
     private class HTTPClientSpy: HTTPClient {

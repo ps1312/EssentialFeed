@@ -1,5 +1,19 @@
 version: 2.1
 
+parameters:
+  GHA_Actor:
+    type: string
+    default: "ps1312"
+  GHA_Action:
+    type: string
+    default: "continuous-integration"
+  GHA_Event:
+    type: string
+    default: "pull_request"
+  GHA_Meta:
+    type: string
+    default: ""
+
 jobs:
   build-and-test:
     macos:
@@ -7,11 +21,11 @@ jobs:
 
     steps:
       - checkout
-      - run: xcodebuild clean build test -project EssentialFeed.xcodeproj -scheme "CI" CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO
+      - run: xcodebuild clean build test -project EssentialFeed.xcodeproj -scheme "CI_macOS" CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO -sdk macosx -destination "platform=macOS" ONLY_ACTIVE_ARCH=YES
+      - run: xcodebuild clean build test -project EssentialFeed.xcodeproj -scheme "CI_iOS" CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO -sdk iphonesimulator -destination "platform=iOS Simulator,OS=15.5,name=iPhone 13" ONLY_ACTIVE_ARCH=YES
 
 workflows:
   continuous-integration:
-    when:
-      equal: [main, << pipeline.git.branch >>]
+    when: << pipeline.parameters.GHA_Action >>
     jobs:
       - build-and-test
