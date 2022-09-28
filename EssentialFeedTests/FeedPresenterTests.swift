@@ -22,7 +22,7 @@ class FeedPresenterTests: XCTestCase {
 
         sut.didStartLoadingFeed()
 
-        XCTAssertEqual(spy.messages, [.display(FeedLoadingViewModel(isLoading: true))])
+        XCTAssertEqual(spy.messages, [.loadingView(FeedLoadingViewModel(isLoading: true))])
     }
 
     func test_didLoadFeed_stopsLoadingAndDisplaysFeed() {
@@ -32,7 +32,7 @@ class FeedPresenterTests: XCTestCase {
         sut.didLoadFeed(emptyFeed)
 
         XCTAssertEqual(spy.messages, [
-            .display(FeedLoadingViewModel(isLoading: false)),
+            .loadingView(FeedLoadingViewModel(isLoading: false)),
             .feedView(FeedViewModel(feed: emptyFeed))
         ])
     }
@@ -49,14 +49,14 @@ class FeedPresenterTests: XCTestCase {
 
     private class FeedViewSpy: FeedLoadingView, FeedView {
         enum Message: Equatable {
-        case display(FeedLoadingViewModel)
+        case loadingView(FeedLoadingViewModel)
         case feedView(FeedViewModel)
         }
 
         var messages = [Message]()
 
         func display(_ viewModel: FeedLoadingViewModel) {
-            messages.append(.display(viewModel))
+            messages.append(.loadingView(viewModel))
         }
 
         func display(_ viewModel: FeedViewModel) {
