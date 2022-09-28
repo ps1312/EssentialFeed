@@ -4,8 +4,7 @@ import EssentialFeed
 class FeedPresenterTests: XCTestCase {
 
     func test_init_hasNoSideEffectsOnViews() {
-        let spy = FeedViewSpy()
-        _ = FeedPresenter(loadingView: spy, feedView: spy)
+        let (_, spy) = makeSUT()
 
         XCTAssertEqual(spy.messages, [])
     }
@@ -19,8 +18,7 @@ class FeedPresenterTests: XCTestCase {
     }
 
     func test_didStartLoadingFeed_requestsLoadingViewToDisplayLoading() {
-        let spy = FeedViewSpy()
-        let sut = FeedPresenter(loadingView: spy, feedView: spy)
+        let (sut, spy) = makeSUT()
 
         sut.didStartLoadingFeed()
 
@@ -28,8 +26,7 @@ class FeedPresenterTests: XCTestCase {
     }
 
     func test_didLoadFeed_stopsLoadingAndDisplaysFeed() {
-        let spy = FeedViewSpy()
-        let sut = FeedPresenter(loadingView: spy, feedView: spy)
+        let (sut, spy) = makeSUT()
         let emptyFeed = [FeedImage]()
 
         sut.didLoadFeed(emptyFeed)
@@ -38,6 +35,16 @@ class FeedPresenterTests: XCTestCase {
             .display(FeedLoadingViewModel(isLoading: false)),
             .feedView(FeedViewModel(feed: emptyFeed))
         ])
+    }
+
+    private func makeSUT(file: StaticString = #filePath, line: UInt = #line) -> (sut: FeedPresenter, spy: FeedViewSpy) {
+        let spy = FeedViewSpy()
+        let sut = FeedPresenter(loadingView: spy, feedView: spy)
+
+        testMemoryLeak(spy, file: file, line: line)
+        testMemoryLeak(sut, file: file, line: line)
+
+        return (sut, spy)
     }
 
     private class FeedViewSpy: FeedLoadingView, FeedView {
