@@ -87,6 +87,16 @@ class FeedUIIntegrationTests: XCTestCase {
         XCTAssertEqual(sut.errorMessage, localizedTitle, "Expected error message to be displayed on feed load failure")
     }
 
+    func test_feedRefresh_hidesErrorMessage() {
+        let (sut, loader) = makeSUT()
+
+        sut.loadViewIfNeeded()
+        loader.completeFeedLoad(at: 0, with: makeNSError())
+        sut.simulatePullToRefresh()
+
+        XCTAssertEqual(sut.errorMessage, nil, "Expected error message to be nil while reloading feed")
+    }
+
     func test_feedImageCell_requestsImageDataLoadFromURL() {
         let firstImageURL = URL(string: "https://url-1.com")!
         let firstFeedImage = uniqueImage(url: firstImageURL)

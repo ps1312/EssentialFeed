@@ -6,4 +6,8 @@ public class ErrorView {
     func display(message: String) {
         button.setTitle(message, for: .normal)
     }
+
+    func hideMessage() {
+        button.setTitle(nil, for: .normal)
+    }
 }
