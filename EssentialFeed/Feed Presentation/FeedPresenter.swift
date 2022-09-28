@@ -12,8 +12,21 @@ public protocol FeedLoadingView {
     func display(_ viewModel: FeedLoadingViewModel)
 }
 
+public struct FeedViewModel: Equatable {
+    let feed: [FeedImage]
+
+    public init(feed: [FeedImage]) {
+        self.feed = feed
+    }
+}
+
+public protocol FeedView {
+    func display(_ viewModel: FeedViewModel)
+}
+
 public class FeedPresenter {
     private let loadingView: FeedLoadingView
+    private let feedView: FeedView
 
     public static var title: String {
         NSLocalizedString(
@@ -24,11 +37,17 @@ public class FeedPresenter {
         )
     }
 
-    public init(loadingView: FeedLoadingView) {
+    public init(loadingView: FeedLoadingView, feedView: FeedView) {
         self.loadingView = loadingView
+        self.feedView = feedView
     }
 
     public func didStartLoadingFeed() {
         loadingView.display(FeedLoadingViewModel(isLoading: true))
+    }
+
+    public func didLoadFeed(_ feed: [FeedImage]) {
+        loadingView.display(FeedLoadingViewModel(isLoading: false))
+        feedView.display(FeedViewModel(feed: feed))
     }
 }

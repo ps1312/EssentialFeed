@@ -5,7 +5,7 @@ class FeedPresenterTests: XCTestCase {
 
     func test_init_hasNoSideEffectsOnViews() {
         let spy = FeedViewSpy()
-        _ = FeedPresenter(loadingView: spy)
+        _ = FeedPresenter(loadingView: spy, feedView: spy)
 
         XCTAssertEqual(spy.messages, [])
     }
@@ -20,22 +20,40 @@ class FeedPresenterTests: XCTestCase {
 
     func test_didStartLoadingFeed_requestsLoadingViewToDisplayLoading() {
         let spy = FeedViewSpy()
-        let sut = FeedPresenter(loadingView: spy)
+        let sut = FeedPresenter(loadingView: spy, feedView: spy)
 
         sut.didStartLoadingFeed()
 
         XCTAssertEqual(spy.messages, [.display(FeedLoadingViewModel(isLoading: true))])
     }
 
-    private class FeedViewSpy: FeedLoadingView {
+    func test_didLoadFeed_stopsLoadingAndDisplaysFeed() {
+        let spy = FeedViewSpy()
+        let sut = FeedPresenter(loadingView: spy, feedView: spy)
+        let emptyFeed = [FeedImage]()
+
+        sut.didLoadFeed(emptyFeed)
+
+        XCTAssertEqual(spy.messages, [
+            .display(FeedLoadingViewModel(isLoading: false)),
+            .feedView(FeedViewModel(feed: emptyFeed))
+        ])
+    }
+
+    private class FeedViewSpy: FeedLoadingView, FeedView {
         enum Message: Equatable {
         case display(FeedLoadingViewModel)
+        case feedView(FeedViewModel)
         }
 
         var messages = [Message]()
 
         func display(_ viewModel: FeedLoadingViewModel) {
             messages.append(.display(viewModel))
+        }
+
+        func display(_ viewModel: FeedViewModel) {
+            messages.append(.feedView(viewModel))
         }
     }
 
