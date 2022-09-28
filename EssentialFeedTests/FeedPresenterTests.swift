@@ -10,6 +10,14 @@ class FeedPresenterTests: XCTestCase {
         XCTAssertEqual(spy.messages, [])
     }
 
+    func test_title_hasLocalizedTitle() {
+        let expectedKey = "FEED_VIEW_TITLE"
+        let expectedTitle = localized(key: expectedKey, in: "Feed")
+
+        XCTAssertNotEqual(FeedPresenter.title, expectedKey)
+        XCTAssertEqual(FeedPresenter.title, expectedTitle)
+    }
+
     func test_didStartLoadingFeed_requestsLoadingViewToDisplayLoading() {
         let spy = FeedViewSpy()
         let sut = FeedPresenter(loadingView: spy)
@@ -29,6 +37,11 @@ class FeedPresenterTests: XCTestCase {
         func display(_ viewModel: FeedLoadingViewModel) {
             messages.append(.display(viewModel))
         }
+    }
+
+    private func localized(key: String, in table: String) -> String {
+        let bundle = Bundle(for: FeedPresenter.self)
+        return bundle.localizedString(forKey: key, value: nil, table: table)
     }
 
 }
