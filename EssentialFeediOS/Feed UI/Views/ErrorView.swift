@@ -1,9 +1,9 @@
 import UIKit
 
 public class ErrorView {
-    public let errorLabel = UILabel()
+    public let button = UIButton()
 
     func display(message: String) {
-        errorLabel.text = message
+        button.setTitle(message, for: .normal)
     }
 }

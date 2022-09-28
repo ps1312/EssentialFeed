@@ -17,7 +17,7 @@ extension FeedViewController {
     }
 
     var errorMessage: String? {
-        return errorView?.errorLabel.text
+        return errorView?.button.titleLabel?.text
     }
 
     func simulatePullToRefresh() {
