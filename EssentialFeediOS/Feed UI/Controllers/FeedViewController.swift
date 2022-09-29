@@ -18,7 +18,6 @@ public final class FeedViewController: UITableViewController, UITableViewDataSou
     }
 
     @IBAction func refresh() {
-        errorView?.hideMessage()
         delegate?.didRequestFeedLoad()
     }
 
@@ -33,6 +32,8 @@ public final class FeedViewController: UITableViewController, UITableViewDataSou
     public func display(_ viewModel: FeedErrorViewModel) {
         if let message = viewModel.message {
             errorView?.display(message: message)
+        } else {
+            errorView?.hideMessage()
         }
     }
 
