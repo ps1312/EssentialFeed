@@ -23,6 +23,20 @@ class FeedImagePresenterTests: XCTestCase {
         XCTAssertEqual(message?.location, model.location)
     }
 
+    func test_didFinishLoadingImage_hidesLoadingAndShowsRetryButtonWhenImageConvertionFails() {
+        let model = uniqueImage()
+        let (sut, spy) = makeSUT(imageTransformationResult: nil)
+
+        sut.didFinishLoadingImage(model: model, data: Data())
+
+        let message = spy.messages.first
+        XCTAssertEqual(message?.isLoading, false)
+        XCTAssertEqual(message?.shouldRetry, true)
+        XCTAssertEqual(message?.image, nil)
+        XCTAssertEqual(message?.description, model.description)
+        XCTAssertEqual(message?.location, model.location)
+    }
+
     func test_didFinishLoadingImage_hidesLoadingAndSendsImageToView() {
         let model = uniqueImage()
         let image = AnyImage()
@@ -52,9 +66,9 @@ class FeedImagePresenterTests: XCTestCase {
         XCTAssertEqual(message?.location, model.location)
     }
 
-    private func makeSUT(file: StaticString = #filePath, line: UInt = #line) -> (sut: FeedImagePresenter<FeedViewSpy, AnyImage>, spy: FeedViewSpy) {
+    private func makeSUT(imageTransformationResult: AnyImage? = AnyImage(), file: StaticString = #filePath, line: UInt = #line) -> (sut: FeedImagePresenter<FeedViewSpy, AnyImage>, spy: FeedViewSpy) {
         let spy = FeedViewSpy()
-        let sut = FeedImagePresenter(feedImageView: spy, imageTransformer: { _ in AnyImage()})
+        let sut = FeedImagePresenter(feedImageView: spy, imageTransformer: { _ in imageTransformationResult })
 
         testMemoryLeak(spy, file: file, line: line)
         testMemoryLeak(sut, file: file, line: line)
