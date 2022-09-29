@@ -1,42 +1,5 @@
 import Foundation
 
-public struct FeedLoadingViewModel: Equatable {
-    public let isLoading: Bool
-
-    public init(isLoading: Bool) {
-        self.isLoading = isLoading
-    }
-}
-
-public protocol FeedLoadingView {
-    func display(_ viewModel: FeedLoadingViewModel)
-}
-
-public struct FeedViewModel: Equatable {
-    let feed: [FeedImage]
-
-    public init(feed: [FeedImage]) {
-        self.feed = feed
-    }
-}
-
-public protocol FeedView {
-    func display(_ viewModel: FeedViewModel)
-}
-
-public struct FeedErrorViewModel: Equatable {
-    public var message: String?
-
-    public init(message: String?) {
-        self.message = message
-    }
-}
-
-public protocol FeedErrorView {
-    func display(_ viewModel: FeedErrorViewModel)
-}
-
-
 public class FeedPresenter {
     private let loadingView: FeedLoadingView
     private let feedView: FeedView
