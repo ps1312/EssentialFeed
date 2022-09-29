@@ -52,9 +52,12 @@ class FeedImagePresenterTests: XCTestCase {
         XCTAssertEqual(message?.location, model.location)
     }
 
-    private func makeSUT() -> (sut: FeedImagePresenter<FeedViewSpy, AnyImage>, spy: FeedViewSpy) {
+    private func makeSUT(file: StaticString = #filePath, line: UInt = #line) -> (sut: FeedImagePresenter<FeedViewSpy, AnyImage>, spy: FeedViewSpy) {
         let spy = FeedViewSpy()
         let sut = FeedImagePresenter(feedImageView: spy)
+
+        testMemoryLeak(spy, file: file, line: line)
+        testMemoryLeak(sut, file: file, line: line)
 
         return (sut, spy)
     }
