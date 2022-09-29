@@ -2,9 +2,11 @@ import Foundation
 
 public class FeedImagePresenter<View: FeedImageView, Image> where View.Image == Image {
     private let feedImageView: View
+    private let imageTransformer: (Data) -> Image?
 
-    public init(feedImageView: View) {
+    public init(feedImageView: View, imageTransformer: @escaping (Data) -> Image?) {
         self.feedImageView = feedImageView
+        self.imageTransformer = imageTransformer
     }
 
     public func didStartLoadingImage(model: FeedImage) {
@@ -19,11 +21,13 @@ public class FeedImagePresenter<View: FeedImageView, Image> where View.Image == 
         )
     }
 
-    public func didFinishLoadingImage(model: FeedImage, image: Image?) {
+    public func didFinishLoadingImage(model: FeedImage, data: Data) {
+        let image = imageTransformer(data)
+
         feedImageView.display(
             FeedImageViewModel(
                 isLoading: false,
-                shouldRetry: false,
+                shouldRetry: image == nil,
                 image: image,
                 description: model.description,
                 location: model.location

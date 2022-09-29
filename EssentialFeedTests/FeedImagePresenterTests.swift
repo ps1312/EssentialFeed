@@ -28,7 +28,7 @@ class FeedImagePresenterTests: XCTestCase {
         let image = AnyImage()
         let (sut, spy) = makeSUT()
 
-        sut.didFinishLoadingImage(model: model, image: image)
+        sut.didFinishLoadingImage(model: model, data: Data())
 
         let message = spy.messages.first
         XCTAssertEqual(message?.isLoading, false)
@@ -54,7 +54,7 @@ class FeedImagePresenterTests: XCTestCase {
 
     private func makeSUT(file: StaticString = #filePath, line: UInt = #line) -> (sut: FeedImagePresenter<FeedViewSpy, AnyImage>, spy: FeedViewSpy) {
         let spy = FeedViewSpy()
-        let sut = FeedImagePresenter(feedImageView: spy)
+        let sut = FeedImagePresenter(feedImageView: spy, imageTransformer: { _ in AnyImage()})
 
         testMemoryLeak(spy, file: file, line: line)
         testMemoryLeak(sut, file: file, line: line)
