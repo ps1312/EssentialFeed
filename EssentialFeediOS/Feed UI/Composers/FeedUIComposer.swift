@@ -1,5 +1,6 @@
 import EssentialFeed
 import UIKit
+import EssentialFeed
 
 final class FeedUIComposer {
     static func composeWith(feedLoader: FeedLoader, imageLoader: FeedImageLoader) -> FeedViewController {
