@@ -30,7 +30,7 @@ class FeedPresenterTests: XCTestCase {
 
         sut.didStartLoadingFeed()
 
-        XCTAssertEqual(spy.messages, [.loadingView(FeedLoadingViewModel(isLoading: true))])
+        XCTAssertEqual(spy.messages, [.display(isLoading: true)])
     }
 
     func test_didLoadFeed_stopsLoadingAndDisplaysFeed() {
@@ -40,8 +40,8 @@ class FeedPresenterTests: XCTestCase {
         sut.didLoadFeed(emptyFeed)
 
         XCTAssertEqual(spy.messages, [
-            .loadingView(FeedLoadingViewModel(isLoading: false)),
-            .feedView(FeedViewModel(feed: emptyFeed))
+            .display(isLoading: false),
+            .display(feed: emptyFeed)
         ])
     }
 
@@ -51,8 +51,8 @@ class FeedPresenterTests: XCTestCase {
         sut.didFinishLoadingFeedWithError()
 
         XCTAssertEqual(spy.messages, [
-            .loadingView(FeedLoadingViewModel(isLoading: false)),
-            .errorView(FeedErrorViewModel(message: FeedPresenter.loadError))
+            .display(isLoading: false),
+            .display(errorMessage: FeedPresenter.loadError)
         ])
     }
 
@@ -120,23 +120,23 @@ class FeedPresenterTests: XCTestCase {
 
     private class FeedViewSpy: FeedLoadingView, FeedView, FeedErrorView {
         enum Message: Equatable {
-        case loadingView(FeedLoadingViewModel)
-        case feedView(FeedViewModel)
-        case errorView(FeedErrorViewModel)
+            case display(isLoading: Bool)
+            case display(feed: [FeedImage])
+            case display(errorMessage: String?)
         }
 
         var messages = [Message]()
 
         func display(_ viewModel: FeedLoadingViewModel) {
-            messages.append(.loadingView(viewModel))
+            messages.append(.display(isLoading: viewModel.isLoading))
         }
 
         func display(_ viewModel: FeedViewModel) {
-            messages.append(.feedView(viewModel))
+            messages.append(.display(feed: viewModel.feed))
         }
 
         func display(_ viewModel: EssentialFeed.FeedErrorViewModel) {
-            messages.append(.errorView(viewModel))
+            messages.append(.display(errorMessage: viewModel.message))
         }
     }
 
