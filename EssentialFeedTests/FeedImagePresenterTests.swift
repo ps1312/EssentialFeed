@@ -1,7 +1,45 @@
 import XCTest
+import EssentialFeed
 
-class FeedImagePresenter {
-    init(view: Any) {}
+struct FeedImageViewModel<Image> {
+    let isLoading: Bool
+    let shouldRetry: Bool
+    let image: Image?
+    let description: String?
+    let location: String?
+
+    var hasDescription: Bool {
+        return description != nil
+    }
+
+    var hasLocation: Bool {
+        return location != nil
+    }
+}
+
+protocol FeedImageView {
+    associatedtype Image
+    func display(_ viewModel: FeedImageViewModel<Image>)
+}
+
+class FeedImagePresenter<View: FeedImageView, Image> where View.Image == Image {
+    private let feedImageView: View
+
+    init(feedImageView: View) {
+        self.feedImageView = feedImageView
+    }
+
+    func didStartLoadingImage(model: FeedImage) {
+        feedImageView.display(
+            FeedImageViewModel(
+                isLoading: true,
+                shouldRetry: false,
+                image: nil,
+                description: model.description,
+                location: model.location
+            )
+        )
+    }
 }
 
 class FeedImagePresenterTests: XCTestCase {
@@ -9,20 +47,38 @@ class FeedImagePresenterTests: XCTestCase {
     func test_init_hasNoSideEffectsOnViews() {
         let (_, spy) = makeSUT()
 
-        XCTAssertEqual(spy.messages, [])
+        XCTAssertEqual(spy.messages.count, 0)
     }
 
-    private func makeSUT() -> (sut: FeedImagePresenter, spy: FeedViewSpy) {
+    func test_didStartLoadingImage_displaysLoadingWithData() {
+        let model = uniqueImage()
+        let (sut, spy) = makeSUT()
+
+        sut.didStartLoadingImage(model: model)
+
+        let message = spy.messages.first
+        XCTAssertEqual(message?.isLoading, true)
+        XCTAssertEqual(message?.shouldRetry, false)
+        XCTAssertEqual(message?.image, nil)
+        XCTAssertEqual(message?.description, model.description)
+        XCTAssertEqual(message?.location, model.location)
+    }
+
+    private func makeSUT() -> (sut: FeedImagePresenter<FeedViewSpy, AnyImage>, spy: FeedViewSpy) {
         let spy = FeedViewSpy()
-        let sut = FeedImagePresenter(view: spy)
+        let sut = FeedImagePresenter(feedImageView: spy)
 
         return (sut, spy)
     }
 
-    private class FeedViewSpy {
-        enum Message: Equatable {}
+    private struct AnyImage: Equatable {}
 
-        let messages = [Message]()
+    private class FeedViewSpy: FeedImageView {
+        var messages = [FeedImageViewModel<AnyImage>]()
+
+        func display(_ viewModel: FeedImageViewModel<AnyImage>) {
+            messages.append(viewModel)
+        }
     }
 
 }
