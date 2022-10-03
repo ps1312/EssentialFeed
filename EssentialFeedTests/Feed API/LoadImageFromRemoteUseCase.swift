@@ -86,7 +86,7 @@ class LoadImageFromRemoteUseCase: XCTestCase {
         }
     }
 
-    func test_load_deliversEmptyDataOn200StatusCodeEmptyResponse() {
+    func test_load_deliversEmptyDataOn200StatusCodeNonEmptyResponse() {
         let expectedData = makeData()
         let (sut, client) = makeSUT()
         var capturedResult: FeedImageLoader.Result?
