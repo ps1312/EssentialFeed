@@ -69,9 +69,12 @@ class LoadImageFromRemoteUseCase: XCTestCase {
     func test_load_deliversInvalidDataErrorOnNon200StatusCodeResponse() {
         let (sut, client) = makeSUT()
 
-        expect(sut, toCompleteWith: .invalidData, when: {
-            client.completeWith(statusCode: 500, data: makeData())
-        })
+        let sample = [199, 201, 300, 400, 500]
+        sample.enumerated().forEach { index, statusCode in
+            expect(sut, toCompleteWith: .invalidData, when: {
+                client.completeWith(statusCode: statusCode, data: makeData(), at: index)
+            })
+        }
     }
 
     private func expect(_ sut: RemoteImageLoader, toCompleteWith expectedError: RemoteImageLoader.Error, when action: () -> Void, file: StaticString = #filePath, line: UInt = #line) {
@@ -85,7 +88,7 @@ class LoadImageFromRemoteUseCase: XCTestCase {
             XCTAssertEqual(error, expectedError, file: file, line: line)
 
         default:
-            XCTFail("Expected result to be a failure, instead got success")
+            XCTFail("Expected result to be a failure, instead got success", file: file, line: line)
 
         }
     }
