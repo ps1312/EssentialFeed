@@ -4,6 +4,10 @@ import EssentialFeed
 class RemoteImageLoader {
     private let client: HTTPClient
 
+    enum Error: Swift.Error {
+        case connectivity
+    }
+
     struct RemoteFeedImageLoaderTask: FeedImageLoaderTask {
         func cancel() {}
     }
@@ -13,7 +17,9 @@ class RemoteImageLoader {
     }
 
     func load(from url: URL, completion: @escaping (FeedImageLoader.Result) -> Void) -> FeedImageLoaderTask {
-        client.get(from: url) { _ in }
+        client.get(from: url) { result in
+            completion(.failure(Error.connectivity))
+        }
         return RemoteFeedImageLoaderTask()
     }
 }
@@ -42,6 +48,23 @@ class LoadImageFromRemoteUseCase: XCTestCase {
         let _ = sut.load(from: expectedURL) { _ in }
 
         XCTAssertEqual(spy.requestedURLs, [expectedURL, expectedURL])
+    }
+
+    func test_load_deliversConnectivityErrorOnRequestFailure() {
+        let (sut, client) = makeSUT()
+
+        let _ = sut.load(from: makeURL()) { result in
+            switch (result) {
+            case .failure(let error as RemoteImageLoader.Error):
+                XCTAssertEqual(error, .connectivity)
+
+            default:
+                XCTFail("Expected result to be a failure, instead got \(result)")
+
+            }
+        }
+
+        client.completeWith(error: makeNSError())
     }
 
     private func makeSUT(file: StaticString = #filePath, line: UInt = #line) -> (RemoteImageLoader, HTTPClientSpy) {
