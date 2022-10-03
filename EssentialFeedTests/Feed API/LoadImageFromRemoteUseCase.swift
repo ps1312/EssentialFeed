@@ -6,6 +6,7 @@ class RemoteImageLoader {
 
     enum Error: Swift.Error {
         case connectivity
+        case invalidData
     }
 
     struct RemoteFeedImageLoaderTask: FeedImageLoaderTask {
@@ -18,7 +19,14 @@ class RemoteImageLoader {
 
     func load(from url: URL, completion: @escaping (FeedImageLoader.Result) -> Void) -> FeedImageLoaderTask {
         client.get(from: url) { result in
-            completion(.failure(Error.connectivity))
+            switch (result) {
+            case .failure:
+                completion(.failure(Error.connectivity))
+
+            case .success:
+                completion(.failure(Error.invalidData))
+
+            }
         }
         return RemoteFeedImageLoaderTask()
     }
@@ -61,6 +69,23 @@ class LoadImageFromRemoteUseCase: XCTestCase {
         switch (capturedResult) {
         case .failure(let error as RemoteImageLoader.Error):
             XCTAssertEqual(error, .connectivity)
+
+        default:
+            XCTFail("Expected result to be a failure, instead got success")
+
+        }
+    }
+
+    func test_load_deliversInvalidDataErrorOnNon200StatusCodeResponse() {
+        let (sut, client) = makeSUT()
+        var capturedResult: FeedImageLoader.Result?
+
+        let _ = sut.load(from: makeURL()) { capturedResult = $0 }
+        client.completeWith(statusCode: 500, data: makeData())
+
+        switch (capturedResult) {
+        case .failure(let error as RemoteImageLoader.Error):
+            XCTAssertEqual(error, .invalidData)
 
         default:
             XCTFail("Expected result to be a failure, instead got success")
