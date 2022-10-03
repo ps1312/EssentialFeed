@@ -19,20 +19,28 @@ class LocalFeedImageLoader {
 class LocalFeedImageLoaderTests: XCTestCase {
 
     func test_init_doesNotMessageStore() {
-        let store = FeedImageStoreSpy()
-        _ = LocalFeedImageLoader(store: store)
-
+        let (_ , store) = makeSUT()
         XCTAssertTrue(store.messages.isEmpty)
     }
 
     func test_load_makesStoreRetrievalWithProvidedURL() {
         let url = makeURL()
-        let store = FeedImageStoreSpy()
-        let sut = LocalFeedImageLoader(store: store)
+        let (sut, store) = makeSUT()
 
         sut.load(from: url)
 
         XCTAssertEqual(store.messages, [.retrieve(from: url)])
+    }
+
+
+    private func makeSUT(file: StaticString = #filePath, line: UInt = #line) -> (LocalFeedImageLoader, FeedImageStoreSpy) {
+        let store = FeedImageStoreSpy()
+        let sut = LocalFeedImageLoader(store: store)
+
+        testMemoryLeak(store, file: file, line: line)
+        testMemoryLeak(sut, file: file, line: line)
+
+        return (sut, store)
     }
 
     private class FeedImageStoreSpy: FeedImageStore {
