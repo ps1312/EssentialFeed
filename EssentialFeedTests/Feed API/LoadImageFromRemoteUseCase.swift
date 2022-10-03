@@ -22,7 +22,9 @@ class RemoteImageLoader {
     }
 
     func load(from url: URL, completion: @escaping (FeedImageLoader.Result) -> Void) -> FeedImageLoaderTask {
-        let httpTask = client.get(from: url) { result in
+        let httpTask = client.get(from: url) { [weak self] result in
+            guard self != nil else { return }
+
             switch (result) {
             case .failure:
                 completion(.failure(Error.connectivity))
@@ -123,6 +125,18 @@ class LoadImageFromRemoteUseCase: XCTestCase {
         task2.cancel()
 
         XCTAssertEqual(client.canceledURLs, [url1, url2])
+    }
+
+    func test_load_doesNotCompletesWhenClientFinishesLoadingAfterInstanceHasBeenDeallocated() {
+        let client = HTTPClientSpy()
+        var sut: RemoteImageLoader? = RemoteImageLoader(client: client)
+        var capturedResult: FeedImageLoader.Result?
+
+        let _ = sut?.load(from: makeURL()) { capturedResult = $0 }
+        sut = nil
+        client.completeWith(statusCode: 200, data: makeData())
+
+        XCTAssertNil(capturedResult)
     }
 
     private func expect(_ sut: RemoteImageLoader, toCompleteWith expectedError: RemoteImageLoader.Error, when action: () -> Void, file: StaticString = #filePath, line: UInt = #line) {
