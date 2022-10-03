@@ -1,5 +1,3 @@
-import EssentialFeed
-
-protocol FeedView {
+public protocol FeedView {
     func display(_ viewModel: FeedViewModel)
 }

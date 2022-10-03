@@ -1,14 +1,15 @@
 import Foundation
-import EssentialFeed
 
-final class FeedImagePresenter<View: FeedImageView, Image> where View.Image == Image  {
+public class FeedImagePresenter<View: FeedImageView, Image> where View.Image == Image {
     private let feedImageView: View
+    private let imageTransformer: (Data) -> Image?
 
-    init(feedImageView: View) {
+    public init(feedImageView: View, imageTransformer: @escaping (Data) -> Image?) {
         self.feedImageView = feedImageView
+        self.imageTransformer = imageTransformer
     }
 
-    func didStartLoadingImage(model: FeedImage) {
+    public func didStartLoadingImage(model: FeedImage) {
         feedImageView.display(
             FeedImageViewModel(
                 isLoading: true,
@@ -20,11 +21,13 @@ final class FeedImagePresenter<View: FeedImageView, Image> where View.Image == I
         )
     }
 
-    func didFinishLoadingImage(model: FeedImage, image: Image?) {
+    public func didFinishLoadingImage(model: FeedImage, data: Data) {
+        let image = imageTransformer(data)
+
         feedImageView.display(
             FeedImageViewModel(
                 isLoading: false,
-                shouldRetry: false,
+                shouldRetry: image == nil,
                 image: image,
                 description: model.description,
                 location: model.location
@@ -32,7 +35,7 @@ final class FeedImagePresenter<View: FeedImageView, Image> where View.Image == I
         )
     }
 
-    func didFinishLoadingImageWithError(model: FeedImage) {
+    public func didFinishLoadingImageWithError(model: FeedImage) {
         feedImageView.display(
             FeedImageViewModel(
                 isLoading: false,
