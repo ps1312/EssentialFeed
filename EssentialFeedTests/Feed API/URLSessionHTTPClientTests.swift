@@ -18,11 +18,11 @@ class URLSessionHTTPClientTests: XCTestCase {
 
         URLProtocolStub.setStub(data: nil, response: nil, error: nil)
 
-        URLProtocolStub.observeRequest = { request in
+        URLProtocolStub.observeRequest(observer: { request in
             XCTAssertEqual(request.httpMethod, "GET")
             XCTAssertEqual(request.url, expectedURL)
             exp.fulfill()
-        }
+        })
 
         _ = sut.get(from: expectedURL) { _ in }
 
@@ -147,18 +147,28 @@ class URLSessionHTTPClientTests: XCTestCase {
     }
 }
 
-class URLProtocolStub: URLProtocol {
-    struct Stub {
-        var data: Data?
-        var response: URLResponse?
-        var error: Error?
+private class URLProtocolStub: URLProtocol {
+    private struct Stub {
+        let data: Data?
+        let response: URLResponse?
+        let error: Error?
+        let requestObserver: ((URLRequest) -> Void)?
     }
 
-    static var observeRequest: ((URLRequest) -> Void)? = nil
-    static var stub: Stub? = nil
+    private static var _stub: Stub?
+    private static var stub: Stub? {
+        get { return queue.sync { _stub } }
+        set { queue.sync { _stub = newValue } }
+    }
+
+    private static let queue = DispatchQueue(label: "URLProtocolStub.queue")
 
     static func setStub(data: Data?, response: URLResponse?, error: Error?) {
-        URLProtocolStub.stub = Stub(data: data, response: response, error: error)
+        URLProtocolStub.stub = Stub(data: data, response: response, error: error, requestObserver: nil)
+    }
+
+    static func observeRequest(observer: @escaping ((URLRequest) -> Void)) {
+        URLProtocolStub.stub = Stub(data: nil, response: nil, error: nil, requestObserver: observer)
     }
 
     static func startInterceptingRequests() {
@@ -168,7 +178,6 @@ class URLProtocolStub: URLProtocol {
     static func stopInterceptingRequests() {
         URLProtocol.unregisterClass(URLProtocolStub.self)
         stub = nil
-        observeRequest = nil
     }
 
     override class func canInit(with request: URLRequest) -> Bool { return true }
@@ -176,8 +185,8 @@ class URLProtocolStub: URLProtocol {
     override class func canonicalRequest(for request: URLRequest) -> URLRequest { return request }
 
     override func startLoading() {
-        if let observeRequest = URLProtocolStub.observeRequest {
-            return observeRequest(request)
+        if let requestObserver = URLProtocolStub.stub?.requestObserver {
+            return requestObserver(request)
         }
 
         if let data = URLProtocolStub.stub?.data {
