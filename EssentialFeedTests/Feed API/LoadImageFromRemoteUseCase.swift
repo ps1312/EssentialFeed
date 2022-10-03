@@ -23,8 +23,12 @@ class RemoteImageLoader {
             case .failure:
                 completion(.failure(Error.connectivity))
 
-            case .success:
-                completion(.failure(Error.invalidData))
+            case let .success((data, response)):
+                if response.statusCode == 200 {
+                    completion(.success(data))
+                } else {
+                    completion(.failure(Error.invalidData))
+                }
 
             }
         }
@@ -74,6 +78,22 @@ class LoadImageFromRemoteUseCase: XCTestCase {
             expect(sut, toCompleteWith: .invalidData, when: {
                 client.completeWith(statusCode: statusCode, data: makeData(), at: index)
             })
+        }
+    }
+
+    func test_load_deliversEmptyDataOn200StatusCodeEmptyResponse() {
+        let expectedData = makeData()
+        let (sut, client) = makeSUT()
+        var capturedResult: FeedImageLoader.Result?
+
+        let _ = sut.load(from: makeURL()) { capturedResult = $0 }
+        client.completeWith(statusCode: 200, data: expectedData)
+
+        switch (capturedResult) {
+        case .success(let capturedData):
+            XCTAssertEqual(capturedData, expectedData)
+        default:
+            XCTFail("Expected result to be a success, instead got failure")
         }
     }
 
