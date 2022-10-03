@@ -5,6 +5,7 @@ protocol FeedImageStore {
     typealias RetrievalCompletion = (RetrievalResult) -> Void
 
     func retrieve(from url: URL, completion: @escaping RetrievalCompletion)
+    func insert(url: URL, with data: Data)
 }
 
 class LocalFeedImageLoader {
@@ -27,6 +28,10 @@ class LocalFeedImageLoader {
 
             }
         }
+    }
+
+    func save(url: URL, with data: Data) {
+        store.insert(url: url, with: data)
     }
 }
 
@@ -64,6 +69,16 @@ class LocalFeedImageLoaderTests: XCTestCase {
         })
     }
 
+    func test_save_messagesStoreToSaveDataInURL() {
+        let url = makeURL()
+        let data = makeData()
+        let (sut, store) = makeSUT()
+
+        sut.save(url: url, with: data)
+
+        XCTAssertEqual(store.messages, [.insert(url, data)])
+    }
+
     private func expect(_ sut: LocalFeedImageLoader, toCompleteWith expectedResult: LocalFeedImageLoader.LoadFeedImageResult, when action: () -> Void, file: StaticString = #filePath, line: UInt = #line) {
         sut.load(from: makeURL()) { capturedResult in
             switch (capturedResult, expectedResult) {
@@ -95,6 +110,7 @@ class LocalFeedImageLoaderTests: XCTestCase {
     private class FeedImageStoreSpy: FeedImageStore {
         enum Message: Equatable {
             case retrieve(from: URL)
+            case insert(URL, Data)
         }
         var messages = [Message]()
         var retrievalCompletions = [RetrievalCompletion]()
@@ -110,6 +126,10 @@ class LocalFeedImageLoaderTests: XCTestCase {
 
         func completeRetrieve(with data: Data, at index: Int = 0) {
             retrievalCompletions[index](.success(data))
+        }
+
+        func insert(url: URL, with data: Data) {
+            messages.append(.insert(url, data))
         }
     }
 
