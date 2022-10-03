@@ -21,16 +21,13 @@ class RemoteImageLoader {
 class LoadImageFromRemoteUseCase: XCTestCase {
 
     func test_init_doesNotMessageClient() {
-        let spy = HTTPClientSpy()
-        _ = RemoteImageLoader(client: spy)
-
+        let (_, spy) = makeSUT()
         XCTAssertTrue(spy.messages.isEmpty)
     }
 
     func test_load_makesRequestWithURL() {
         let expectedURL = makeURL()
-        let spy = HTTPClientSpy()
-        let sut = RemoteImageLoader(client: spy)
+        let (sut, spy) = makeSUT()
 
         let _ = sut.load(from: expectedURL) { _ in }
 
@@ -39,13 +36,22 @@ class LoadImageFromRemoteUseCase: XCTestCase {
 
     func test_loadTwice_makesRequestTwice() {
         let expectedURL = makeURL()
-        let spy = HTTPClientSpy()
-        let sut = RemoteImageLoader(client: spy)
+        let (sut, spy) = makeSUT()
 
         let _ = sut.load(from: expectedURL) { _ in }
         let _ = sut.load(from: expectedURL) { _ in }
 
         XCTAssertEqual(spy.requestedURLs, [expectedURL, expectedURL])
+    }
+
+    private func makeSUT(file: StaticString = #filePath, line: UInt = #line) -> (RemoteImageLoader, HTTPClientSpy) {
+        let spy = HTTPClientSpy()
+        let sut = RemoteImageLoader(client: spy)
+
+        testMemoryLeak(spy, file: file, line: line)
+        testMemoryLeak(sut, file: file, line: line)
+
+        return (sut, spy)
     }
 
 }
