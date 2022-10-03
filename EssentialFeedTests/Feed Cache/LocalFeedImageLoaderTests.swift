@@ -50,34 +50,36 @@ class LocalFeedImageLoaderTests: XCTestCase {
         let error = makeNSError()
         let (sut, store) = makeSUT()
 
-        var capturedResult: LocalFeedImageLoader.LoadFeedImageResult?
-        sut.load(from: makeURL()) { capturedResult = $0 }
-
-        store.completeRetrieve(with: error)
-
-        switch (capturedResult) {
-        case .failure(let capturedError):
-            XCTAssertEqual(capturedError as NSError, error)
-        default:
-            XCTFail("Expected image load to fail, instead got success")
-        }
+        expect(sut, toCompleteWith: .failure(error), when: {
+            store.completeRetrieve(with: error)
+        })
     }
 
     func test_load_deliversStoredDataOnRetrievalSuccess() {
         let data = makeData()
         let (sut, store) = makeSUT()
 
-        var capturedResult: LocalFeedImageLoader.LoadFeedImageResult?
-        sut.load(from: makeURL()) { capturedResult = $0 }
+        expect(sut, toCompleteWith: .success(data), when: {
+            store.completeRetrieve(with: data)
+        })
+    }
 
-        store.completeRetrieve(with: data)
+    private func expect(_ sut: LocalFeedImageLoader, toCompleteWith expectedResult: LocalFeedImageLoader.LoadFeedImageResult, when action: () -> Void, file: StaticString = #filePath, line: UInt = #line) {
+        sut.load(from: makeURL()) { capturedResult in
+            switch (capturedResult, expectedResult) {
+            case let (.failure(capturedError), .failure(expectedError)):
+                XCTAssertEqual(capturedError as NSError, expectedError as NSError)
 
-        switch (capturedResult) {
-        case .success(let capturedData):
-            XCTAssertEqual(capturedData, data)
-        default:
-            XCTFail("Expected image load to succeed, instead got failure")
+            case let (.success(capturedData), .success(expectedData)):
+                XCTAssertEqual(capturedData, expectedData)
+
+            default:
+                XCTFail("Captured and expected results should be the same, instead got captured: \(capturedResult) with expected: \(expectedResult)", file: file, line: line)
+
+            }
         }
+
+        action()
     }
 
     private func makeSUT(file: StaticString = #filePath, line: UInt = #line) -> (LocalFeedImageLoader, FeedImageStoreSpy) {
