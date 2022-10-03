@@ -61,31 +61,28 @@ class LoadImageFromRemoteUseCase: XCTestCase {
     func test_load_deliversConnectivityErrorOnRequestFailure() {
         let (sut, client) = makeSUT()
 
-        var capturedResult: FeedImageLoader.Result?
-        let _ = sut.load(from: makeURL()) { capturedResult = $0 }
-
-        client.completeWith(error: makeNSError())
-
-        switch (capturedResult) {
-        case .failure(let error as RemoteImageLoader.Error):
-            XCTAssertEqual(error, .connectivity)
-
-        default:
-            XCTFail("Expected result to be a failure, instead got success")
-
-        }
+        expect(sut, toCompleteWith: .connectivity, when: {
+            client.completeWith(error: makeNSError())
+        })
     }
 
     func test_load_deliversInvalidDataErrorOnNon200StatusCodeResponse() {
         let (sut, client) = makeSUT()
-        var capturedResult: FeedImageLoader.Result?
 
+        expect(sut, toCompleteWith: .invalidData, when: {
+            client.completeWith(statusCode: 500, data: makeData())
+        })
+    }
+
+    private func expect(_ sut: RemoteImageLoader, toCompleteWith expectedError: RemoteImageLoader.Error, when action: () -> Void, file: StaticString = #filePath, line: UInt = #line) {
+        var capturedResult: FeedImageLoader.Result?
         let _ = sut.load(from: makeURL()) { capturedResult = $0 }
-        client.completeWith(statusCode: 500, data: makeData())
+
+        action()
 
         switch (capturedResult) {
         case .failure(let error as RemoteImageLoader.Error):
-            XCTAssertEqual(error, .invalidData)
+            XCTAssertEqual(error, expectedError, file: file, line: line)
 
         default:
             XCTFail("Expected result to be a failure, instead got success")
