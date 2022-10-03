@@ -1,7 +1,9 @@
 import XCTest
 
 protocol FeedImageStore {
-    func retrieve(from url: URL)
+    typealias RetrievalCompletion = (Error?) -> Void
+
+    func retrieve(from url: URL, completion: @escaping RetrievalCompletion)
 }
 
 class LocalFeedImageLoader {
@@ -11,8 +13,12 @@ class LocalFeedImageLoader {
         self.store = store
     }
 
-    func load(from url: URL) {
-        store.retrieve(from: url)
+    func load(from url: URL, completion: @escaping (Error?) -> Void) {
+        store.retrieve(from: url) { error in
+            if error != nil {
+                completion(error)
+            }
+        }
     }
 }
 
@@ -27,11 +33,22 @@ class LocalFeedImageLoaderTests: XCTestCase {
         let url = makeURL()
         let (sut, store) = makeSUT()
 
-        sut.load(from: url)
+        sut.load(from: url) { _ in }
 
         XCTAssertEqual(store.messages, [.retrieve(from: url)])
     }
 
+    func test_load_deliversErrorOnRetrievalFailure() {
+        let error = makeNSError()
+        let (sut, store) = makeSUT()
+
+        var capturedError: Error?
+        sut.load(from: makeURL()) { capturedError = $0 }
+
+        store.completeRetrieve(with: error)
+
+        XCTAssertEqual(capturedError as? NSError, error)
+    }
 
     private func makeSUT(file: StaticString = #filePath, line: UInt = #line) -> (LocalFeedImageLoader, FeedImageStoreSpy) {
         let store = FeedImageStoreSpy()
@@ -48,9 +65,15 @@ class LocalFeedImageLoaderTests: XCTestCase {
             case retrieve(from: URL)
         }
         var messages = [Message]()
+        var retrievalCompletions = [RetrievalCompletion]()
 
-        func retrieve(from url: URL) {
+        func retrieve(from url: URL, completion: @escaping RetrievalCompletion) {
             messages.append(.retrieve(from: url))
+            retrievalCompletions.append(completion)
+        }
+
+        func completeRetrieve(with error: Error, at index: Int = 0) {
+            retrievalCompletions[index](error)
         }
     }
 
