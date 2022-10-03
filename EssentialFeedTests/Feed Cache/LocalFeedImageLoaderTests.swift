@@ -4,8 +4,10 @@ protocol FeedImageStore {
     typealias RetrievalResult = Result<Data, Error>
     typealias RetrievalCompletion = (RetrievalResult) -> Void
 
+    typealias InsertCompletion = (Error?) -> Void
+
     func retrieve(from url: URL, completion: @escaping RetrievalCompletion)
-    func insert(url: URL, with data: Data)
+    func insert(url: URL, with data: Data, completion: @escaping InsertCompletion)
 }
 
 class LocalFeedImageLoader {
@@ -30,8 +32,10 @@ class LocalFeedImageLoader {
         }
     }
 
-    func save(url: URL, with data: Data) {
-        store.insert(url: url, with: data)
+    func save(url: URL, with data: Data, completion: @escaping (Error?) -> Void) {
+        store.insert(url: url, with: data) { error in
+            completion(error)
+        }
     }
 }
 
@@ -74,9 +78,20 @@ class LocalFeedImageLoaderTests: XCTestCase {
         let data = makeData()
         let (sut, store) = makeSUT()
 
-        sut.save(url: url, with: data)
+        sut.save(url: url, with: data) { _ in }
 
         XCTAssertEqual(store.messages, [.insert(url, data)])
+    }
+
+    func test_save_deliversErrorOnInsertFailure() {
+        let error = makeNSError()
+        let (sut, store) = makeSUT()
+
+        var capturedError: Error?
+        sut.save(url: makeURL(), with: makeData()) { capturedError = $0}
+        store.completeInsert(with: error)
+
+        XCTAssertEqual(capturedError as? NSError, error)
     }
 
     private func expect(_ sut: LocalFeedImageLoader, toCompleteWith expectedResult: LocalFeedImageLoader.LoadFeedImageResult, when action: () -> Void, file: StaticString = #filePath, line: UInt = #line) {
@@ -114,6 +129,7 @@ class LocalFeedImageLoaderTests: XCTestCase {
         }
         var messages = [Message]()
         var retrievalCompletions = [RetrievalCompletion]()
+        var insertCompletions = [InsertCompletion]()
 
         func retrieve(from url: URL, completion: @escaping RetrievalCompletion) {
             messages.append(.retrieve(from: url))
@@ -128,8 +144,13 @@ class LocalFeedImageLoaderTests: XCTestCase {
             retrievalCompletions[index](.success(data))
         }
 
-        func insert(url: URL, with data: Data) {
+        func insert(url: URL, with data: Data, completion: @escaping InsertCompletion) {
             messages.append(.insert(url, data))
+            insertCompletions.append(completion)
+        }
+
+        func completeInsert(with error: Error, at index: Int = 0) {
+            insertCompletions[index](error)
         }
     }
 
