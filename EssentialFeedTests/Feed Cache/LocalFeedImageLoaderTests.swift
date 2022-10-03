@@ -1,7 +1,8 @@
 import XCTest
 
 protocol FeedImageStore {
-    typealias RetrievalCompletion = (Error?) -> Void
+    typealias RetrievalResult = Result<Data, Error>
+    typealias RetrievalCompletion = (RetrievalResult) -> Void
 
     func retrieve(from url: URL, completion: @escaping RetrievalCompletion)
 }
@@ -9,14 +10,21 @@ protocol FeedImageStore {
 class LocalFeedImageLoader {
     private let store: FeedImageStore
 
+    typealias LoadFeedImageResult = Result<Data, Error>
+
     init(store: FeedImageStore) {
         self.store = store
     }
 
-    func load(from url: URL, completion: @escaping (Error?) -> Void) {
-        store.retrieve(from: url) { error in
-            if error != nil {
-                completion(error)
+    func load(from url: URL, completion: @escaping (LoadFeedImageResult) -> Void) {
+        store.retrieve(from: url) { result in
+            switch (result) {
+            case .failure(let error):
+                completion(.failure(error))
+
+            case .success(let data):
+                completion(.success(data))
+
             }
         }
     }
@@ -42,12 +50,34 @@ class LocalFeedImageLoaderTests: XCTestCase {
         let error = makeNSError()
         let (sut, store) = makeSUT()
 
-        var capturedError: Error?
-        sut.load(from: makeURL()) { capturedError = $0 }
+        var capturedResult: LocalFeedImageLoader.LoadFeedImageResult?
+        sut.load(from: makeURL()) { capturedResult = $0 }
 
         store.completeRetrieve(with: error)
 
-        XCTAssertEqual(capturedError as? NSError, error)
+        switch (capturedResult) {
+        case .failure(let capturedError):
+            XCTAssertEqual(capturedError as NSError, error)
+        default:
+            XCTFail("Expected image load to fail, instead got success")
+        }
+    }
+
+    func test_load_deliversStoredDataOnRetrievalSuccess() {
+        let data = makeData()
+        let (sut, store) = makeSUT()
+
+        var capturedResult: LocalFeedImageLoader.LoadFeedImageResult?
+        sut.load(from: makeURL()) { capturedResult = $0 }
+
+        store.completeRetrieve(with: data)
+
+        switch (capturedResult) {
+        case .success(let capturedData):
+            XCTAssertEqual(capturedData, data)
+        default:
+            XCTFail("Expected image load to succeed, instead got failure")
+        }
     }
 
     private func makeSUT(file: StaticString = #filePath, line: UInt = #line) -> (LocalFeedImageLoader, FeedImageStoreSpy) {
@@ -73,7 +103,11 @@ class LocalFeedImageLoaderTests: XCTestCase {
         }
 
         func completeRetrieve(with error: Error, at index: Int = 0) {
-            retrievalCompletions[index](error)
+            retrievalCompletions[index](.failure(error))
+        }
+
+        func completeRetrieve(with data: Data, at index: Int = 0) {
+            retrievalCompletions[index](.success(data))
         }
     }
 
