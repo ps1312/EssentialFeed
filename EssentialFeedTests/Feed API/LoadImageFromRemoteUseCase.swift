@@ -103,13 +103,17 @@ class LoadImageFromRemoteUseCase: XCTestCase {
     }
 
     func test_cancel_messagesClientToCancelLoading() {
-        let url = URL(string: "https://www.image-url-1.com")!
+        let url1 = URL(string: "https://www.image-url-1.com")!
+        let url2 = URL(string: "https://www.image-url-2.com")!
         let (sut, client) = makeSUT()
 
-        let task = sut.load(from: url) { _ in }
-        task.cancel()
+        let task1 = sut.load(from: url1) { _ in }
+        let task2 = sut.load(from: url2) { _ in }
 
-        XCTAssertEqual(client.canceledURLs, [url])
+        task1.cancel()
+        task2.cancel()
+
+        XCTAssertEqual(client.canceledURLs, [url1, url2])
     }
 
     private func expect(_ sut: RemoteImageLoader, toCompleteWith expectedError: RemoteImageLoader.Error, when action: () -> Void, file: StaticString = #filePath, line: UInt = #line) {
