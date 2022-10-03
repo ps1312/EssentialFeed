@@ -85,6 +85,17 @@ class LoadImageFromRemoteUseCase: XCTestCase {
         XCTAssertEqual(client.canceledURLs, [url1, url2])
     }
 
+    func test_cancel_doesNotCompleteAfterRequestHasBeenCanceled() {
+        let (sut, client) = makeSUT()
+        var capturedResult: FeedImageLoader.Result?
+
+        let task = sut.load(from: makeURL()) { capturedResult = $0 }
+        task.cancel()
+        client.completeWith(statusCode: 200, data: makeData())
+
+        XCTAssertNil(capturedResult)
+    }
+
     func test_load_doesNotCompleteWhenClientFinishesLoadingAfterInstanceHasBeenDeallocated() {
         let client = HTTPClientSpy()
         var sut: RemoteImageLoader? = RemoteImageLoader(client: client)

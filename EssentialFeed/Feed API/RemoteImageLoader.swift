@@ -8,11 +8,25 @@ public class RemoteImageLoader: FeedImageLoader {
         case invalidData
     }
 
-    struct RemoteFeedImageLoaderTask: FeedImageLoaderTask {
-        let task: HTTPClientTask
+    private final class RemoteImageLoaderTask: FeedImageLoaderTask {
+        private var completion: ((FeedImageLoader.Result) -> Void)?
+        var task: HTTPClientTask?
+
+        init(_ completion: @escaping (FeedImageLoader.Result) -> Void) {
+            self.completion = completion
+        }
+
+        func complete(_ result: FeedImageLoader.Result) {
+            completion?(result)
+        }
 
         func cancel() {
-            task.cancel()
+            task?.cancel()
+            preventFurtherCompletions()
+        }
+
+        private func preventFurtherCompletions() {
+            completion = nil
         }
     }
 
@@ -21,23 +35,24 @@ public class RemoteImageLoader: FeedImageLoader {
     }
 
     public func load(from url: URL, completion: @escaping (FeedImageLoader.Result) -> Void) -> FeedImageLoaderTask {
-        let httpTask = client.get(from: url) { [weak self] result in
+        let remoteTask = RemoteImageLoaderTask(completion)
+        remoteTask.task = client.get(from: url) { [weak self] result in
             guard self != nil else { return }
 
             switch (result) {
             case .failure:
-                completion(.failure(Error.connectivity))
+                remoteTask.complete(.failure(Error.connectivity))
 
             case let .success((data, response)):
                 if response.statusCode == 200, !data.isEmpty {
-                    completion(.success(data))
+                    remoteTask.complete(.success(data))
                 } else {
-                    completion(.failure(Error.invalidData))
+                    remoteTask.complete(.failure(Error.invalidData))
                 }
 
             }
         }
 
-        return RemoteFeedImageLoaderTask(task: httpTask)
+        return remoteTask
     }
 }
