@@ -53,18 +53,19 @@ class LoadImageFromRemoteUseCase: XCTestCase {
     func test_load_deliversConnectivityErrorOnRequestFailure() {
         let (sut, client) = makeSUT()
 
-        let _ = sut.load(from: makeURL()) { result in
-            switch (result) {
-            case .failure(let error as RemoteImageLoader.Error):
-                XCTAssertEqual(error, .connectivity)
-
-            default:
-                XCTFail("Expected result to be a failure, instead got \(result)")
-
-            }
-        }
+        var capturedResult: FeedImageLoader.Result?
+        let _ = sut.load(from: makeURL()) { capturedResult = $0 }
 
         client.completeWith(error: makeNSError())
+
+        switch (capturedResult) {
+        case .failure(let error as RemoteImageLoader.Error):
+            XCTAssertEqual(error, .connectivity)
+
+        default:
+            XCTFail("Expected result to be a failure, instead got success")
+
+        }
     }
 
     private func makeSUT(file: StaticString = #filePath, line: UInt = #line) -> (RemoteImageLoader, HTTPClientSpy) {
