@@ -26,7 +26,7 @@ class LoadImageFromRemoteUseCase: XCTestCase {
     }
 
     func test_load_makesRequestWithURL() {
-        let expectedURL = makeURL()
+        let expectedURL = URL(string: "https://www.specific-url.com")!
         let (sut, spy) = makeSUT()
 
         let _ = sut.load(from: expectedURL) { _ in }
@@ -35,7 +35,7 @@ class LoadImageFromRemoteUseCase: XCTestCase {
     }
 
     func test_loadTwice_makesRequestTwice() {
-        let expectedURL = makeURL()
+        let expectedURL = URL(string: "https://www.specific-url.com")!
         let (sut, spy) = makeSUT()
 
         let _ = sut.load(from: expectedURL) { _ in }
