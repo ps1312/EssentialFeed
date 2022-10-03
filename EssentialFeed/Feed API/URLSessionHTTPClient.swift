@@ -11,8 +11,16 @@ public class URLSessionHTTPClient: HTTPClient {
         self.session = session
     }
 
-    public func get(from url: URL, completion: @escaping (Result) -> Void) {
-        session.dataTask(with: url) { data, response, error in
+    struct URLSessionHTTPClientTask: HTTPClientTask {
+        let task: URLSessionDataTask
+
+        func cancel() {
+            task.cancel()
+        }
+    }
+
+    public func get(from url: URL, completion: @escaping (Result) -> Void) -> HTTPClientTask {
+        let task = session.dataTask(with: url) { data, response, error in
             if let error = error {
                 return completion(.failure(error))
             }
@@ -22,6 +30,8 @@ public class URLSessionHTTPClient: HTTPClient {
             }
 
             completion(.success((data, response)))
-        }.resume()
+        }
+        task.resume()
+        return URLSessionHTTPClientTask(task: task)
     }
 }
