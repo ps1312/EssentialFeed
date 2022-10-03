@@ -10,7 +10,11 @@ class RemoteImageLoader {
     }
 
     struct RemoteFeedImageLoaderTask: FeedImageLoaderTask {
-        func cancel() {}
+        let task: HTTPClientTask
+
+        func cancel() {
+            task.cancel()
+        }
     }
 
     init(client: HTTPClient) {
@@ -18,7 +22,7 @@ class RemoteImageLoader {
     }
 
     func load(from url: URL, completion: @escaping (FeedImageLoader.Result) -> Void) -> FeedImageLoaderTask {
-        client.get(from: url) { result in
+        let httpTask = client.get(from: url) { result in
             switch (result) {
             case .failure:
                 completion(.failure(Error.connectivity))
@@ -32,7 +36,8 @@ class RemoteImageLoader {
 
             }
         }
-        return RemoteFeedImageLoaderTask()
+
+        return RemoteFeedImageLoaderTask(task: httpTask)
     }
 }
 
@@ -95,6 +100,16 @@ class LoadImageFromRemoteUseCase: XCTestCase {
         default:
             XCTFail("Expected result to be a success, instead got failure")
         }
+    }
+
+    func test_cancel_messagesClientToCancelLoading() {
+        let url = URL(string: "https://www.image-url-1.com")!
+        let (sut, client) = makeSUT()
+
+        let task = sut.load(from: url) { _ in }
+        task.cancel()
+
+        XCTAssertEqual(client.canceledURLs, [url])
     }
 
     private func expect(_ sut: RemoteImageLoader, toCompleteWith expectedError: RemoteImageLoader.Error, when action: () -> Void, file: StaticString = #filePath, line: UInt = #line) {
