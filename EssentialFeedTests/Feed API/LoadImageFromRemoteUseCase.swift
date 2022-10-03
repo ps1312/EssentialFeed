@@ -28,7 +28,7 @@ class RemoteImageLoader {
                 completion(.failure(Error.connectivity))
 
             case let .success((data, response)):
-                if response.statusCode == 200 {
+                if response.statusCode == 200, !data.isEmpty {
                     completion(.success(data))
                 } else {
                     completion(.failure(Error.invalidData))
@@ -84,6 +84,15 @@ class LoadImageFromRemoteUseCase: XCTestCase {
                 client.completeWith(statusCode: statusCode, data: makeData(), at: index)
             })
         }
+    }
+
+    func test_load_deliversInvalidDataOn200StatusCodeEmptyResponse() {
+        let emptyData = Data()
+        let (sut, client) = makeSUT()
+
+        expect(sut, toCompleteWith: .invalidData, when: {
+            client.completeWith(statusCode: 200, data: emptyData)
+        })
     }
 
     func test_load_deliversEmptyDataOn200StatusCodeNonEmptyResponse() {
