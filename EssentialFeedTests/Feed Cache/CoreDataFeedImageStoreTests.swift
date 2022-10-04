@@ -30,6 +30,36 @@ class CoreDataFeedImageStoreTests: XCTestCase {
         wait(for: [exp], timeout: 1.0)
     }
 
+    func test_retrieveAfterInsert_deliversStoredFeedImageData() {
+        let data = makeData()
+        let timestamp = Date()
+
+        let locals = uniqueImages().locals
+        let local1 = locals[0]
+        let local2 = locals[1]
+
+        let sut = makeSUT()
+        let exp = expectation(description: "wait")
+
+        sut.persist(images: locals, timestamp: timestamp) { feedCacheError in
+            sut.insert(url: local2.url, with: data) { imageCacheError in
+                sut.retrieve(from: local2.url) { result in
+                    switch (result) {
+                    case .success(let cachedData):
+                        XCTAssertEqual(data, cachedData)
+
+                    default:
+                        XCTFail("Expected image data retrieval to succeed, instead got \(result)")
+                    }
+
+                    exp.fulfill()
+                }
+            }
+        }
+
+        wait(for: [exp], timeout: 5.0)
+    }
+
     private func makeSUT(file: StaticString = #filePath, line: UInt = #line) -> CoreDataFeedStore {
         let inMemoryStoreURL = URL(fileURLWithPath: "/dev/null")
         let store = try! CoreDataFeedStore(storeURL: inMemoryStoreURL)
