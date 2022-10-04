@@ -70,6 +70,17 @@ class LocalFeedImageLoaderTests: XCTestCase {
         XCTAssertEqual(store.messages, [.retrieve(from: url)])
     }
 
+    func test_load_triggersNoSideEffectsInStoreOnSuccess() {
+        let data = makeData()
+        let url = makeURL()
+        let (sut, store) = makeSUT()
+
+        _ = sut.load(from: url) { _ in }
+        store.completeRetrieve(with: data)
+
+        XCTAssertEqual(store.messages, [.retrieve(from: url)])
+    }
+
     func test_save_messagesStoreToSaveDataInURL() {
         let url = makeURL()
         let data = makeData()
