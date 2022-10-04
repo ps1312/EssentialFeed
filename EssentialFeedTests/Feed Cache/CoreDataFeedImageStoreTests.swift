@@ -2,18 +2,14 @@ import XCTest
 import EssentialFeed
 
 class CoreDataFeedImageStoreTests: XCTestCase {
-    func test_insert_deliversErrorOnAlwaysFailingStore() {
-        let sut = makeSUT()
+    func test_insert_deliversErrorOnStoreFailure() {
         let stub = NSManagedObjectContext.setupAlwaysFailingSaveStub()
-        let exp = expectation(description: "wait for insertion to complete")
+        let sut = makeSUT()
 
         stub.startIntercepting()
-        sut.insert(url: makeURL(), with: makeData()) { error in
-            XCTAssertNotNil(error, "Expected insert to fail on always failing core data context")
-            exp.fulfill()
-        }
+        let error = saveImage(sut, in: makeURL(), data: makeData())
 
-        wait(for: [exp], timeout: 1.0)
+        XCTAssertNotNil(error, "Expected feed image save to deliver error when store fails")
     }
 
     func test_retrieve_deliversErrorOnStoreFailure() {
@@ -96,14 +92,19 @@ class CoreDataFeedImageStoreTests: XCTestCase {
         return capturedData
     }
 
-    func saveImage(_ sut: FeedImageStore, in url: URL, data: Data) {
+    @discardableResult
+    func saveImage(_ sut: FeedImageStore, in url: URL, data: Data) -> Error? {
         let exp = expectation(description: "wait for insertion to complete")
 
-        sut.insert(url: url, with: data) { _ in
+        var saveError: Error? = nil
+        sut.insert(url: url, with: data) { error in
+            saveError = error
             exp.fulfill()
         }
 
         wait(for: [exp], timeout: 1.0)
+
+        return saveError
     }
 
     @discardableResult
