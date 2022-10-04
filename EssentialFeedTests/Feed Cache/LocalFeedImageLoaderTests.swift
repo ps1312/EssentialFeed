@@ -1,39 +1,5 @@
 import XCTest
-
-protocol FeedImageStore {
-    typealias RetrievalCompletion = (Result<Data, Error>) -> Void
-    typealias InsertCompletion = (Error?) -> Void
-
-    func retrieve(from url: URL, completion: @escaping RetrievalCompletion)
-    func insert(url: URL, with data: Data, completion: @escaping InsertCompletion)
-}
-
-class LocalFeedImageLoader {
-    private let store: FeedImageStore
-
-    typealias LoadFeedImageResult = Result<Data, Error>
-
-    init(store: FeedImageStore) {
-        self.store = store
-    }
-
-    func load(from url: URL, completion: @escaping (LoadFeedImageResult) -> Void) {
-        store.retrieve(from: url) { result in
-            switch (result) {
-            case .failure(let error):
-                completion(.failure(error))
-
-            case .success(let data):
-                completion(.success(data))
-
-            }
-        }
-    }
-
-    func save(url: URL, with data: Data, completion: @escaping (Error?) -> Void) {
-        store.insert(url: url, with: data, completion: completion)
-    }
-}
+import EssentialFeed
 
 class LocalFeedImageLoaderTests: XCTestCase {
 
