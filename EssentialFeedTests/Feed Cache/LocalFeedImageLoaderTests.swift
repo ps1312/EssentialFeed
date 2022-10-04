@@ -31,9 +31,7 @@ class LocalFeedImageLoader {
     }
 
     func save(url: URL, with data: Data, completion: @escaping (Error?) -> Void) {
-        store.insert(url: url, with: data) { error in
-            completion(error)
-        }
+        store.insert(url: url, with: data, completion: completion)
     }
 }
 
@@ -90,6 +88,16 @@ class LocalFeedImageLoaderTests: XCTestCase {
         store.completeInsert(with: error)
 
         XCTAssertEqual(capturedError as? NSError, error)
+    }
+
+    func test_save_returnsNoErrorWhenInsertSucceeds() {
+        let (sut, store) = makeSUT()
+
+        var capturedError: Error?
+        sut.save(url: makeURL(), with: makeData()) { capturedError = $0}
+        store.completeInsertWithSuccess()
+
+        XCTAssertNil(capturedError)
     }
 
     private func expect(_ sut: LocalFeedImageLoader, toCompleteWith expectedResult: LocalFeedImageLoader.LoadFeedImageResult, when action: () -> Void, file: StaticString = #filePath, line: UInt = #line) {
@@ -149,6 +157,10 @@ class LocalFeedImageLoaderTests: XCTestCase {
 
         func completeInsert(with error: Error, at index: Int = 0) {
             insertCompletions[index](error)
+        }
+
+        func completeInsertWithSuccess(at index: Int = 0) {
+            insertCompletions[index](nil)
         }
     }
 
