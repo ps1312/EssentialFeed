@@ -1,8 +1,7 @@
 import XCTest
 import EssentialFeed
 
-class LocalFeedImageLoaderTests: XCTestCase {
-
+class LoadFeedImageUseCaseTests: XCTestCase {
     func test_init_doesNotMessageStore() {
         let (_ , store) = makeSUT()
         XCTAssertTrue(store.messages.isEmpty, "Expected no collaboration with store yet")
