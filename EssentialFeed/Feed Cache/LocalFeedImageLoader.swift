@@ -40,7 +40,9 @@ public class LocalFeedImageLoader {
     public func load(from url: URL, completion: @escaping (LoadFeedImageResult) -> Void) -> FeedImageLoaderTask {
         let localTask = LocalFeedImageLoaderTask(completion)
 
-        store.retrieve(from: url) { result in
+        store.retrieve(from: url) { [weak self] result in
+            guard self != nil else { return }
+
             switch (result) {
             case .failure(let error):
                 localTask.complete(.failure(error))

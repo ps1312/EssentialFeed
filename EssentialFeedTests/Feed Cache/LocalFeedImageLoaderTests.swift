@@ -47,6 +47,19 @@ class LocalFeedImageLoaderTests: XCTestCase {
         XCTAssertNil(capturedResult)
     }
 
+    func test_load_doesNotCompleteAfterSUTHasBeenDeallocated() {
+        let store = FeedImageStoreSpy()
+        var sut: LocalFeedImageLoader? = LocalFeedImageLoader(store: store)
+
+        var capturedResult: LocalFeedImageLoader.LoadFeedImageResult?
+        _ = sut?.load(from: makeURL()) { capturedResult = $0 }
+
+        sut = nil
+        store.completeRetrieve(with: makeNSError())
+
+        XCTAssertNil(capturedResult, "Expected load to not complete after SUT instance has been deallocated")
+    }
+
     func test_save_messagesStoreToSaveDataInURL() {
         let url = makeURL()
         let data = makeData()
