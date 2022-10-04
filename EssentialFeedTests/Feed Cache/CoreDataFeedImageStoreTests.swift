@@ -30,6 +30,29 @@ class CoreDataFeedImageStoreTests: XCTestCase {
         wait(for: [exp], timeout: 1.0)
     }
 
+    func test_retrieve_deliversErrorOnEmptyCache() {
+        let local = uniqueImages().locals[0]
+        let sut = makeSUT()
+
+        insertImage(sut, feed: [local], timestamp: Date())
+
+        let exp = expectation(description: "wait for retrieve to complete")
+
+        sut.retrieve(from: local.url) { result in
+            switch (result) {
+            case .failure(let error):
+                XCTAssertNotNil(error)
+
+            default:
+                XCTFail("Expected retrieve to deliver NotFound error, instead got \(result)")
+            }
+
+            exp.fulfill()
+        }
+
+        wait(for: [exp], timeout: 1.0)
+    }
+
     func test_retrieveAfterInsert_deliversStoredFeedImageData() {
         let data = makeData()
         let local = uniqueImages().locals[0]

@@ -62,6 +62,10 @@ public class CoreDataFeedStore: FeedStore {
 }
 
 extension CoreDataFeedStore: FeedImageStore {
+    public struct NotFound: Error, Equatable {
+        public init() {}
+    }
+    
     public func insert(url: URL, with data: Data, completion: @escaping FeedImageStore.InsertCompletion) {
         context.perform { [weak context] in
             do {
@@ -84,7 +88,9 @@ extension CoreDataFeedStore: FeedImageStore {
                 let request = NSFetchRequest<ManagedFeedImage>(entityName: "ManagedFeedImage")
                 let feedImage = try request.execute().first
 
-                guard let imageData = feedImage?.data else { return }
+                guard let imageData = feedImage?.data else {
+                    return completion(.failure(NotFound()))
+                }
 
                 completion(.success(imageData))
             } catch {
