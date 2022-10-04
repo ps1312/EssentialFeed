@@ -5,7 +5,7 @@ class LocalFeedImageLoaderTests: XCTestCase {
 
     func test_init_doesNotMessageStore() {
         let (_ , store) = makeSUT()
-        XCTAssertTrue(store.messages.isEmpty)
+        XCTAssertTrue(store.messages.isEmpty, "Expected no collaboration with store yet")
     }
 
     func test_load_makesStoreRetrievalWithProvidedURL() {
@@ -14,7 +14,7 @@ class LocalFeedImageLoaderTests: XCTestCase {
 
         _ = sut.load(from: url) { _ in }
 
-        XCTAssertEqual(store.messages, [.retrieve(from: url)])
+        XCTAssertEqual(store.messages, [.retrieve(from: url)], "Expected SUT to message store with URL for image data retrieval")
     }
 
     func test_load_deliversErrorOnRetrievalFailure() {
@@ -44,7 +44,7 @@ class LocalFeedImageLoaderTests: XCTestCase {
         task.cancel()
         store.completeRetrieve(with: makeNSError())
 
-        XCTAssertNil(capturedResult)
+        XCTAssertNil(capturedResult, "Expected load to not complete after task has been canceled")
     }
 
     func test_load_doesNotCompleteAfterSUTHasBeenDeallocated() {
@@ -67,7 +67,7 @@ class LocalFeedImageLoaderTests: XCTestCase {
 
         sut.save(url: url, with: data) { _ in }
 
-        XCTAssertEqual(store.messages, [.insert(url, data)])
+        XCTAssertEqual(store.messages, [.insert(url, data)], "Expected save to message store to insert image data in a url")
     }
 
     func test_save_deliversErrorOnInsertFailure() {
@@ -78,7 +78,7 @@ class LocalFeedImageLoaderTests: XCTestCase {
         sut.save(url: makeURL(), with: makeData()) { capturedError = $0}
         store.completeInsert(with: error)
 
-        XCTAssertEqual(capturedError as? NSError, error)
+        XCTAssertEqual(capturedError as? NSError, error, "Expected save to deliver error when insertion fails")
     }
 
     func test_save_returnsNoErrorWhenInsertSucceeds() {
@@ -88,17 +88,17 @@ class LocalFeedImageLoaderTests: XCTestCase {
         sut.save(url: makeURL(), with: makeData()) { capturedError = $0}
         store.completeInsertWithSuccess()
 
-        XCTAssertNil(capturedError)
+        XCTAssertNil(capturedError, "Expected save to not return errors when insertion succeeds")
     }
 
     private func expect(_ sut: LocalFeedImageLoader, toCompleteWith expectedResult: LocalFeedImageLoader.LoadFeedImageResult, when action: () -> Void, file: StaticString = #filePath, line: UInt = #line) {
         _ = sut.load(from: makeURL()) { capturedResult in
             switch (capturedResult, expectedResult) {
             case let (.failure(capturedError), .failure(expectedError)):
-                XCTAssertEqual(capturedError as NSError, expectedError as NSError)
+                XCTAssertEqual(capturedError as NSError, expectedError as NSError, "Expected failure errors to match", file: file, line: line)
 
             case let (.success(capturedData), .success(expectedData)):
-                XCTAssertEqual(capturedData, expectedData)
+                XCTAssertEqual(capturedData, expectedData, "Expected success data to match", file: file, line: line)
 
             default:
                 XCTFail("Captured and expected results should be the same, instead got captured: \(capturedResult) with expected: \(expectedResult)", file: file, line: line)
