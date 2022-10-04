@@ -80,16 +80,6 @@ class LoadFeedImageUseCaseTests: XCTestCase {
         XCTAssertEqual(store.messages, [.retrieve(from: url)])
     }
 
-    func test_save_messagesStoreToSaveDataInURL() {
-        let url = makeURL()
-        let data = makeData()
-        let (sut, store) = makeSUT()
-
-        sut.save(url: url, with: data) { _ in }
-
-        XCTAssertEqual(store.messages, [.insert(url, data)], "Expected save to message store to insert image data in a url")
-    }
-
     func test_save_deliversErrorOnInsertFailure() {
         let error = makeNSError()
         let (sut, store) = makeSUT()
