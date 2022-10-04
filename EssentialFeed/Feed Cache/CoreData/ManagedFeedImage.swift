@@ -23,4 +23,12 @@ public final class ManagedFeedImage: NSManagedObject {
             return ManagedFeedImage(local: localFeedImage, context: context)
         })
     }
+
+    static func findBy(url: URL) throws -> ManagedFeedImage? {
+        let request = NSFetchRequest<ManagedFeedImage>(entityName: entity().name!)
+        request.predicate = NSPredicate(format: "url == %@", url.absoluteString)
+        let result = try request.execute().first
+
+        return result
+    }
 }
