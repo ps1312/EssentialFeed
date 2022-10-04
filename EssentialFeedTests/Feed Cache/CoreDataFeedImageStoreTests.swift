@@ -27,26 +27,12 @@ class CoreDataFeedImageStoreTests: XCTestCase {
     }
 
     func test_retrieve_deliversEmptyOnEmptyCache() {
-        let local = uniqueImages().locals[0]
         let sut = makeSUT()
+        let local = uniqueImages().locals[0]
 
         insertImage(sut, feed: [local], timestamp: Date())
 
-        let exp = expectation(description: "wait for retrieve to complete")
-
-        sut.retrieve(from: local.url) { result in
-            switch (result) {
-            case .empty:
-                break
-
-            default:
-                XCTFail("Expected retrieve to deliver NotFound error, instead got \(result)")
-            }
-
-            exp.fulfill()
-        }
-
-        wait(for: [exp], timeout: 1.0)
+        expect(sut, toCompleteRetrieveWith: .empty, from: local.url)
     }
 
     func test_retrieveAfterInsert_deliversStoredFeedImageData() {
@@ -57,8 +43,7 @@ class CoreDataFeedImageStoreTests: XCTestCase {
         insertImage(sut, feed: [local], timestamp: Date())
         saveImage(sut, in: local.url, data: data)
 
-        let cachedData = retrieveImage(sut, url: local.url)
-        XCTAssertEqual(data, cachedData)
+        expect(sut, toCompleteRetrieveWith: .found(data), from: local.url)
     }
 
     private func makeSUT(file: StaticString = #filePath, line: UInt = #line) -> CoreDataFeedStore {
@@ -68,6 +53,28 @@ class CoreDataFeedImageStoreTests: XCTestCase {
         testMemoryLeak(store, file: file, line: line)
 
         return store
+    }
+
+    func expect(_ sut: CoreDataFeedStore, toCompleteRetrieveWith expectedResult: CacheImageRetrieveResult, from url: URL) {
+        let exp = expectation(description: "wait for retrieve to complete")
+
+        sut.retrieve(from: url) { receivedResult in
+            switch (receivedResult, expectedResult) {
+            case (.empty, .empty):
+                break
+
+            case (.found(let cachedData), .found(let expectedData)):
+                XCTAssertEqual(cachedData, expectedData, "Expected retrieve to deliver \(expectedData), instead got \(cachedData)")
+
+            default:
+                XCTFail("Expected received and expected results to match, instead got \(receivedResult) and \(expectedResult)")
+            }
+
+            exp.fulfill()
+        }
+
+        wait(for: [exp], timeout: 1.0)
+
     }
 
     func retrieveImage(_ sut: FeedImageStore, url: URL) -> Data? {
