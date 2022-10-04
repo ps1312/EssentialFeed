@@ -86,6 +86,7 @@ extension CoreDataFeedStore: FeedImageStore {
         context.perform {
             do {
                 let request = NSFetchRequest<ManagedFeedImage>(entityName: "ManagedFeedImage")
+                request.predicate = NSPredicate(format: "url == %@", url.absoluteString)
                 let feedImage = try request.execute().first
 
                 guard let imageData = feedImage?.data else {

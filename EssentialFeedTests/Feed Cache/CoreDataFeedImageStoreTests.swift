@@ -37,13 +37,16 @@ class CoreDataFeedImageStoreTests: XCTestCase {
 
     func test_retrieveAfterInsert_deliversStoredFeedImageData() {
         let data = makeData()
-        let local = uniqueImages().locals[0]
+        let locals = uniqueImages().locals
+        let local1 = locals[0]
+        let local2 = locals[1]
         let sut = makeSUT()
 
-        insertImage(sut, feed: [local], timestamp: Date())
-        saveImage(sut, in: local.url, data: data)
+        insertImage(sut, feed: [local1, local2], timestamp: Date())
+        saveImage(sut, in: local1.url, data: data)
 
-        expect(sut, toCompleteRetrieveWith: .found(data), from: local.url)
+        expect(sut, toCompleteRetrieveWith: .found(data), from: local1.url)
+        expect(sut, toCompleteRetrieveWith: .empty, from: local2.url)
     }
 
     private func makeSUT(file: StaticString = #filePath, line: UInt = #line) -> CoreDataFeedStore {
@@ -55,7 +58,7 @@ class CoreDataFeedImageStoreTests: XCTestCase {
         return store
     }
 
-    func expect(_ sut: CoreDataFeedStore, toCompleteRetrieveWith expectedResult: CacheImageRetrieveResult, from url: URL) {
+    func expect(_ sut: CoreDataFeedStore, toCompleteRetrieveWith expectedResult: CacheImageRetrieveResult, from url: URL, file: StaticString = #filePath, line: UInt = #line) {
         let exp = expectation(description: "wait for retrieve to complete")
 
         sut.retrieve(from: url) { receivedResult in
@@ -67,7 +70,7 @@ class CoreDataFeedImageStoreTests: XCTestCase {
                 XCTAssertEqual(cachedData, expectedData, "Expected retrieve to deliver \(expectedData), instead got \(cachedData)")
 
             default:
-                XCTFail("Expected received and expected results to match, instead got \(receivedResult) and \(expectedResult)")
+                XCTFail("Expected received and expected results to match, instead got \(receivedResult) and \(expectedResult)", file: file, line: line)
             }
 
             exp.fulfill()
