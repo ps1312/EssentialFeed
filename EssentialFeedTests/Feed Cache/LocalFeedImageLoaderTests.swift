@@ -80,18 +80,6 @@ class LoadFeedImageUseCaseTests: XCTestCase {
         XCTAssertEqual(store.messages, [.retrieve(from: url)])
     }
 
-    func test_save_doesNotDeliverErrorAfterSUTHasBeenDeallocated() {
-        let store = FeedImageStoreSpy()
-        var sut: LocalFeedImageLoader? = LocalFeedImageLoader(store: store)
-
-        var capturedError: Error?
-        sut?.save(url: makeURL(), with: makeData()) { capturedError = $0}
-        sut = nil
-        store.completeInsert(with: makeNSError())
-
-        XCTAssertNil(capturedError, "Expected save to not deliver errors after SUT has been deallocated")
-    }
-
     func test_save_triggersNoSideEffectsInStoreOnFailure() {
         let url = makeURL()
         let data = makeData()
