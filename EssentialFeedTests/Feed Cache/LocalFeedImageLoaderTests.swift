@@ -12,7 +12,7 @@ class LocalFeedImageLoaderTests: XCTestCase {
         let url = makeURL()
         let (sut, store) = makeSUT()
 
-        sut.load(from: url) { _ in }
+        _ = sut.load(from: url) { _ in }
 
         XCTAssertEqual(store.messages, [.retrieve(from: url)])
     }
@@ -33,6 +33,18 @@ class LocalFeedImageLoaderTests: XCTestCase {
         expect(sut, toCompleteWith: .success(data), when: {
             store.completeRetrieve(with: data)
         })
+    }
+
+    func test_load_doesNotCompleteAfterTaskHasBeenCanceled() {
+        let (sut, store) = makeSUT()
+
+        var capturedResult: LocalFeedImageLoader.LoadFeedImageResult?
+        let task = sut.load(from: makeURL()) { capturedResult = $0 }
+
+        task.cancel()
+        store.completeRetrieve(with: makeNSError())
+
+        XCTAssertNil(capturedResult)
     }
 
     func test_save_messagesStoreToSaveDataInURL() {
@@ -67,7 +79,7 @@ class LocalFeedImageLoaderTests: XCTestCase {
     }
 
     private func expect(_ sut: LocalFeedImageLoader, toCompleteWith expectedResult: LocalFeedImageLoader.LoadFeedImageResult, when action: () -> Void, file: StaticString = #filePath, line: UInt = #line) {
-        sut.load(from: makeURL()) { capturedResult in
+        _ = sut.load(from: makeURL()) { capturedResult in
             switch (capturedResult, expectedResult) {
             case let (.failure(capturedError), .failure(expectedError)):
                 XCTAssertEqual(capturedError as NSError, expectedError as NSError)
