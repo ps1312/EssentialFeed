@@ -38,10 +38,13 @@ extension LocalFeedImageLoader: FeedImageLoader {
             guard self != nil else { return }
 
             switch (result) {
+            case .empty:
+                localTask.complete(.failure(NSError(domain: "not found", code: 404)))
+
             case .failure(let error):
                 localTask.complete(.failure(error))
 
-            case .success(let data):
+            case .found(let data):
                 localTask.complete(.success(data))
 
             }

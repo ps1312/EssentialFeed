@@ -66,7 +66,7 @@ extension CoreDataFeedStore: FeedImageStore {
         public init() {}
     }
     
-    public func insert(url: URL, with data: Data, completion: @escaping FeedImageStore.InsertCompletion) {
+    public func insert(url: URL, with data: Data, completion: @escaping InsertCompletion) {
         context.perform { [weak context] in
             do {
                 let request = NSFetchRequest<ManagedFeedImage>(entityName: "ManagedFeedImage")
@@ -82,17 +82,17 @@ extension CoreDataFeedStore: FeedImageStore {
         }
     }
 
-    public func retrieve(from url: URL, completion: @escaping FeedImageStore.RetrievalCompletion) {
+    public func retrieve(from url: URL, completion: @escaping RetrievalCompletion) {
         context.perform {
             do {
                 let request = NSFetchRequest<ManagedFeedImage>(entityName: "ManagedFeedImage")
                 let feedImage = try request.execute().first
 
                 guard let imageData = feedImage?.data else {
-                    return completion(.failure(NotFound()))
+                    return completion(.empty)
                 }
 
-                completion(.success(imageData))
+                completion(.found(imageData))
             } catch {
                 completion(.failure(error))
             }

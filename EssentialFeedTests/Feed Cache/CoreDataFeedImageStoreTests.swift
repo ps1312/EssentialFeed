@@ -30,7 +30,7 @@ class CoreDataFeedImageStoreTests: XCTestCase {
         wait(for: [exp], timeout: 1.0)
     }
 
-    func test_retrieve_deliversErrorOnEmptyCache() {
+    func test_retrieve_deliversEmptyOnEmptyCache() {
         let local = uniqueImages().locals[0]
         let sut = makeSUT()
 
@@ -40,8 +40,8 @@ class CoreDataFeedImageStoreTests: XCTestCase {
 
         sut.retrieve(from: local.url) { result in
             switch (result) {
-            case .failure(let error):
-                XCTAssertNotNil(error)
+            case .empty:
+                break
 
             default:
                 XCTFail("Expected retrieve to deliver NotFound error, instead got \(result)")
@@ -81,7 +81,7 @@ class CoreDataFeedImageStoreTests: XCTestCase {
 
         sut.retrieve(from: url) { result in
             switch (result) {
-            case .success(let cachedData):
+            case .found(let cachedData):
                 capturedData = cachedData
 
             default:

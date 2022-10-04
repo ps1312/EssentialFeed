@@ -20,7 +20,7 @@ final class FeedImageStoreSpy: FeedImageStore {
     }
 
     func completeRetrieve(with data: Data, at index: Int = 0) {
-        retrievalCompletions[index](.success(data))
+        retrievalCompletions[index](.found(data))
     }
 
     func insert(url: URL, with data: Data, completion: @escaping InsertCompletion) {
