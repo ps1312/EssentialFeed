@@ -17,6 +17,17 @@ class CacheFeedImageUseCase: XCTestCase {
         XCTAssertEqual(store.messages, [.insert(url, data)], "Expected save to message store to insert image data in a url")
     }
 
+    func test_save_deliversErrorOnInsertFailure() {
+        let error = makeNSError()
+        let (sut, store) = makeSUT()
+
+        var capturedError: Error?
+        sut.save(url: makeURL(), with: makeData()) { capturedError = $0}
+        store.completeInsert(with: error)
+
+        XCTAssertEqual(capturedError as? NSError, error, "Expected save to deliver error when insertion fails")
+    }
+
     private func makeSUT(file: StaticString = #filePath, line: UInt = #line) -> (LocalFeedImageLoader, FeedImageStoreSpy) {
         let store = FeedImageStoreSpy()
         let sut = LocalFeedImageLoader(store: store)

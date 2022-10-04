@@ -80,17 +80,6 @@ class LoadFeedImageUseCaseTests: XCTestCase {
         XCTAssertEqual(store.messages, [.retrieve(from: url)])
     }
 
-    func test_save_deliversErrorOnInsertFailure() {
-        let error = makeNSError()
-        let (sut, store) = makeSUT()
-
-        var capturedError: Error?
-        sut.save(url: makeURL(), with: makeData()) { capturedError = $0}
-        store.completeInsert(with: error)
-
-        XCTAssertEqual(capturedError as? NSError, error, "Expected save to deliver error when insertion fails")
-    }
-
     func test_save_returnsNoErrorWhenInsertSucceeds() {
         let (sut, store) = makeSUT()
 
