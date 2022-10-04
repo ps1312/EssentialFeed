@@ -14,7 +14,7 @@ extension NSPersistentContainer {
             fatalError("Failed to create model from file: \(modelURL)")
         }
 
-        let container = NSPersistentContainer(name: "FeedStore", managedObjectModel: mom)
+        let container = NSPersistentContainer(name: modelName, managedObjectModel: mom)
 
         let description = NSPersistentStoreDescription(url: storeURL)
         container.persistentStoreDescriptions = [description]
