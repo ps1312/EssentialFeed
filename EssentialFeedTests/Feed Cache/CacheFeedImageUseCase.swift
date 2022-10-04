@@ -28,6 +28,16 @@ class CacheFeedImageUseCase: XCTestCase {
         XCTAssertEqual(capturedError as? NSError, error, "Expected save to deliver error when insertion fails")
     }
 
+    func test_save_returnsNoErrorWhenInsertSucceeds() {
+        let (sut, store) = makeSUT()
+
+        var capturedError: Error?
+        sut.save(url: makeURL(), with: makeData()) { capturedError = $0}
+        store.completeInsertWithSuccess()
+
+        XCTAssertNil(capturedError, "Expected save to not return errors when insertion succeeds")
+    }
+
     private func makeSUT(file: StaticString = #filePath, line: UInt = #line) -> (LocalFeedImageLoader, FeedImageStoreSpy) {
         let store = FeedImageStoreSpy()
         let sut = LocalFeedImageLoader(store: store)
