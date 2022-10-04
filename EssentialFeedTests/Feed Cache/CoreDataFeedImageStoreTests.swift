@@ -30,9 +30,9 @@ class CoreDataFeedImageStoreTests: XCTestCase {
         wait(for: [exp], timeout: 1.0)
     }
 
-    private func makeSUT(file: StaticString = #filePath, line: UInt = #line) -> CoreDataFeedImageStore {
+    private func makeSUT(file: StaticString = #filePath, line: UInt = #line) -> CoreDataFeedStore {
         let inMemoryStoreURL = URL(fileURLWithPath: "/dev/null")
-        let store = try! CoreDataFeedImageStore(storeURL: inMemoryStoreURL)
+        let store = try! CoreDataFeedStore(storeURL: inMemoryStoreURL)
 
         testMemoryLeak(store, file: file, line: line)
 

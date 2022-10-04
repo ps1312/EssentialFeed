@@ -60,3 +60,26 @@ public class CoreDataFeedStore: FeedStore {
     }
 
 }
+
+extension CoreDataFeedStore: FeedImageStore {
+    public func insert(url: URL, with data: Data, completion: @escaping FeedImageStore.InsertCompletion) {
+        context.perform { [weak context] in
+            do {
+                try context?.save()
+            } catch {
+                completion(error)
+            }
+        }
+    }
+
+    public func retrieve(from url: URL, completion: @escaping FeedImageStore.RetrievalCompletion) {
+        context.perform {
+            do {
+                let request = NSFetchRequest<ManagedFeedImage>(entityName: "ManagedFeedImage")
+                try request.execute()
+            } catch {
+                completion(.failure(error))
+            }
+        }
+    }
+}
