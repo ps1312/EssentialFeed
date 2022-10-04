@@ -91,6 +91,18 @@ class LocalFeedImageLoaderTests: XCTestCase {
         XCTAssertNil(capturedError, "Expected save to not return errors when insertion succeeds")
     }
 
+    func test_save_doesNotDeliverErrorAfterSUTHasBeenDeallocated() {
+        let store = FeedImageStoreSpy()
+        var sut: LocalFeedImageLoader? = LocalFeedImageLoader(store: store)
+
+        var capturedError: Error?
+        sut?.save(url: makeURL(), with: makeData()) { capturedError = $0}
+        sut = nil
+        store.completeInsert(with: makeNSError())
+
+        XCTAssertNil(capturedError, "Expected save to not deliver errors after SUT has been deallocated")
+    }
+
     private func expect(_ sut: LocalFeedImageLoader, toCompleteWith expectedResult: LocalFeedImageLoader.LoadFeedImageResult, when action: () -> Void, file: StaticString = #filePath, line: UInt = #line) {
         _ = sut.load(from: makeURL()) { capturedResult in
             switch (capturedResult, expectedResult) {
