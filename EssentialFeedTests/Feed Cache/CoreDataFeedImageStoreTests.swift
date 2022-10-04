@@ -36,24 +36,23 @@ class CoreDataFeedImageStoreTests: XCTestCase {
 
         let locals = uniqueImages().locals
         let local1 = locals[0]
-        let local2 = locals[1]
 
         let sut = makeSUT()
         let exp = expectation(description: "wait")
 
-        sut.persist(images: locals, timestamp: timestamp) { feedCacheError in
-            sut.insert(url: local2.url, with: data) { imageCacheError in
-                sut.retrieve(from: local2.url) { result in
-                    switch (result) {
-                    case .success(let cachedData):
-                        XCTAssertEqual(data, cachedData)
+        insertImage(sut, feed: [local1], timestamp: timestamp)
 
-                    default:
-                        XCTFail("Expected image data retrieval to succeed, instead got \(result)")
-                    }
+        sut.insert(url: local1.url, with: data) { imageCacheError in
+            sut.retrieve(from: local1.url) { result in
+                switch (result) {
+                case .success(let cachedData):
+                    XCTAssertEqual(data, cachedData)
 
-                    exp.fulfill()
+                default:
+                    XCTFail("Expected image data retrieval to succeed, instead got \(result)")
                 }
+
+                exp.fulfill()
             }
         }
 
@@ -67,5 +66,20 @@ class CoreDataFeedImageStoreTests: XCTestCase {
         testMemoryLeak(store, file: file, line: line)
 
         return store
+    }
+
+    @discardableResult
+    func insertImage(_ sut: FeedStore, feed: [LocalFeedImage], timestamp: Date) -> Error? {
+        let exp = expectation(description: "wait for insertion to complete")
+
+        var persistError: Error? = nil
+        sut.persist(images: feed, timestamp: timestamp) { error in
+            persistError = error
+            exp.fulfill()
+        }
+
+        wait(for: [exp], timeout: 1.0)
+
+        return persistError
     }
 }
