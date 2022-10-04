@@ -21,21 +21,17 @@ class CacheFeedImageUseCase: XCTestCase {
         let error = makeNSError()
         let (sut, store) = makeSUT()
 
-        var capturedError: Error?
-        sut.save(url: makeURL(), with: makeData()) { capturedError = $0}
-        store.completeInsert(with: error)
-
-        XCTAssertEqual(capturedError as? NSError, error, "Expected save to deliver error when insertion fails")
+        expect(sut, toCompleteWith: error, when: {
+            store.completeInsert(with: error)
+        })
     }
 
     func test_save_returnsNoErrorWhenInsertSucceeds() {
         let (sut, store) = makeSUT()
 
-        var capturedError: Error?
-        sut.save(url: makeURL(), with: makeData()) { capturedError = $0}
-        store.completeInsertWithSuccess()
-
-        XCTAssertNil(capturedError, "Expected save to not return errors when insertion succeeds")
+        expect(sut, toCompleteWith: nil, when: {
+            store.completeInsertWithSuccess()
+        })
     }
 
     func test_save_doesNotDeliverErrorAfterSUTHasBeenDeallocated() {
@@ -70,6 +66,15 @@ class CacheFeedImageUseCase: XCTestCase {
         store.completeInsertWithSuccess()
 
         XCTAssertEqual(store.messages, [.insert(url, data)])
+    }
+
+    private func expect(_ sut: LocalFeedImageLoader, toCompleteWith expectedError: Error?, when action: () -> Void, file: StaticString = #filePath, line: UInt = #line) {
+        var capturedError: Error?
+        sut.save(url: makeURL(), with: makeData()) { capturedError = $0}
+
+        action()
+
+        XCTAssertEqual(capturedError as? NSError, expectedError as? NSError, "Expected SUT to complete save with \(String(describing: expectedError)), instead got \(String(describing: capturedError))", file: file, line: line)
     }
 
     private func makeSUT(file: StaticString = #filePath, line: UInt = #line) -> (LocalFeedImageLoader, FeedImageStoreSpy) {
