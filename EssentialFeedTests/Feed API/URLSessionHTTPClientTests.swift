@@ -177,7 +177,7 @@ private class URLProtocolStub: URLProtocol {
 
     static func stopInterceptingRequests() {
         URLProtocol.unregisterClass(URLProtocolStub.self)
-        stub = nil
+        URLProtocolStub.stub = nil
     }
 
     override class func canInit(with request: URLRequest) -> Bool { return true }
