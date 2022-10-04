@@ -19,4 +19,16 @@ public class CoreDataFeedImageStore {
             }
         }
     }
+
+    public func retrieve(from url: URL, completion: @escaping FeedImageStore.RetrievalCompletion) {
+        context.perform {
+            do {
+                let request = NSFetchRequest<ManagedFeedImage>(entityName: "ManagedFeedImage")
+                try request.execute()
+            } catch {
+                completion(.failure(error))
+            }
+        }
+    }
+
 }
