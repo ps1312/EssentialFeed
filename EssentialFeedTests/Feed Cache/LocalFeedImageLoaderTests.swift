@@ -1,9 +1,7 @@
 import XCTest
 
 protocol FeedImageStore {
-    typealias RetrievalResult = Result<Data, Error>
-    typealias RetrievalCompletion = (RetrievalResult) -> Void
-
+    typealias RetrievalCompletion = (Result<Data, Error>) -> Void
     typealias InsertCompletion = (Error?) -> Void
 
     func retrieve(from url: URL, completion: @escaping RetrievalCompletion)
