@@ -61,11 +61,7 @@ public class CoreDataFeedStore: FeedStore {
 
 }
 
-extension CoreDataFeedStore: FeedImageStore {
-    public struct NotFound: Error, Equatable {
-        public init() {}
-    }
-    
+extension CoreDataFeedStore: FeedImageStore {    
     public func insert(url: URL, with data: Data, completion: @escaping InsertCompletion) {
         context.perform { [weak context] in
             do {
