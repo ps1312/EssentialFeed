@@ -15,8 +15,8 @@ class EssentialFeedCacheIntegrationTests: XCTestCase {
 
     func test_LocalFeedLoaderAndCoreDataFeedStore_deliversCachedValuesOnNonEmptyCache() {
         let images = uniqueImages().models
-        let sutToPerformSave = makeSUT()
-        let sutToPerformLoad = makeSUT()
+        let sutToPerformSave = makeFeedLoader()
+        let sutToPerformLoad = makeFeedLoader()
 
         insert(to: sutToPerformSave, models: images)
 
@@ -24,7 +24,7 @@ class EssentialFeedCacheIntegrationTests: XCTestCase {
     }
 
     func test_LocalFeedLoaderAndCoreDataFeedStore_deliversAnEmptyFeedImagesArrayOnEmptyCache() {
-        let sut = makeSUT()
+        let sut = makeFeedLoader()
 
         expect(sut, toReceive: .success([]))
     }
@@ -33,9 +33,9 @@ class EssentialFeedCacheIntegrationTests: XCTestCase {
         let images = uniqueImages().models
         let lastImages = uniqueImages().models
 
-        let sutToPerformSave = makeSUT()
-        let sutToPerformLastSave = makeSUT()
-        let sutToPerformLoad = makeSUT()
+        let sutToPerformSave = makeFeedLoader()
+        let sutToPerformLastSave = makeFeedLoader()
+        let sutToPerformLoad = makeFeedLoader()
 
         insert(to: sutToPerformSave, models: images)
         insert(to: sutToPerformLastSave, models: lastImages)
@@ -43,9 +43,52 @@ class EssentialFeedCacheIntegrationTests: XCTestCase {
         expect(sutToPerformLoad, toReceive: .success(lastImages))
     }
 
-    private func makeSUT(file: StaticString = #filePath, line: UInt = #line) -> LocalFeedLoader {
+    func test_LocalFeedImageLoaderAndCoreDataFeedStore_deliversInsertedData() {
+        let data = makeData()
+        let model = uniqueImages().models[0]
+
+        let feedLoaderToPerformSave = makeFeedLoader()
+        let imageLoaderToPerformSave = makeImageLoader()
+        let imageLoaderToPerformRetrieve = makeImageLoader()
+
+        insert(to: feedLoaderToPerformSave, models: [model])
+
+        insert(into: imageLoaderToPerformSave, url: model.url, with: data)
+
+        let cachedData = retrieve(from: imageLoaderToPerformRetrieve, in: model.url)
+        XCTAssertEqual(cachedData, data)
+    }
+
+    func test_LocalFeedLoaderAndCoreDataFeedStore_deletesInvalidCachedFeed() {
+        let invalidTimestamp = Date().minusFeedCacheMaxAge() - 1
+        let models = uniqueImages().models
+        let feedLoaderToPerformSave = makeFeedLoader(currentDate: { invalidTimestamp })
+        let feedLoaderToPerformValidate = makeFeedLoader()
+        let feedLoaderToPerformRetrieve = makeFeedLoader()
+
+        insert(to: feedLoaderToPerformSave, models: models)
+
+        feedLoaderToPerformValidate.validateCache() { _ in }
+
+        expect(feedLoaderToPerformRetrieve, toReceive: .success([]))
+    }
+
+    func test_LocalFeedloaderAndCoreDataFeedStore_doesNotDeletesValidCache() {
+        let models = uniqueImages().models
+        let feedLoaderToPerformSave = makeFeedLoader()
+        let feedLoaderToPerformValidate = makeFeedLoader()
+        let feedLoaderToPerformRetrieve = makeFeedLoader()
+
+        insert(to: feedLoaderToPerformSave, models: models)
+
+        feedLoaderToPerformValidate.validateCache() { _ in }
+
+        expect(feedLoaderToPerformRetrieve, toReceive: .success(models))
+    }
+
+    private func makeFeedLoader(currentDate: @escaping () -> Date = Date.init, file: StaticString = #filePath, line: UInt = #line) -> LocalFeedLoader {
         let coreDataFeedStore = try! CoreDataFeedStore(storeURL: testStoreURL())
-        let localFeedLoader = LocalFeedLoader(store: coreDataFeedStore)
+        let localFeedLoader = LocalFeedLoader(store: coreDataFeedStore, currentDate: currentDate)
 
         testMemoryLeak(coreDataFeedStore, file: file, line: line)
         testMemoryLeak(localFeedLoader, file: file, line: line)
@@ -53,13 +96,24 @@ class EssentialFeedCacheIntegrationTests: XCTestCase {
         return localFeedLoader
     }
 
-    private func expect(_ sut: LocalFeedLoader, toReceive expectedResult: LoadFeedResult) {
+    private func makeImageLoader(file: StaticString = #filePath, line: UInt = #line) -> LocalFeedImageLoader {
+        let coreDataFeedStore = try! CoreDataFeedStore(storeURL: testStoreURL())
+        let localFeedImageLoader = LocalFeedImageLoader(store: coreDataFeedStore)
+
+        testMemoryLeak(coreDataFeedStore, file: file, line: line)
+        testMemoryLeak(localFeedImageLoader, file: file, line: line)
+
+        return localFeedImageLoader
+    }
+
+
+    private func expect(_ sut: LocalFeedLoader, toReceive expectedResult: LoadFeedResult, file: StaticString = #filePath, line: UInt = #line) {
         let exp = expectation(description: "Wait for save and load to complete")
 
         sut.load { receivedResult in
             switch (receivedResult, expectedResult) {
             case (.success(let receivedFeedItems), .success(let expectedFeedItems)):
-                XCTAssertEqual(receivedFeedItems, expectedFeedItems)
+                XCTAssertEqual(receivedFeedItems, expectedFeedItems, file: file, line: line)
 
             default:
                 XCTFail("Expected load to complete with empty, instead got \(receivedResult)")
@@ -80,6 +134,31 @@ class EssentialFeedCacheIntegrationTests: XCTestCase {
         }
 
         wait(for: [exp], timeout: 1.0)
+    }
+
+    private func insert(into sut: LocalFeedImageLoader, url: URL, with data: Data) {
+        let exp = expectation(description: "wait for image data save to complete")
+
+        sut.save(url: url, with: data) { error in
+            XCTAssertNil(error, "Expected save to succeed")
+            exp.fulfill()
+        }
+
+        wait(for: [exp], timeout: 5.0)
+    }
+
+    private func retrieve(from sut: LocalFeedImageLoader, in url: URL) -> Data? {
+        let exp = expectation(description: "wait for image data retrieve to complete")
+
+        var capturedData: Data?
+        _ = sut.load(from: url) { result in
+            capturedData = try? result.get()
+            exp.fulfill()
+        }
+
+        wait(for: [exp], timeout: 5.0)
+
+        return capturedData
     }
 
     private func cachesDirectory() -> URL {

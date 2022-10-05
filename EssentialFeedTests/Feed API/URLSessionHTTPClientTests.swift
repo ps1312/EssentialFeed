@@ -18,15 +18,18 @@ class URLSessionHTTPClientTests: XCTestCase {
 
         URLProtocolStub.setStub(data: nil, response: nil, error: nil)
 
-        URLProtocolStub.observeRequest = { request in
+        URLProtocolStub.observeRequest(observer: { request in
             XCTAssertEqual(request.httpMethod, "GET")
             XCTAssertEqual(request.url, expectedURL)
+            print("this should be printed TWICE?...")
             exp.fulfill()
-        }
+        })
 
-        sut.get(from: expectedURL) { _ in }
+        _ = sut.get(from: expectedURL) { _ in }
 
         wait(for: [exp], timeout: 1.0)
+
+        URLProtocolStub.stopInterceptingRequests()
     }
 
     func testGetDeliversErrorOnRequestFailure() {
@@ -68,6 +71,28 @@ class URLSessionHTTPClientTests: XCTestCase {
         XCTAssertNotNil(resultErrorFor(data: makeData(), response: makeURLResponse(), error: nil))
     }
 
+    func test_cancelGetFromURLTask_cancelsURLRequest() {
+        let url = makeURL()
+        let sut = makeSUT()
+
+        let exp = expectation(description: "Wait for request")
+        let task = sut.get(from: url) { result in
+            switch result {
+            case let .failure(error as NSError) where error.code == URLError.cancelled.rawValue:
+                break
+
+            default:
+                XCTFail("Expected cancelled result, got \(result) instead")
+
+            }
+
+            exp.fulfill()
+        }
+
+        task.cancel()
+        wait(for: [exp], timeout: 1.0)
+    }
+
     private func makeSUT(file: StaticString = #filePath, line: UInt = #line) -> URLSessionHTTPClient {
         let sut = URLSessionHTTPClient()
 
@@ -83,7 +108,7 @@ class URLSessionHTTPClientTests: XCTestCase {
         URLProtocolStub.setStub(data: data, response: response, error: error)
 
         var capturedResult: HTTPClientResult!
-        sut.get(from: makeURL()) { receivedResult in
+        _ = sut.get(from: makeURL()) { receivedResult in
             capturedResult = receivedResult
             exp.fulfill()
         }
@@ -125,18 +150,28 @@ class URLSessionHTTPClientTests: XCTestCase {
     }
 }
 
-class URLProtocolStub: URLProtocol {
-    struct Stub {
-        var data: Data?
-        var response: URLResponse?
-        var error: Error?
+private class URLProtocolStub: URLProtocol {
+    private struct Stub {
+        let data: Data?
+        let response: URLResponse?
+        let error: Error?
+        let requestObserver: ((URLRequest) -> Void)?
     }
 
-    static var observeRequest: ((URLRequest) -> Void)? = nil
-    static var stub: Stub? = nil
+    private static var _stub: Stub?
+    private static var stub: Stub? {
+        get { return queue.sync { _stub } }
+        set { queue.sync { _stub = newValue } }
+    }
+
+    private static let queue = DispatchQueue(label: "URLProtocolStub.queue")
 
     static func setStub(data: Data?, response: URLResponse?, error: Error?) {
-        URLProtocolStub.stub = Stub(data: data, response: response, error: error)
+        URLProtocolStub.stub = Stub(data: data, response: response, error: error, requestObserver: nil)
+    }
+
+    static func observeRequest(observer: @escaping ((URLRequest) -> Void)) {
+        URLProtocolStub.stub = Stub(data: nil, response: nil, error: nil, requestObserver: observer)
     }
 
     static func startInterceptingRequests() {
@@ -145,8 +180,7 @@ class URLProtocolStub: URLProtocol {
 
     static func stopInterceptingRequests() {
         URLProtocol.unregisterClass(URLProtocolStub.self)
-        stub = nil
-        observeRequest = nil
+        URLProtocolStub.stub = nil
     }
 
     override class func canInit(with request: URLRequest) -> Bool { return true }
@@ -154,8 +188,8 @@ class URLProtocolStub: URLProtocol {
     override class func canonicalRequest(for request: URLRequest) -> URLRequest { return request }
 
     override func startLoading() {
-        if let observeRequest = URLProtocolStub.observeRequest {
-            return observeRequest(request)
+        if let requestObserver = URLProtocolStub.stub?.requestObserver {
+            return requestObserver(request)
         }
 
         if let data = URLProtocolStub.stub?.data {
