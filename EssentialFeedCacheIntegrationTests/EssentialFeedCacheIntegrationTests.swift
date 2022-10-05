@@ -59,9 +59,23 @@ class EssentialFeedCacheIntegrationTests: XCTestCase {
         XCTAssertEqual(cachedData, data)
     }
 
-    private func makeFeedLoader(file: StaticString = #filePath, line: UInt = #line) -> LocalFeedLoader {
+    func test_LocalFeedLoaderAndCoreDataFeedStore_deletesInvalidCachedFeed() {
+        let invalidTimestamp = Date().minusFeedCacheMaxAge() - 1
+        let models = uniqueImages().models
+        let feedLoaderToPerformSave = makeFeedLoader(currentDate: { invalidTimestamp })
+        let feedLoaderToPerformValidate = makeFeedLoader()
+        let feedLoaderToPerformRetrieve = makeFeedLoader()
+
+        insert(to: feedLoaderToPerformSave, models: models)
+
+        feedLoaderToPerformValidate.validateCache()
+
+        expect(feedLoaderToPerformRetrieve, toReceive: .success([]))
+    }
+
+    private func makeFeedLoader(currentDate: @escaping () -> Date = Date.init, file: StaticString = #filePath, line: UInt = #line) -> LocalFeedLoader {
         let coreDataFeedStore = try! CoreDataFeedStore(storeURL: testStoreURL())
-        let localFeedLoader = LocalFeedLoader(store: coreDataFeedStore)
+        let localFeedLoader = LocalFeedLoader(store: coreDataFeedStore, currentDate: currentDate)
 
         testMemoryLeak(coreDataFeedStore, file: file, line: line)
         testMemoryLeak(localFeedLoader, file: file, line: line)
@@ -80,13 +94,13 @@ class EssentialFeedCacheIntegrationTests: XCTestCase {
     }
 
 
-    private func expect(_ sut: LocalFeedLoader, toReceive expectedResult: LoadFeedResult) {
+    private func expect(_ sut: LocalFeedLoader, toReceive expectedResult: LoadFeedResult, file: StaticString = #filePath, line: UInt = #line) {
         let exp = expectation(description: "Wait for save and load to complete")
 
         sut.load { receivedResult in
             switch (receivedResult, expectedResult) {
             case (.success(let receivedFeedItems), .success(let expectedFeedItems)):
-                XCTAssertEqual(receivedFeedItems, expectedFeedItems)
+                XCTAssertEqual(receivedFeedItems, expectedFeedItems, file: file, line: line)
 
             default:
                 XCTFail("Expected load to complete with empty, instead got \(receivedResult)")
