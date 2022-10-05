@@ -73,6 +73,19 @@ class EssentialFeedCacheIntegrationTests: XCTestCase {
         expect(feedLoaderToPerformRetrieve, toReceive: .success([]))
     }
 
+    func test_LocalFeedloaderAndCoreDataFeedStore_doesNotDeletesValidCache() {
+        let models = uniqueImages().models
+        let feedLoaderToPerformSave = makeFeedLoader()
+        let feedLoaderToPerformValidate = makeFeedLoader()
+        let feedLoaderToPerformRetrieve = makeFeedLoader()
+
+        insert(to: feedLoaderToPerformSave, models: models)
+
+        feedLoaderToPerformValidate.validateCache()
+
+        expect(feedLoaderToPerformRetrieve, toReceive: .success(models))
+    }
+
     private func makeFeedLoader(currentDate: @escaping () -> Date = Date.init, file: StaticString = #filePath, line: UInt = #line) -> LocalFeedLoader {
         let coreDataFeedStore = try! CoreDataFeedStore(storeURL: testStoreURL())
         let localFeedLoader = LocalFeedLoader(store: coreDataFeedStore, currentDate: currentDate)
