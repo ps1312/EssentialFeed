@@ -29,4 +29,15 @@ public class CoreDataFeedStore {
     func perform(_ block: @escaping (NSManagedObjectContext) -> Void) {
         context.perform { [context] in block(context) }
     }
+
+    private func cleanUpReferencesToPersistentStores() {
+        context.performAndWait {
+            let coordinator = self.container.persistentStoreCoordinator
+            try? coordinator.persistentStores.forEach(coordinator.remove)
+        }
+    }
+
+    deinit {
+        cleanUpReferencesToPersistentStores()
+    }
 }
