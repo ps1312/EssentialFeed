@@ -3,19 +3,8 @@ import CoreData
 extension NSPersistentContainer {
     struct CoreDataSetupFailure: Error {}
 
-    static func create(modelName: String, storeURL: URL) throws -> NSPersistentContainer {
-        let bundle = Bundle(for: CoreDataFeedStore.self)
-
-        guard let modelURL = bundle.url(forResource: modelName  , withExtension: "momd") else {
-            fatalError("Failed to find data model")
-        }
-
-        guard let mom = NSManagedObjectModel(contentsOf: modelURL) else {
-            fatalError("Failed to create model from file: \(modelURL)")
-        }
-
-        let container = NSPersistentContainer(name: modelName, managedObjectModel: mom)
-
+    static func create(modelName: String, model: NSManagedObjectModel, storeURL: URL) throws -> NSPersistentContainer {
+        let container = NSPersistentContainer(name: modelName, managedObjectModel: model)
         let description = NSPersistentStoreDescription(url: storeURL)
         container.persistentStoreDescriptions = [description]
 
@@ -24,5 +13,13 @@ extension NSPersistentContainer {
         try error.map { throw $0 }
 
         return container
+    }
+}
+
+extension NSManagedObjectModel {
+    static func with(name: String, in bundle: Bundle) -> NSManagedObjectModel? {
+        return bundle
+            .url(forResource: name, withExtension: "momd")
+            .flatMap { NSManagedObjectModel(contentsOf: $0) }
     }
 }

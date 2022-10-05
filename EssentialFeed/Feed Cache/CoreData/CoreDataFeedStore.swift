@@ -2,13 +2,28 @@ import Foundation
 import CoreData
 
 public class CoreDataFeedStore: FeedStore {
-    private let modelName: String = "FeedStore"
+    private static let modelName: String = "FeedStore"
+    private static let model = NSManagedObjectModel.with(name: modelName, in: Bundle(for: CoreDataFeedStore.self))
+
     private let container: NSPersistentContainer
     private let context: NSManagedObjectContext
 
+    enum StoreError: Error {
+            case modelNotFound
+            case failedToLoadPersistentContainer(Error)
+        }
+
     public init(storeURL: URL) throws {
-        container = try NSPersistentContainer.create(modelName: modelName, storeURL: storeURL)
-        context = container.newBackgroundContext()
+        guard let model = CoreDataFeedStore.model else {
+            throw StoreError.modelNotFound
+        }
+
+        do {
+            container = try NSPersistentContainer.create(modelName: CoreDataFeedStore.modelName, model: model, storeURL: storeURL)
+            context = container.newBackgroundContext()
+        } catch {
+            throw StoreError.failedToLoadPersistentContainer(error)
+        }
     }
 
     public func delete(completion: @escaping DeletionCompletion) {
