@@ -21,12 +21,15 @@ class URLSessionHTTPClientTests: XCTestCase {
         URLProtocolStub.observeRequest(observer: { request in
             XCTAssertEqual(request.httpMethod, "GET")
             XCTAssertEqual(request.url, expectedURL)
+            print("this should be printed TWICE?...")
             exp.fulfill()
         })
 
         _ = sut.get(from: expectedURL) { _ in }
 
         wait(for: [exp], timeout: 1.0)
+
+        URLProtocolStub.stopInterceptingRequests()
     }
 
     func testGetDeliversErrorOnRequestFailure() {

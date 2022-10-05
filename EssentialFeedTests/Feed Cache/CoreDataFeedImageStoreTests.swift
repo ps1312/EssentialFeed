@@ -44,6 +44,17 @@ class CoreDataFeedImageStoreTests: XCTestCase {
         expect(sut, toCompleteRetrieveTwiceWith: .empty, from: local.url)
     }
 
+    func test_retrieve_hasNoSideEffectsOnNonEmptyCache() {
+        let data = makeData()
+        let sut = makeSUT()
+        let local = uniqueImages().locals[0]
+
+        insertImage(sut, feed: [local], timestamp: Date())
+        saveImage(sut, in: local.url, data: data)
+
+        expect(sut, toCompleteRetrieveTwiceWith: .found(data), from: local.url)
+    }
+
     func test_retrieveAfterInsert_deliversStoredFeedImageData() {
         let data = makeData()
         let local = uniqueImages().locals[0]
