@@ -30,6 +30,7 @@ extension LocalFeedImageLoader: FeedImageLoader {
     }
 
     public enum LoadError: Error {
+        case failed
         case notFound
     }
 
@@ -45,8 +46,8 @@ extension LocalFeedImageLoader: FeedImageLoader {
             case .empty:
                 localTask.complete(.failure(LoadError.notFound))
 
-            case .failure(let error):
-                localTask.complete(.failure(error))
+            case .failure:
+                localTask.complete(.failure(LoadError.failed))
 
             case .found(let data):
                 localTask.complete(.success(data))

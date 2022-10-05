@@ -16,11 +16,11 @@ class LoadFeedImageUseCaseTests: XCTestCase {
         XCTAssertEqual(store.messages, [.retrieve(from: url)], "Expected SUT to message store with URL for image data retrieval")
     }
 
-    func test_load_deliversErrorOnRetrievalFailure() {
+    func test_load_deliversFailedErrorOnRetrievalFailure() {
         let error = makeNSError()
         let (sut, store) = makeSUT()
 
-        expect(sut, toCompleteWith: .failure(error), when: {
+        expect(sut, toCompleteWith: .failure(LocalFeedImageLoader.LoadError.failed), when: {
             store.completeRetrieve(with: error)
         })
     }
