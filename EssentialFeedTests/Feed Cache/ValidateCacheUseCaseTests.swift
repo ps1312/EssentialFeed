@@ -83,6 +83,19 @@ class ValidateCacheUseCaseTests: XCTestCase {
         XCTAssertEqual(capturedError as? NSError, error)
     }
 
+    func test_validateCache_deliversErrorOnDeletionFailureAndExpiredCache() {
+        let error = makeNSError()
+        let expiredTimestamp = Date().minusFeedCacheMaxAge().adding(seconds: -1)
+        let (sut, store) = makeSUT()
+
+        var capturedError: Error?
+        sut.validateCache { capturedError = $0 }
+        store.completeRetrieve(with: uniqueImages().locals, timestamp: expiredTimestamp)
+        store.completeDelete(with: error)
+
+        XCTAssertEqual(capturedError as? NSError, error)
+    }
+
     // MARK: - Helpers
 
     private func makeSUT(currentDate: @escaping () -> Date = Date.init, file: StaticString = #filePath, line: UInt = #line) -> (LocalFeedLoader, FeedStoreSpy) {
