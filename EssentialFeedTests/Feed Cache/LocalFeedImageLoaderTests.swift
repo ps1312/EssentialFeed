@@ -34,6 +34,14 @@ class LoadFeedImageUseCaseTests: XCTestCase {
         })
     }
 
+    func test_load_deliversNotFoundOnEmptyCache() {
+        let (sut, store) = makeSUT()
+
+        expect(sut, toCompleteWith: .failure(LocalFeedImageLoader.LoadError.notFound)) {
+            store.completeRetrieveWithEmpty()
+        }
+    }
+
     func test_load_doesNotCompleteAfterTaskHasBeenCanceled() {
         let (sut, store) = makeSUT()
 

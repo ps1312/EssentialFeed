@@ -29,6 +29,10 @@ extension LocalFeedImageLoader: FeedImageLoader {
         }
     }
 
+    public enum LoadError: Error {
+        case notFound
+    }
+
     public typealias LoadFeedImageResult = Result<Data, Error>
 
     public func load(from url: URL, completion: @escaping (LoadFeedImageResult) -> Void) -> FeedImageLoaderTask {
@@ -39,7 +43,7 @@ extension LocalFeedImageLoader: FeedImageLoader {
 
             switch (result) {
             case .empty:
-                localTask.complete(.failure(NSError(domain: "not found", code: 404)))
+                localTask.complete(.failure(LoadError.notFound))
 
             case .failure(let error):
                 localTask.complete(.failure(error))

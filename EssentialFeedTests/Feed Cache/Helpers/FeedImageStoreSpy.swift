@@ -23,6 +23,10 @@ final class FeedImageStoreSpy: FeedImageStore {
         retrievalCompletions[index](.found(data))
     }
 
+    func completeRetrieveWithEmpty(at index: Int = 0) {
+        retrievalCompletions[index](.empty)
+    }
+
     func insert(url: URL, with data: Data, completion: @escaping InsertCompletion) {
         messages.append(.insert(url, data))
         insertCompletions.append(completion)
