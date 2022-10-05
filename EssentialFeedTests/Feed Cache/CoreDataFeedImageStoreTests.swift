@@ -94,6 +94,19 @@ class CoreDataFeedImageStoreTests: XCTestCase {
         expect(sut, toCompleteRetrieveWith: .empty, from: local2.url)
     }
 
+    func test_insert_hasNoSideEffectsOnFailure() {
+        let stub = NSManagedObjectContext.setupAlwaysFailingSaveStub()
+        let local = uniqueImages().locals[0]
+        let sut = makeSUT()
+
+        stub.startIntercepting()
+
+        insertImage(sut, feed: [local], timestamp: Date())
+        saveImage(sut, in: makeURL(), data: makeData())
+
+        expect(sut, toCompleteRetrieveWith: .empty, from: local.url)
+    }
+
     func test_store_runSideEffectsSerially() {
         var completedOperationsInOrder = [XCTestExpectation]()
 
