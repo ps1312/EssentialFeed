@@ -94,6 +94,37 @@ class CoreDataFeedImageStoreTests: XCTestCase {
         expect(sut, toCompleteRetrieveWith: .empty, from: local2.url)
     }
 
+    func test_store_runSideEffectsSerially() {
+        var completedOperationsInOrder = [XCTestExpectation]()
+
+        let op1 = expectation(description: "wait for first retrieve to complete")
+        let op2 = expectation(description: "wait for insert to complete")
+        let op3 = expectation(description: "wait for last retrieve to complete")
+
+        let url = makeURL()
+        let data = makeData()
+        let sut = makeSUT()
+
+        sut.retrieve(from: url) { _ in
+            completedOperationsInOrder.append(op1)
+            op1.fulfill()
+        }
+
+        sut.insert(url: url, with: data) { _ in
+            completedOperationsInOrder.append(op2)
+            op2.fulfill()
+        }
+
+        sut.retrieve(from: url) { _ in
+            completedOperationsInOrder.append(op3)
+            op3.fulfill()
+        }
+
+        waitForExpectations(timeout: 5.0)
+
+        XCTAssertEqual(completedOperationsInOrder, [op1, op2, op3])
+    }
+
     private func makeSUT(file: StaticString = #filePath, line: UInt = #line) -> CoreDataFeedStore {
         let inMemoryStoreURL = URL(fileURLWithPath: "/dev/null")
         let store = try! CoreDataFeedStore(storeURL: inMemoryStoreURL)
