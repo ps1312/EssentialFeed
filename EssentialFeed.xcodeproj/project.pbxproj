@@ -13,7 +13,7 @@
 		3A139EF028EB0C44008FA78B /* LoadImageFromRemoteUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A139EEF28EB0C43008FA78B /* LoadImageFromRemoteUseCase.swift */; };
 		3A139EF228EB0E3F008FA78B /* HTTPClientSpy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A139EF128EB0E3F008FA78B /* HTTPClientSpy.swift */; };
 		3A139EF528EB2F0C008FA78B /* RemoteImageLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A139EF428EB2F0C008FA78B /* RemoteImageLoader.swift */; };
-		3A139EF928EB67EA008FA78B /* LocalFeedImageLoaderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A139EF828EB67EA008FA78B /* LocalFeedImageLoaderTests.swift */; };
+		3A139EF928EB67EA008FA78B /* LoadFeedImageFromCacheUseCaseTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A139EF828EB67EA008FA78B /* LoadFeedImageFromCacheUseCaseTests.swift */; };
 		3A20189F28E11CA800BC2232 /* MainQueueDispatchDecorator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A20189E28E11CA800BC2232 /* MainQueueDispatchDecorator.swift */; };
 		3A2018A128E11CE900BC2232 /* WeakRefVirtualProxy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A2018A028E11CE900BC2232 /* WeakRefVirtualProxy.swift */; };
 		3A2018A328E11D3500BC2232 /* FeedLoadPresentationAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A2018A228E11D3500BC2232 /* FeedLoadPresentationAdapter.swift */; };
@@ -156,7 +156,7 @@
 		3A139EEF28EB0C43008FA78B /* LoadImageFromRemoteUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadImageFromRemoteUseCase.swift; sourceTree = "<group>"; };
 		3A139EF128EB0E3F008FA78B /* HTTPClientSpy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HTTPClientSpy.swift; sourceTree = "<group>"; };
 		3A139EF428EB2F0C008FA78B /* RemoteImageLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteImageLoader.swift; sourceTree = "<group>"; };
-		3A139EF828EB67EA008FA78B /* LocalFeedImageLoaderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalFeedImageLoaderTests.swift; sourceTree = "<group>"; };
+		3A139EF828EB67EA008FA78B /* LoadFeedImageFromCacheUseCaseTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadFeedImageFromCacheUseCaseTests.swift; sourceTree = "<group>"; };
 		3A20189E28E11CA800BC2232 /* MainQueueDispatchDecorator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainQueueDispatchDecorator.swift; sourceTree = "<group>"; };
 		3A2018A028E11CE900BC2232 /* WeakRefVirtualProxy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeakRefVirtualProxy.swift; sourceTree = "<group>"; };
 		3A2018A228E11D3500BC2232 /* FeedLoadPresentationAdapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedLoadPresentationAdapter.swift; sourceTree = "<group>"; };
@@ -307,7 +307,7 @@
 				3A9958BD28BE38C40049BF44 /* ValidateCacheUseCaseTests.swift */,
 				3A0C28D728BD4326009989AD /* LoadFeedFromCacheUseCaseTests.swift */,
 				3A75C30C28C22FA400537D64 /* CoreDataFeedStoreTests.swift */,
-				3A139EF828EB67EA008FA78B /* LocalFeedImageLoaderTests.swift */,
+				3A139EF828EB67EA008FA78B /* LoadFeedImageFromCacheUseCaseTests.swift */,
 				3A90DA0828EC76A30092931D /* CacheFeedImageUseCase.swift */,
 				3A90DA0C28EC7BA40092931D /* CoreDataFeedImageStoreTests.swift */,
 			);
@@ -886,7 +886,7 @@
 				3ABA207B28B6E84E002D31BF /* CacheFeedUseCaseTests.swift in Sources */,
 				3A341CF628C0342700B427F3 /* XCTestCase+FailableInsertFeedStoreSpecs.swift in Sources */,
 				3A11DA8328ECA4AA009A5C90 /* NSManagedObjectContextStub.swift in Sources */,
-				3A139EF928EB67EA008FA78B /* LocalFeedImageLoaderTests.swift in Sources */,
+				3A139EF928EB67EA008FA78B /* LoadFeedImageFromCacheUseCaseTests.swift in Sources */,
 				3A0C28D828BD4326009989AD /* LoadFeedFromCacheUseCaseTests.swift in Sources */,
 				3A44CB1528B1A1F3006EE8DB /* LoadFeedFromRemoteUseCase.swift in Sources */,
 				3A139EF028EB0C44008FA78B /* LoadImageFromRemoteUseCase.swift in Sources */,
