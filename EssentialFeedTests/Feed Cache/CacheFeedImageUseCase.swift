@@ -21,7 +21,7 @@ class CacheFeedImageUseCase: XCTestCase {
         let error = makeNSError()
         let (sut, store) = makeSUT()
 
-        expect(sut, toCompleteWith: error, when: {
+        expect(sut, toCompleteWith: LocalFeedImageLoader.SaveError.failed, when: {
             store.completeInsert(with: error)
         })
     }
