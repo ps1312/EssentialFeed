@@ -75,7 +75,7 @@ class ValidateCacheUseCaseTests: XCTestCase {
         let error = makeNSError()
         let (sut, store) = makeSUT()
 
-        validate(sut, toCompleteWith: error, when: {
+        validate(sut, toCompleteWith: .failure(error), when: {
             store.completeRetrieve(with: error)
             store.completeDelete(with: error)
         })
@@ -86,21 +86,39 @@ class ValidateCacheUseCaseTests: XCTestCase {
         let expiredTimestamp = Date().minusFeedCacheMaxAge().adding(seconds: -1)
         let (sut, store) = makeSUT()
 
-        validate(sut, toCompleteWith: error, when: {
+        validate(sut, toCompleteWith: .failure(error), when: {
             store.completeRetrieve(with: uniqueImages().locals, timestamp: expiredTimestamp)
             store.completeDelete(with: error)
         })
     }
 
+    func test_validateCache_deliversSuccessWhenValidatingEmptyCache() {
+        let (sut, store) = makeSUT()
+
+        validate(sut, toCompleteWith: .success(()), when: {
+            store.completeRetrieveWithEmptyCache()
+        })
+    }
+
     // MARK: - Helpers
 
-    private func validate(_ sut: LocalFeedLoader, toCompleteWith expectedError: NSError?, when action: () -> Void) {
-        var capturedError: Error?
-        sut.validateCache { capturedError = $0 }
+    private func validate(_ sut: LocalFeedLoader, toCompleteWith expectedResult: LocalFeedLoader.ValidateCacheResult, when action: () -> Void, file: StaticString = #filePath, line: UInt = #line) {
+
+        sut.validateCache { receivedResult in
+            switch (receivedResult, expectedResult) {
+            case (.success, .success):
+                break
+
+            case let (.failure(receivedFailure), .failure(expectedFailure)):
+                XCTAssertEqual(receivedFailure as NSError, expectedFailure as NSError, file: file, line: line)
+
+            default:
+                XCTFail("Expected \(expectedResult), instead got \(receivedResult)")
+            }
+        }
 
         action()
 
-        XCTAssertEqual(capturedError as? NSError, expectedError)
     }
 
     private func makeSUT(currentDate: @escaping () -> Date = Date.init, file: StaticString = #filePath, line: UInt = #line) -> (LocalFeedLoader, FeedStoreSpy) {
