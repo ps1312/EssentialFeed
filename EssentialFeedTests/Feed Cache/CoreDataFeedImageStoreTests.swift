@@ -35,6 +35,15 @@ class CoreDataFeedImageStoreTests: XCTestCase {
         expect(sut, toCompleteRetrieveWith: .empty, from: local.url)
     }
 
+    func test_retrieve_hasNoSideEffectsOnEmptyCache() {
+        let sut = makeSUT()
+        let local = uniqueImages().locals[0]
+
+        insertImage(sut, feed: [local], timestamp: Date())
+
+        expect(sut, toCompleteRetrieveTwiceWith: .empty, from: local.url)
+    }
+
     func test_retrieveAfterInsert_deliversStoredFeedImageData() {
         let data = makeData()
         let local = uniqueImages().locals[0]
@@ -81,6 +90,11 @@ class CoreDataFeedImageStoreTests: XCTestCase {
         testMemoryLeak(store, file: file, line: line)
 
         return store
+    }
+
+    func expect(_ sut: CoreDataFeedStore, toCompleteRetrieveTwiceWith expectedResult: CacheImageRetrieveResult, from url: URL, file: StaticString = #filePath, line: UInt = #line) {
+        expect(sut, toCompleteRetrieveWith: expectedResult, from: url)
+        expect(sut, toCompleteRetrieveWith: expectedResult, from: url)
     }
 
     func expect(_ sut: CoreDataFeedStore, toCompleteRetrieveWith expectedResult: CacheImageRetrieveResult, from url: URL, file: StaticString = #filePath, line: UInt = #line) {
