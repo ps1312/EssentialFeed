@@ -49,6 +49,20 @@ class CoreDataFeedImageStoreTests: XCTestCase {
         expect(sut, toCompleteRetrieveWith: .empty, from: local2.url)
     }
 
+    func test_insertAfterInsert_deliversLastInsertedData() {
+        let firstData = Data("first-data".utf8)
+        let lastData = Data("last-data".utf8)
+        let local = uniqueImages().locals[0]
+        let sut = makeSUT()
+
+        insertImage(sut, feed: [local], timestamp: Date())
+        saveImage(sut, in: local.url, data: firstData)
+        expect(sut, toCompleteRetrieveWith: .found(firstData), from: local.url)
+
+        saveImage(sut, in: local.url, data: lastData)
+        expect(sut, toCompleteRetrieveWith: .found(lastData), from: local.url)
+    }
+
     private func makeSUT(file: StaticString = #filePath, line: UInt = #line) -> CoreDataFeedStore {
         let inMemoryStoreURL = URL(fileURLWithPath: "/dev/null")
         let store = try! CoreDataFeedStore(storeURL: inMemoryStoreURL)
@@ -67,7 +81,7 @@ class CoreDataFeedImageStoreTests: XCTestCase {
                 break
 
             case (.found(let cachedData), .found(let expectedData)):
-                XCTAssertEqual(cachedData, expectedData, "Expected retrieve to deliver \(expectedData), instead got \(cachedData)")
+                XCTAssertEqual(cachedData, expectedData, "Expected retrieve to deliver \(expectedData), instead got \(cachedData)", file: file, line: line)
 
             default:
                 XCTFail("Expected received and expected results to match, instead got \(receivedResult) and \(expectedResult)", file: file, line: line)
