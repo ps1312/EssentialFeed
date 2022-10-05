@@ -37,16 +37,13 @@ class CoreDataFeedImageStoreTests: XCTestCase {
 
     func test_retrieveAfterInsert_deliversStoredFeedImageData() {
         let data = makeData()
-        let locals = uniqueImages().locals
-        let local1 = locals[0]
-        let local2 = locals[1]
+        let local = uniqueImages().locals[0]
         let sut = makeSUT()
 
-        insertImage(sut, feed: [local1, local2], timestamp: Date())
-        saveImage(sut, in: local1.url, data: data)
+        insertImage(sut, feed: [local], timestamp: Date())
+        saveImage(sut, in: local.url, data: data)
 
-        expect(sut, toCompleteRetrieveWith: .found(data), from: local1.url)
-        expect(sut, toCompleteRetrieveWith: .empty, from: local2.url)
+        expect(sut, toCompleteRetrieveWith: .found(data), from: local.url)
     }
 
     func test_insertAfterInsert_deliversLastInsertedData() {
@@ -61,6 +58,20 @@ class CoreDataFeedImageStoreTests: XCTestCase {
 
         saveImage(sut, in: local.url, data: lastData)
         expect(sut, toCompleteRetrieveWith: .found(lastData), from: local.url)
+    }
+
+    func test_insert_updatesOnlyFeedImageDataWithProvidedURL() {
+        let data = makeData()
+        let locals = uniqueImages().locals
+        let local1 = locals[0]
+        let local2 = locals[1]
+        let sut = makeSUT()
+
+        insertImage(sut, feed: [local1, local2], timestamp: Date())
+        saveImage(sut, in: local1.url, data: data)
+
+        expect(sut, toCompleteRetrieveWith: .found(data), from: local1.url)
+        expect(sut, toCompleteRetrieveWith: .empty, from: local2.url)
     }
 
     private func makeSUT(file: StaticString = #filePath, line: UInt = #line) -> CoreDataFeedStore {
