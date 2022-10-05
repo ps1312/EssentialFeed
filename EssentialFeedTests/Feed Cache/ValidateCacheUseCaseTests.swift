@@ -100,6 +100,14 @@ class ValidateCacheUseCaseTests: XCTestCase {
         })
     }
 
+    func test_validateCache_deliversSuccessWhenValidatingNonExpiredNonEmptyCache() {
+        let (sut, store) = makeSUT()
+
+        validate(sut, toCompleteWith: .success(()), when: {
+            store.completeRetrieve(with: uniqueImages().locals, timestamp: Date())
+        })
+    }
+
     // MARK: - Helpers
 
     private func validate(_ sut: LocalFeedLoader, toCompleteWith expectedResult: LocalFeedLoader.ValidateCacheResult, when action: () -> Void, file: StaticString = #filePath, line: UInt = #line) {
@@ -113,7 +121,7 @@ class ValidateCacheUseCaseTests: XCTestCase {
                 XCTAssertEqual(receivedFailure as NSError, expectedFailure as NSError, file: file, line: line)
 
             default:
-                XCTFail("Expected \(expectedResult), instead got \(receivedResult)")
+                XCTFail("Expected \(expectedResult), instead got \(receivedResult)", file: file, line: line)
             }
         }
 
