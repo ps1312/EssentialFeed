@@ -12,7 +12,7 @@ class ValidateCacheUseCaseTests: XCTestCase {
     func testValidateCacheRequestsDeletionWhenRetrievalFails() {
         let (sut, store) = makeSUT()
 
-        sut.validateCache()
+        sut.validateCache { _ in }
         store.completeRetrieve(with: makeNSError())
 
         XCTAssertEqual(store.messages, [.retrieve, .delete])
@@ -23,7 +23,7 @@ class ValidateCacheUseCaseTests: XCTestCase {
         let expiredTimestamp = currentDate.minusFeedCacheMaxAge().adding(seconds: -1)
         let (sut, store) = makeSUT(currentDate: { currentDate })
 
-        sut.validateCache()
+        sut.validateCache { _ in }
         store.completeRetrieve(with: uniqueImages().locals, timestamp: expiredTimestamp)
 
         XCTAssertEqual(store.messages, [.retrieve, .delete])
@@ -34,7 +34,7 @@ class ValidateCacheUseCaseTests: XCTestCase {
         let expirationTimestamp = currentDate.minusFeedCacheMaxAge()
         let (sut, store) = makeSUT(currentDate: { currentDate })
 
-        sut.validateCache()
+        sut.validateCache { _ in }
         store.completeRetrieve(with: uniqueImages().locals, timestamp: expirationTimestamp)
 
         XCTAssertEqual(store.messages, [.retrieve, .delete])
@@ -45,7 +45,7 @@ class ValidateCacheUseCaseTests: XCTestCase {
         let notExpiredTimestamp = currentDate.minusFeedCacheMaxAge().adding(seconds: 1)
         let (sut, store) = makeSUT(currentDate: { currentDate })
 
-        sut.validateCache()
+        sut.validateCache { _ in }
         store.completeRetrieve(with: uniqueImages().locals, timestamp: notExpiredTimestamp)
 
         XCTAssertEqual(store.messages, [.retrieve])
@@ -54,7 +54,7 @@ class ValidateCacheUseCaseTests: XCTestCase {
     func testValidateCacheDoesNotRequestDeletionWhenCacheIsEmpty() {
         let (sut, store) = makeSUT()
 
-        sut.validateCache()
+        sut.validateCache { _ in }
         store.completeRetrieveWithEmptyCache()
 
         XCTAssertEqual(store.messages, [.retrieve])
@@ -64,11 +64,23 @@ class ValidateCacheUseCaseTests: XCTestCase {
         let store = FeedStoreSpy()
         var sut: LocalFeedLoader? = LocalFeedLoader(store: store)
 
-        sut?.validateCache()
+        sut?.validateCache { _ in }
         sut = nil
         store.completeRetrieve(with: makeNSError())
 
         XCTAssertEqual(store.messages, [.retrieve])
+    }
+
+    func test_validateCache_deliversErrorOnDeletionFailureAfterRetrievalFailure() {
+        let error = makeNSError()
+        let (sut, store) = makeSUT()
+
+        var capturedError: Error?
+        sut.validateCache { capturedError = $0 }
+        store.completeRetrieve(with: error)
+        store.completeDelete(with: error)
+
+        XCTAssertEqual(capturedError as? NSError, error)
     }
 
     // MARK: - Helpers

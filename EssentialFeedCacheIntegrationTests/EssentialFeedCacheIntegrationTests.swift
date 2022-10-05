@@ -68,7 +68,7 @@ class EssentialFeedCacheIntegrationTests: XCTestCase {
 
         insert(to: feedLoaderToPerformSave, models: models)
 
-        feedLoaderToPerformValidate.validateCache()
+        feedLoaderToPerformValidate.validateCache() { _ in }
 
         expect(feedLoaderToPerformRetrieve, toReceive: .success([]))
     }
@@ -81,7 +81,7 @@ class EssentialFeedCacheIntegrationTests: XCTestCase {
 
         insert(to: feedLoaderToPerformSave, models: models)
 
-        feedLoaderToPerformValidate.validateCache()
+        feedLoaderToPerformValidate.validateCache() { _ in }
 
         expect(feedLoaderToPerformRetrieve, toReceive: .success(models))
     }
