@@ -44,7 +44,21 @@ final class FeedLoaderWithFallbackComposeTests: XCTestCase {
 
         primaryLoader.completeWith(feed: uniqueFeed())
 
-        XCTAssertNil(receivedResult)
+        XCTAssertNil(receivedResult, "Expected no results after primary task has been canceled, instead got \(String(describing: receivedResult))")
+    }
+
+    func test_fallbackLoader_deliversNoResultsAfterInstanceHasBeenDeallocated() {
+        let primaryLoader = LoaderSpy()
+        let fallbackLoader = LoaderSpy()
+        var sut: FeedLoaderWithFallbackComposite? = FeedLoaderWithFallbackComposite(primary: primaryLoader, fallback: fallbackLoader)
+
+        var receivedResult: LoadFeedResult?
+        sut?.load { receivedResult = $0 }
+        primaryLoader.completeWith(error: makeNSError())
+        sut = nil
+        fallbackLoader.completeWith(feed: uniqueFeed())
+
+        XCTAssertNil(receivedResult, "Expected no results after fallback task has been canceled, instead got \(String(describing: receivedResult))")
     }
 
     private func expect(_ sut: FeedLoaderWithFallbackComposite, toCompleteWith expectedResult: LoadFeedResult, when action: () -> Void) {

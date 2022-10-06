@@ -19,7 +19,10 @@ public final class FeedLoaderWithFallbackComposite: FeedLoader {
                 completion(.success(primaryFeed))
 
             case .failure:
-                self.fallback.load(completion: completion)
+                self.fallback.load { [weak self] fallbackResult in
+                    guard self != nil else { return }
+                    completion(fallbackResult)
+                }
 
             }
         }
