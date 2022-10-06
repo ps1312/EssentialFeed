@@ -11,7 +11,9 @@ class FeedImageLoaderWithFallbackComposite: FeedImageLoader {
     }
 
     private final class CompositeImageLoaderTask: FeedImageLoaderTask {
-        func cancel() {}
+        func cancel() {
+
+        }
     }
 
     func load(from url: URL, completion: @escaping (FeedImageLoader.Result) -> Void) -> FeedImageLoaderTask {
@@ -27,9 +29,7 @@ class FeedImageLoaderWithFallbackCompositeTests: XCTestCase {
     func test_FeedImageLoaderWithFallback_deliversPrimaryResultOnPrimaryLoadSuccess() {
         let primaryData = makeData()
         let fallbackData = makeData()
-        let primaryLoader = ImageLoaderStub(.success(primaryData))
-        let fallbackLoader = ImageLoaderStub(.success(fallbackData))
-        let sut = FeedImageLoaderWithFallbackComposite(primaryLoader: primaryLoader, fallbackLoader: fallbackLoader)
+        let sut = makeSUT(primaryResult: .success(primaryData), fallbackResult: .success(fallbackData))
 
         let exp = expectation(description: "wait for image load to complete")
         _ = sut.load(from: makeURL()) { receivedResult in
@@ -46,6 +46,24 @@ class FeedImageLoaderWithFallbackCompositeTests: XCTestCase {
         }
 
         wait(for: [exp], timeout: 1.0)
+    }
+
+    private func makeSUT(primaryResult: FeedImageLoader.Result, fallbackResult: FeedImageLoader.Result, file: StaticString = #filePath, line: UInt = #line) -> FeedImageLoaderWithFallbackComposite {
+        let primaryLoader = ImageLoaderStub(primaryResult)
+        let fallbackLoader = ImageLoaderStub(fallbackResult)
+        let sut = FeedImageLoaderWithFallbackComposite(primaryLoader: primaryLoader, fallbackLoader: fallbackLoader)
+
+        testMemoryLeak(primaryLoader, file: file, line: line)
+        testMemoryLeak(fallbackLoader, file: file, line: line)
+        testMemoryLeak(sut, file: file, line: line)
+
+        return sut
+    }
+
+    private func testMemoryLeak(_ instance: AnyObject, file: StaticString = #filePath, line: UInt = #line) {
+        addTeardownBlock { [weak instance] in
+            XCTAssertNil(instance, "Instance is not deallocated after test ends. Possible memory leak", file: file, line: line)
+        }
     }
 
     final class ImageLoaderStub: FeedImageLoader {
