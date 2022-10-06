@@ -11,9 +11,7 @@ class FeedImageLoaderWithFallbackComposite: FeedImageLoader {
     }
 
     private final class CompositeImageLoaderTask: FeedImageLoaderTask {
-        func cancel() {
-
-        }
+        func cancel() {}
     }
 
     func load(from url: URL, completion: @escaping (FeedImageLoader.Result) -> Void) -> FeedImageLoaderTask {
@@ -28,9 +26,9 @@ class FeedImageLoaderWithFallbackCompositeTests: XCTestCase {
 
     func test_FeedImageLoaderWithFallback_deliversPrimaryResultOnPrimaryLoadSuccess() {
         let primaryData = makeData()
-//        let fallbackData = makeData()
-        let primaryLoader = ImageLoaderStub()
-        let fallbackLoader = ImageLoaderStub()
+        let fallbackData = makeData()
+        let primaryLoader = ImageLoaderStub(.success(primaryData))
+        let fallbackLoader = ImageLoaderStub(.success(fallbackData))
         let sut = FeedImageLoaderWithFallbackComposite(primaryLoader: primaryLoader, fallbackLoader: fallbackLoader)
 
         let exp = expectation(description: "wait for image load to complete")
@@ -51,16 +49,19 @@ class FeedImageLoaderWithFallbackCompositeTests: XCTestCase {
     }
 
     final class ImageLoaderStub: FeedImageLoader {
+        private let result: FeedImageLoader.Result
+
+        init(_ primaryResult: FeedImageLoader.Result) {
+            self.result = primaryResult
+        }
+
         private final class StubbedImageLoaderTask: FeedImageLoaderTask {
-
-            func cancel() {
-
-            }
-
+            func cancel() {}
         }
 
         func load(from url: URL, completion: @escaping (FeedImageLoader.Result) -> Void) -> FeedImageLoaderTask {
             let task =  StubbedImageLoaderTask()
+            completion(result)
             return task
         }
     }
