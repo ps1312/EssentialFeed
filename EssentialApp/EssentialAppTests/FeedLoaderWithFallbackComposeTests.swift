@@ -33,6 +33,20 @@ final class FeedLoaderWithFallbackComposeTests: XCTestCase {
         })
     }
 
+    func test_primaryLoader_deliversNoResultsAfterInstanceHasBeenDeallocated() {
+        let primaryLoader = LoaderSpy()
+        let fallbackLoader = LoaderSpy()
+        var sut: FeedLoaderWithFallbackComposite? = FeedLoaderWithFallbackComposite(primary: primaryLoader, fallback: fallbackLoader)
+
+        var receivedResult: LoadFeedResult?
+        sut?.load { receivedResult = $0 }
+        sut = nil
+
+        primaryLoader.completeWith(feed: uniqueFeed())
+
+        XCTAssertNil(receivedResult)
+    }
+
     private func expect(_ sut: FeedLoaderWithFallbackComposite, toCompleteWith expectedResult: LoadFeedResult, when action: () -> Void) {
         let exp = expectation(description: "wait for feed load to complete")
 

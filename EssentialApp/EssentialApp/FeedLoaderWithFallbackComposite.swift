@@ -12,12 +12,14 @@ public final class FeedLoaderWithFallbackComposite: FeedLoader {
 
     public func load(completion: @escaping (LoadFeedResult) -> Void) {
         primary.load { [weak self] primaryResult in
+            guard let self = self else { return }
+
             switch (primaryResult) {
             case .success(let primaryFeed):
                 completion(.success(primaryFeed))
 
             case .failure:
-                self?.fallback.load(completion: completion)
+                self.fallback.load(completion: completion)
 
             }
         }
