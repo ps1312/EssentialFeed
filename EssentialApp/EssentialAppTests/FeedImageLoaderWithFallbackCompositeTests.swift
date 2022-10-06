@@ -41,26 +41,36 @@ class FeedImageLoaderWithFallbackCompositeTests: XCTestCase {
         let fallbackData = makeData()
         let sut = makeSUT(primaryResult: .success(primaryData), fallbackResult: .success(fallbackData))
 
-        expect(sut, toCompleteWith: primaryData)
+        expect(sut, toCompleteWith: .success(primaryData))
     }
 
     func test_FeedImageLoaderWithFallback_deliversFallbackResultOnPrimaryLoadFailure() {
         let fallbackData = makeData()
         let sut = makeSUT(primaryResult: .failure(makeNSError()), fallbackResult: .success(fallbackData))
 
-        expect(sut, toCompleteWith: fallbackData)
+        expect(sut, toCompleteWith: .success(fallbackData))
     }
 
-    private func expect(_ sut: FeedImageLoaderWithFallbackComposite, toCompleteWith expectedData: Data) {
+    func test_FeedImageLoaderWithFallback_deliversErrorOnPrimaryAndFallbackLoadFailures() {
+        let error = makeNSError()
+        let sut = makeSUT(primaryResult: .failure(error), fallbackResult: .failure(error))
+
+        expect(sut, toCompleteWith: .failure(error))
+    }
+
+    private func expect(_ sut: FeedImageLoaderWithFallbackComposite, toCompleteWith expectedResult: FeedImageLoader.Result, file: StaticString = #filePath, line: UInt = #line) {
         let exp = expectation(description: "wait for image load to complete")
 
         _ = sut.load(from: makeURL()) { receivedResult in
-            switch (receivedResult) {
-            case .success(let receivedData):
-                XCTAssertEqual(receivedData, expectedData)
+            switch (receivedResult, expectedResult) {
+            case let (.failure(receivedFailure), .failure(expectedFailure)):
+                XCTAssertEqual(receivedFailure as NSError, expectedFailure as NSError, file: file, line: line)
+
+            case let (.success(receivedData), .success(expectedData)):
+                XCTAssertEqual(receivedData, expectedData, file: file, line: line)
 
             default:
-                XCTFail("Expected load to succeed, instead got \(receivedResult)")
+                XCTFail("Expected load to succeed, instead got \(receivedResult)", file: file, line: line)
 
             }
 
