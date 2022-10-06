@@ -38,7 +38,7 @@ class FeedImageLoaderWithFallbackComposite: FeedImageLoader {
         task.wrapped = primaryLoader.load(from: url) { [weak self] primaryResult in
             switch (primaryResult) {
             case .failure:
-                _ = self?.fallbackLoader.load(from: url, completion: completion)
+                task.wrapped = self?.fallbackLoader.load(from: url, completion: completion)
 
             case .success(let primaryData):
                 task.complete(.success(primaryData))
@@ -110,6 +110,19 @@ class FeedImageLoaderWithFallbackCompositeTests: XCTestCase {
         XCTAssertEqual(primaryLoader.canceledURLs, [url])
     }
 
+    func test_fallbackLoadCancel_requestsTaskCancelation() {
+        let url = makeURL()
+        let primaryLoader = ImageLoaderSpy()
+        let fallbackLoader = ImageLoaderSpy()
+        let sut = FeedImageLoaderWithFallbackComposite(primaryLoader: primaryLoader, fallbackLoader: fallbackLoader)
+
+        let task = sut.load(from: url) { _ in }
+        primaryLoader.completeWith(error: makeNSError())
+        task.cancel()
+
+        XCTAssertEqual(fallbackLoader.canceledURLs, [url])
+    }
+
     private func expect(_ sut: FeedImageLoaderWithFallbackComposite, toCompleteWith expectedResult: FeedImageLoader.Result, file: StaticString = #filePath, line: UInt = #line) {
         let exp = expectation(description: "wait for image load to complete")
 
@@ -165,6 +178,10 @@ class FeedImageLoaderWithFallbackCompositeTests: XCTestCase {
 
         func completeWith(data: Data, at index: Int = 0) {
             completions[index](.success(data))
+        }
+
+        func completeWith(error: Error, at index: Int = 0) {
+            completions[index](.failure(error))
         }
     }
 
