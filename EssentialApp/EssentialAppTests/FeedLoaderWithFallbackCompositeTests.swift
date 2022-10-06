@@ -2,7 +2,7 @@ import XCTest
 import EssentialFeed
 import EssentialApp
 
-final class FeedLoaderWithFallbackComposeTests: XCTestCase {
+final class FeedLoaderWithFallbackCompositeTests: XCTestCase {
 
     func test_FeedLoaderWithFallback_deliversPrimaryResultOnPrimaryLoadSuccess() {
         let primaryFeed = uniqueFeed()

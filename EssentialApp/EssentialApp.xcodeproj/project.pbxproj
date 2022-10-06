@@ -21,7 +21,7 @@
 		3AF2D89428EE334F007D5098 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 3AF2D89228EE334F007D5098 /* Main.storyboard */; };
 		3AF2D89628EE3351007D5098 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 3AF2D89528EE3351007D5098 /* Assets.xcassets */; };
 		3AF2D89928EE3351007D5098 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 3AF2D89728EE3351007D5098 /* LaunchScreen.storyboard */; };
-		3AF2D8A428EE3351007D5098 /* FeedLoaderWithFallbackComposeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AF2D8A328EE3351007D5098 /* FeedLoaderWithFallbackComposeTests.swift */; };
+		3AF2D8A428EE3351007D5098 /* FeedLoaderWithFallbackCompositeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AF2D8A328EE3351007D5098 /* FeedLoaderWithFallbackCompositeTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -65,7 +65,7 @@
 		3AF2D89828EE3351007D5098 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		3AF2D89A28EE3351007D5098 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		3AF2D89F28EE3351007D5098 /* EssentialAppTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = EssentialAppTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		3AF2D8A328EE3351007D5098 /* FeedLoaderWithFallbackComposeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedLoaderWithFallbackComposeTests.swift; sourceTree = "<group>"; };
+		3AF2D8A328EE3351007D5098 /* FeedLoaderWithFallbackCompositeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedLoaderWithFallbackCompositeTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -144,7 +144,7 @@
 			isa = PBXGroup;
 			children = (
 				3A2E531728EF3FC800B4EED7 /* Helpers */,
-				3AF2D8A328EE3351007D5098 /* FeedLoaderWithFallbackComposeTests.swift */,
+				3AF2D8A328EE3351007D5098 /* FeedLoaderWithFallbackCompositeTests.swift */,
 				3A2E530E28EF33E000B4EED7 /* FeedImageLoaderWithFallbackCompositeTests.swift */,
 			);
 			path = EssentialAppTests;
@@ -266,7 +266,7 @@
 				3A2E530F28EF33E000B4EED7 /* FeedImageLoaderWithFallbackCompositeTests.swift in Sources */,
 				3A2E531328EF3F4000B4EED7 /* Shared.swift in Sources */,
 				3A2E531528EF3F8200B4EED7 /* XCTestCase+TestMemoryLeak.swift in Sources */,
-				3AF2D8A428EE3351007D5098 /* FeedLoaderWithFallbackComposeTests.swift in Sources */,
+				3AF2D8A428EE3351007D5098 /* FeedLoaderWithFallbackCompositeTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
