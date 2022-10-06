@@ -31,31 +31,23 @@ final class FeedLoaderWithFallbackComposeTests: XCTestCase {
         let fallbackFeed = uniqueFeed()
         let sut = makeSUT(primaryResult: .success(primaryFeed), fallbackResult: .success(fallbackFeed))
 
-        let exp = expectation(description: "wait for feed load to complete")
-        sut.load { result in
-            switch (result) {
-            case .success(let receivedFeed):
-                XCTAssertEqual(receivedFeed, primaryFeed)
-
-            default:
-                XCTFail("Expected feed load to succeed, instead got \(result)")
-            }
-
-            exp.fulfill()
-        }
-
-        wait(for: [exp], timeout: 1.0)
+        expect(sut, toCompleteWith: primaryFeed)
     }
 
     func test_FeedLoaderWithFallback_deliversFallbackResultOnPrimaryLoadFailureAndFallbackSuccess() {
         let fallbackFeed = uniqueFeed()
         let sut = makeSUT(primaryResult: .failure(makeNSError()), fallbackResult: .success(fallbackFeed))
 
+        expect(sut, toCompleteWith: fallbackFeed)
+    }
+
+    private func expect(_ sut: FeedLoaderWithFallbackComposite, toCompleteWith expectedFeed: [FeedImage]) {
         let exp = expectation(description: "wait for feed load to complete")
+
         sut.load { result in
             switch (result) {
             case .success(let receivedFeed):
-                XCTAssertEqual(receivedFeed, fallbackFeed)
+                XCTAssertEqual(receivedFeed, expectedFeed)
 
             default:
                 XCTFail("Expected feed load to succeed, instead got \(result)")
