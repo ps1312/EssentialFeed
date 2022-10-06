@@ -6,27 +6,34 @@ final class FeedLoaderWithFallbackComposeTests: XCTestCase {
 
     func test_FeedLoaderWithFallback_deliversPrimaryResultOnPrimaryLoadSuccess() {
         let primaryFeed = uniqueFeed()
-        let fallbackFeed = uniqueFeed()
-        let sut = makeSUT(primaryResult: .success(primaryFeed), fallbackResult: .success(fallbackFeed))
+        let (sut, primaryLoader, _) = makeSUT()
 
-        expect(sut, toCompleteWith: .success(primaryFeed))
+        expect(sut, toCompleteWith: .success(primaryFeed), when: {
+            primaryLoader.completeWith(feed: primaryFeed)
+        })
     }
 
     func test_FeedLoaderWithFallback_deliversFallbackResultOnPrimaryLoadFailureAndFallbackSuccess() {
         let fallbackFeed = uniqueFeed()
-        let sut = makeSUT(primaryResult: .failure(makeNSError()), fallbackResult: .success(fallbackFeed))
+        let (sut, primaryLoader, fallbackLoader) = makeSUT()
 
-        expect(sut, toCompleteWith: .success(fallbackFeed))
+        expect(sut, toCompleteWith: .success(fallbackFeed), when: {
+            primaryLoader.completeWith(error: makeNSError())
+            fallbackLoader.completeWith(feed: fallbackFeed)
+        })
     }
 
     func test_FeedLoaderWithFallback_deliversErrorOnPrimaryAndFallbackLoadFailure() {
         let error = makeNSError()
-        let sut = makeSUT(primaryResult: .failure(error), fallbackResult: .failure(error))
+        let (sut, primaryLoader, fallbackLoader) = makeSUT()
 
-        expect(sut, toCompleteWith: .failure(error))
+        expect(sut, toCompleteWith: .failure(error), when: {
+            primaryLoader.completeWith(error: makeNSError())
+            fallbackLoader.completeWith(error: makeNSError())
+        })
     }
 
-    private func expect(_ sut: FeedLoaderWithFallbackComposite, toCompleteWith expectedResult: LoadFeedResult) {
+    private func expect(_ sut: FeedLoaderWithFallbackComposite, toCompleteWith expectedResult: LoadFeedResult, when action: () -> Void) {
         let exp = expectation(description: "wait for feed load to complete")
 
         sut.load { receivedResult in
@@ -44,19 +51,21 @@ final class FeedLoaderWithFallbackComposeTests: XCTestCase {
             exp.fulfill()
         }
 
+        action()
+
         wait(for: [exp], timeout: 1.0)
     }
 
-    private func makeSUT(primaryResult: LoadFeedResult, fallbackResult: LoadFeedResult, file: StaticString = #filePath, line: UInt = #line) -> FeedLoaderWithFallbackComposite {
-        let primaryLoader = LoaderStub(primaryResult)
-        let fallbackLoader = LoaderStub(fallbackResult)
+    private func makeSUT(file: StaticString = #filePath, line: UInt = #line) -> (sut: FeedLoaderWithFallbackComposite, primaryLoader: LoaderSpy, fallbackLoader: LoaderSpy) {
+        let primaryLoader = LoaderSpy()
+        let fallbackLoader = LoaderSpy()
         let sut = FeedLoaderWithFallbackComposite(primary: primaryLoader, fallback: fallbackLoader)
 
         testMemoryLeak(sut, file: file, line: line)
         testMemoryLeak(primaryLoader, file: file, line: line)
         testMemoryLeak(fallbackLoader, file: file, line: line)
 
-        return sut
+        return (sut, primaryLoader, fallbackLoader)
     }
 
     private func uniqueFeed() -> [FeedImage] {
@@ -66,15 +75,19 @@ final class FeedLoaderWithFallbackComposeTests: XCTestCase {
         return [feedImage1, feedImage2]
     }
 
-    private class LoaderStub: FeedLoader {
-        private let result: LoadFeedResult
-
-        init (_ result: LoadFeedResult) {
-            self.result = result
-        }
+    private class LoaderSpy: FeedLoader {
+        var completions = [(LoadFeedResult) -> Void]()
 
         func load(completion: @escaping (LoadFeedResult) -> Void) {
-            completion(result)
+            completions.append(completion)
+        }
+
+        func completeWith(feed: [FeedImage], at index: Int = 0) {
+            completions[index](.success(feed))
+        }
+
+        func completeWith(error: Error, at index: Int = 0) {
+            completions[index](.failure(error))
         }
     }
 
