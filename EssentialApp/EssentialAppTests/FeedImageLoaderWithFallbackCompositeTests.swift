@@ -36,9 +36,11 @@ class FeedImageLoaderWithFallbackComposite: FeedImageLoader {
         let task = CompositeImageLoaderTask(completion)
 
         task.wrapped = primaryLoader.load(from: url) { [weak self] primaryResult in
+            guard let self = self else { return }
+
             switch (primaryResult) {
             case .failure:
-                task.wrapped = self?.fallbackLoader.load(from: url) { fallbackResult in
+                task.wrapped = self.fallbackLoader.load(from: url) { fallbackResult in
                     switch (fallbackResult) {
                     case (.success(let fallbackData)):
                         task.complete(.success(fallbackData))
@@ -81,6 +83,19 @@ class FeedImageLoaderWithFallbackCompositeTests: XCTestCase {
         let sut = makeSUT(primaryResult: .failure(error), fallbackResult: .failure(error))
 
         expect(sut, toCompleteWith: .failure(error))
+    }
+
+    func test_primaryLoad_deliversNoResultsAfterInstanceHasBeenDeallocated() {
+        let primaryLoader = ImageLoaderSpy()
+        let fallbackLoader = ImageLoaderSpy()
+        var sut: FeedImageLoaderWithFallbackComposite? = FeedImageLoaderWithFallbackComposite(primaryLoader: primaryLoader, fallbackLoader: fallbackLoader)
+
+        var receivedResult: FeedImageLoader.Result?
+        _ = sut?.load(from: makeURL()) { receivedResult = $0 }
+        sut = nil
+        primaryLoader.completeWith(data: makeData())
+
+        XCTAssertNil(receivedResult, "Expected no results in primary task after instance has been deallocated")
     }
 
     func test_primaryLoadCancel_deliversNoResult() {
@@ -174,7 +189,7 @@ class FeedImageLoaderWithFallbackCompositeTests: XCTestCase {
         return sut
     }
 
-    final class ImageLoaderSpy: FeedImageLoader {
+    private final class ImageLoaderSpy: FeedImageLoader {
         var completions = [(FeedImageLoader.Result) -> Void]()
         var canceledURLs = [URL]()
 
@@ -202,7 +217,7 @@ class FeedImageLoaderWithFallbackCompositeTests: XCTestCase {
         }
     }
 
-    final class ImageLoaderStub: FeedImageLoader {
+    private final class ImageLoaderStub: FeedImageLoader {
         private let result: FeedImageLoader.Result
 
         init(_ primaryResult: FeedImageLoader.Result) {
