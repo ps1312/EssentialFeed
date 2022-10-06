@@ -97,6 +97,19 @@ class FeedImageLoaderWithFallbackCompositeTests: XCTestCase {
         }
     }
 
+    func test_primaryLoadCancel_requestsTaskCancelation() {
+        let url = makeURL()
+        let fallbackData = makeData()
+        let primaryLoader = ImageLoaderSpy()
+        let fallbackLoader = ImageLoaderStub(.success(fallbackData))
+        let sut = FeedImageLoaderWithFallbackComposite(primaryLoader: primaryLoader, fallbackLoader: fallbackLoader)
+
+        let task = sut.load(from: url) { _ in }
+        task.cancel()
+
+        XCTAssertEqual(primaryLoader.canceledURLs, [url])
+    }
+
     private func expect(_ sut: FeedImageLoaderWithFallbackComposite, toCompleteWith expectedResult: FeedImageLoader.Result, file: StaticString = #filePath, line: UInt = #line) {
         let exp = expectation(description: "wait for image load to complete")
 
@@ -133,14 +146,20 @@ class FeedImageLoaderWithFallbackCompositeTests: XCTestCase {
 
     final class ImageLoaderSpy: FeedImageLoader {
         var completions = [(FeedImageLoader.Result) -> Void]()
+        var canceledURLs = [URL]()
 
         private final class ImageLoaderTaskSpy: FeedImageLoaderTask {
-            func cancel() {}
+            var onCancel: (() -> Void)?
+
+            func cancel() {
+                onCancel?()
+            }
         }
 
         func load(from url: URL, completion: @escaping (FeedImageLoader.Result) -> Void) -> FeedImageLoaderTask {
             let task = ImageLoaderTaskSpy()
             completions.append(completion)
+            task.onCancel = { self.canceledURLs.append(url) }
             return task
         }
 
