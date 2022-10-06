@@ -1,4 +1,4 @@
-[![ps1312](https://circleci.com/gh/ps1312/EssentialFeed.svg?style=svg)]([https://circleci.com/gh/circleci/circleci-docs](https://app.circleci.com/pipelines/github/ps1312/EssentialFeed))
+[![ps1312](https://circleci.com/gh/ps1312/EssentialFeed.svg?style=svg)](<[https://circleci.com/gh/circleci/circleci-docs](https://app.circleci.com/pipelines/github/ps1312/EssentialFeed)>)
 
 # Essential App Case Study
 
@@ -54,7 +54,7 @@ Given the customer doesn't have connectivity
 
 ## Use Cases
 
-### Load Feed From Remote Use Case
+### - Load Feed From Remote Use Case
 
 #### Data:
 
@@ -76,7 +76,7 @@ Given the customer doesn't have connectivity
 
 1. System delivers connectivity error.
 
-### Load Feed From Cache Use Case
+### - Load Feed From Cache Use Case
 
 #### Primary course (happy path):
 
@@ -98,7 +98,7 @@ Given the customer doesn't have connectivity
 
 1. System delivers no feed images
 
-### Validate Cache Use Case
+### - Validate Cache Use Case
 
 #### Primary course (happy path):
 
@@ -114,7 +114,7 @@ Given the customer doesn't have connectivity
 
 1. System deletes cache
 
-### Cache Feed Use Case
+### - Cache Feed Use Case
 
 #### Data:
 
@@ -136,6 +136,71 @@ Given the customer doesn't have connectivity
 #### Saving cache error (sad path):
 
 1. System delivers error
+ 
+### - Load Feed Image Data From Remote Use Case
+
+#### Data:
+
+- URL
+
+#### Primary course (happy path):
+
+1. Execute "Load Remote Feed Image Data" with above data
+2. System loads the image from the remote server
+3. System delivers the remotely loaded image data
+
+#### Cancel course:
+
+1. System delivers no image data nor error.
+
+#### Connectivity error (sad path):
+
+1. System delivers connectivity error
+
+#### Invalid response (sad path):
+
+1. System delivers invalid data error
+
+### - Load Feed Image Data From Local Use Case
+
+#### Data:
+
+- URL
+
+#### Primary course (happy path):
+
+1. Execute "Load Local Feed Image Data" with above data
+2. System fetches local cache for Feed Image
+3. System delivers stored data for Feed Image
+
+#### Cancel course:
+
+1. System delivers no image data nor error.
+
+#### Not found (sad path):
+
+1. System delivers notFound error
+
+#### Failure retrieving (sad path):
+
+1. System delivers failed error
+
+### - Cache Feed Image Data
+
+#### Data:
+
+- URL
+- Data
+
+#### Primary course (happy path):
+
+1. Execute "Cache Feed Image Data" with above data.
+2. System searches for current Feed Image in store
+3. System updates the data property with the new image
+
+#### Failure saving new data (sad path):
+
+1. System delivers failed error
 
 ---
 
