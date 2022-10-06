@@ -38,7 +38,16 @@ class FeedImageLoaderWithFallbackComposite: FeedImageLoader {
         task.wrapped = primaryLoader.load(from: url) { [weak self] primaryResult in
             switch (primaryResult) {
             case .failure:
-                task.wrapped = self?.fallbackLoader.load(from: url, completion: completion)
+                task.wrapped = self?.fallbackLoader.load(from: url) { fallbackResult in
+                    switch (fallbackResult) {
+                    case (.success(let fallbackData)):
+                        task.complete(.success(fallbackData))
+
+                    case (.failure(let error)):
+                        task.complete(.failure(error))
+
+                    }
+                }
 
             case .success(let primaryData):
                 task.complete(.success(primaryData))
@@ -121,6 +130,21 @@ class FeedImageLoaderWithFallbackCompositeTests: XCTestCase {
         task.cancel()
 
         XCTAssertEqual(fallbackLoader.canceledURLs, [url])
+    }
+
+    func test_fallbackLoadCancel_deliversNoResultsAfterFallbackLoadIsCanceled() {
+        let primaryLoader = ImageLoaderSpy()
+        let fallbackLoader = ImageLoaderSpy()
+        let sut = FeedImageLoaderWithFallbackComposite(primaryLoader: primaryLoader, fallbackLoader: fallbackLoader)
+
+        var receivedResult: FeedImageLoader.Result?
+        let task = sut.load(from: makeURL()) { receivedResult = $0 }
+
+        primaryLoader.completeWith(error: makeNSError())
+        task.cancel()
+        fallbackLoader.completeWith(data: makeData())
+
+        XCTAssertNil(receivedResult, "Expected no results after fallback task has been canceled, instead got \(String(describing: receivedResult))")
     }
 
     private func expect(_ sut: FeedImageLoaderWithFallbackComposite, toCompleteWith expectedResult: FeedImageLoader.Result, file: StaticString = #filePath, line: UInt = #line) {
