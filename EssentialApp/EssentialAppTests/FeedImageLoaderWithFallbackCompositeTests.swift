@@ -1,67 +1,6 @@
 import XCTest
 import EssentialFeed
-
-class FeedImageLoaderWithFallbackComposite: FeedImageLoader {
-    private let primaryLoader: FeedImageLoader
-    private let fallbackLoader: FeedImageLoader
-
-    init(primaryLoader: FeedImageLoader, fallbackLoader: FeedImageLoader) {
-        self.primaryLoader = primaryLoader
-        self.fallbackLoader = fallbackLoader
-    }
-
-    private final class CompositeImageLoaderTask: FeedImageLoaderTask {
-        private var completion: ((FeedImageLoader.Result) -> Void)?
-        var wrapped: FeedImageLoaderTask?
-
-        init(_ completion: @escaping (FeedImageLoader.Result) -> Void) {
-            self.completion = completion
-        }
-
-        func complete(_ result: FeedImageLoader.Result) {
-            completion?(result)
-        }
-
-        func cancel() {
-            wrapped?.cancel()
-            preventFurtherCompletions()
-        }
-
-        func preventFurtherCompletions() {
-            completion = nil
-        }
-    }
-
-    func load(from url: URL, completion: @escaping (FeedImageLoader.Result) -> Void) -> FeedImageLoaderTask {
-        let task = CompositeImageLoaderTask(completion)
-
-        task.wrapped = primaryLoader.load(from: url) { [weak self] primaryResult in
-            guard let self = self else { return }
-
-            switch (primaryResult) {
-            case .failure:
-                task.wrapped = self.fallbackLoader.load(from: url) { [weak self] fallbackResult in
-                    guard self != nil else { return }
-
-                    switch (fallbackResult) {
-                    case (.success(let fallbackData)):
-                        task.complete(.success(fallbackData))
-
-                    case (.failure(let error)):
-                        task.complete(.failure(error))
-
-                    }
-                }
-
-            case .success(let primaryData):
-                task.complete(.success(primaryData))
-            }
-        }
-
-        return task
-    }
-
-}
+import EssentialApp
 
 class FeedImageLoaderWithFallbackCompositeTests: XCTestCase {
 
