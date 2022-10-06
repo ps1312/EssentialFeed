@@ -96,14 +96,7 @@ class FeedImageLoaderWithFallbackCompositeTests: XCTestCase {
 
         primaryLoader.completeWith(data: primaryData)
 
-        switch (receivedResult) {
-        case .none:
-            break
-
-        default:
-            XCTFail("Expected no results after task has been canceled, instead got \(String(describing: receivedResult))")
-
-        }
+        XCTAssertNil(receivedResult, "Expected no results after primary task has been canceled, instead got \(String(describing: receivedResult))")
     }
 
     func test_primaryLoadCancel_requestsTaskCancelation() {
