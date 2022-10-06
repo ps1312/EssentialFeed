@@ -31,26 +31,36 @@ final class FeedLoaderWithFallbackComposeTests: XCTestCase {
         let fallbackFeed = uniqueFeed()
         let sut = makeSUT(primaryResult: .success(primaryFeed), fallbackResult: .success(fallbackFeed))
 
-        expect(sut, toCompleteWith: primaryFeed)
+        expect(sut, toCompleteWith: .success(primaryFeed))
     }
 
     func test_FeedLoaderWithFallback_deliversFallbackResultOnPrimaryLoadFailureAndFallbackSuccess() {
         let fallbackFeed = uniqueFeed()
         let sut = makeSUT(primaryResult: .failure(makeNSError()), fallbackResult: .success(fallbackFeed))
 
-        expect(sut, toCompleteWith: fallbackFeed)
+        expect(sut, toCompleteWith: .success(fallbackFeed))
     }
 
-    private func expect(_ sut: FeedLoaderWithFallbackComposite, toCompleteWith expectedFeed: [FeedImage]) {
+    func test_FeedLoaderWithFallback_deliversErrorOnPrimaryAndFallbackLoadFailure() {
+        let error = makeNSError()
+        let sut = makeSUT(primaryResult: .failure(error), fallbackResult: .failure(error))
+
+        expect(sut, toCompleteWith: .failure(error))
+    }
+
+    private func expect(_ sut: FeedLoaderWithFallbackComposite, toCompleteWith expectedResult: LoadFeedResult) {
         let exp = expectation(description: "wait for feed load to complete")
 
-        sut.load { result in
-            switch (result) {
-            case .success(let receivedFeed):
+        sut.load { receivedResult in
+            switch (receivedResult, expectedResult) {
+            case let (.success(receivedFeed), .success(expectedFeed)):
                 XCTAssertEqual(receivedFeed, expectedFeed)
 
+            case let (.failure(receivedError), .failure(expectedError)):
+                XCTAssertEqual(receivedError as NSError, expectedError as NSError)
+
             default:
-                XCTFail("Expected feed load to succeed, instead got \(result)")
+                XCTFail("Expected \(expectedResult), instead got \(receivedResult)")
             }
 
             exp.fulfill()
