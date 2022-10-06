@@ -11,21 +11,37 @@ class FeedImageLoaderWithFallbackComposite: FeedImageLoader {
     }
 
     private final class CompositeImageLoaderTask: FeedImageLoaderTask {
-        func cancel() {
+        private var completion: ((FeedImageLoader.Result) -> Void)?
+        var wrapped: FeedImageLoaderTask?
 
+        init(_ completion: @escaping (FeedImageLoader.Result) -> Void) {
+            self.completion = completion
+        }
+
+        func complete(_ result: FeedImageLoader.Result) {
+            completion?(result)
+        }
+
+        func cancel() {
+            wrapped?.cancel()
+            preventFurtherCompletions()
+        }
+
+        func preventFurtherCompletions() {
+            completion = nil
         }
     }
 
     func load(from url: URL, completion: @escaping (FeedImageLoader.Result) -> Void) -> FeedImageLoaderTask {
-        let task = CompositeImageLoaderTask()
+        let task = CompositeImageLoaderTask(completion)
 
-        _ = primaryLoader.load(from: url) { [weak self] primaryResult in
+        task.wrapped = primaryLoader.load(from: url) { [weak self] primaryResult in
             switch (primaryResult) {
             case .failure:
                 _ = self?.fallbackLoader.load(from: url, completion: completion)
 
             case .success(let primaryData):
-                completion(.success(primaryData))
+                task.complete(.success(primaryData))
             }
         }
 
@@ -56,6 +72,29 @@ class FeedImageLoaderWithFallbackCompositeTests: XCTestCase {
         let sut = makeSUT(primaryResult: .failure(error), fallbackResult: .failure(error))
 
         expect(sut, toCompleteWith: .failure(error))
+    }
+
+    func test_primaryLoadCancel_deliversNoResult() {
+        let primaryData = makeData()
+        let fallbackData = makeData()
+        let primaryLoader = ImageLoaderSpy()
+        let fallbackLoader = ImageLoaderStub(.success(fallbackData))
+        let sut = FeedImageLoaderWithFallbackComposite(primaryLoader: primaryLoader, fallbackLoader: fallbackLoader)
+
+        var receivedResult: FeedImageLoader.Result?
+        let task = sut.load(from: makeURL()) { receivedResult = $0 }
+        task.cancel()
+
+        primaryLoader.completeWith(data: primaryData)
+
+        switch (receivedResult) {
+        case .none:
+            break
+
+        default:
+            XCTFail("Expected no results after task has been canceled, instead got \(String(describing: receivedResult))")
+
+        }
     }
 
     private func expect(_ sut: FeedImageLoaderWithFallbackComposite, toCompleteWith expectedResult: FeedImageLoader.Result, file: StaticString = #filePath, line: UInt = #line) {
@@ -92,6 +131,24 @@ class FeedImageLoaderWithFallbackCompositeTests: XCTestCase {
         return sut
     }
 
+    final class ImageLoaderSpy: FeedImageLoader {
+        var completions = [(FeedImageLoader.Result) -> Void]()
+
+        private final class ImageLoaderTaskSpy: FeedImageLoaderTask {
+            func cancel() {}
+        }
+
+        func load(from url: URL, completion: @escaping (FeedImageLoader.Result) -> Void) -> FeedImageLoaderTask {
+            let task = ImageLoaderTaskSpy()
+            completions.append(completion)
+            return task
+        }
+
+        func completeWith(data: Data, at index: Int = 0) {
+            completions[index](.success(data))
+        }
+    }
+
     final class ImageLoaderStub: FeedImageLoader {
         private let result: FeedImageLoader.Result
 
@@ -104,7 +161,7 @@ class FeedImageLoaderWithFallbackCompositeTests: XCTestCase {
         }
 
         func load(from url: URL, completion: @escaping (FeedImageLoader.Result) -> Void) -> FeedImageLoaderTask {
-            let task =  StubbedImageLoaderTask()
+            let task = StubbedImageLoaderTask()
             completion(result)
             return task
         }
