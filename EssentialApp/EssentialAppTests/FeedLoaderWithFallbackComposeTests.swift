@@ -59,16 +59,6 @@ final class FeedLoaderWithFallbackComposeTests: XCTestCase {
         return sut
     }
 
-    private func testMemoryLeak(_ instance: AnyObject, file: StaticString = #filePath, line: UInt = #line) {
-        addTeardownBlock { [weak instance] in
-            XCTAssertNil(instance, "Instance is not deallocated after test ends. Possible memory leak", file: file, line: line)
-        }
-    }
-
-    private func makeNSError() -> NSError {
-        return NSError(domain: "Test", code: 1)
-    }
-
     private func uniqueFeed() -> [FeedImage] {
         let url = URL(string: "https://www.any-url.com")!
         let feedImage1 = FeedImage(id: UUID(), description: nil, location: nil, url: url)

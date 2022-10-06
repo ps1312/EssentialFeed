@@ -60,12 +60,6 @@ class FeedImageLoaderWithFallbackCompositeTests: XCTestCase {
         return sut
     }
 
-    private func testMemoryLeak(_ instance: AnyObject, file: StaticString = #filePath, line: UInt = #line) {
-        addTeardownBlock { [weak instance] in
-            XCTAssertNil(instance, "Instance is not deallocated after test ends. Possible memory leak", file: file, line: line)
-        }
-    }
-
     final class ImageLoaderStub: FeedImageLoader {
         private let result: FeedImageLoader.Result
 
@@ -82,14 +76,6 @@ class FeedImageLoaderWithFallbackCompositeTests: XCTestCase {
             completion(result)
             return task
         }
-    }
-
-    func makeURL(suffix: String = "") -> URL {
-        return URL(string: "https://www.a-url\(suffix).com")!
-    }
-
-    private func makeData() -> Data {
-        return Data(UUID().uuidString.utf8)
     }
 
 }
