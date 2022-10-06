@@ -25,7 +25,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
         let feedViewController = FeedUIComposer.composeWith(feedLoader: feedLoader, imageLoader: imageLoader)
 
-        window?.rootViewController = feedViewController
+//        window?.rootViewController = feedViewController
     }
 
 
