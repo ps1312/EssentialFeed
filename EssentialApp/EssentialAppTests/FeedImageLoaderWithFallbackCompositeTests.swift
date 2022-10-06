@@ -40,7 +40,9 @@ class FeedImageLoaderWithFallbackComposite: FeedImageLoader {
 
             switch (primaryResult) {
             case .failure:
-                task.wrapped = self.fallbackLoader.load(from: url) { fallbackResult in
+                task.wrapped = self.fallbackLoader.load(from: url) { [weak self] fallbackResult in
+                    guard self != nil else { return }
+
                     switch (fallbackResult) {
                     case (.success(let fallbackData)):
                         task.complete(.success(fallbackData))
@@ -96,6 +98,20 @@ class FeedImageLoaderWithFallbackCompositeTests: XCTestCase {
         primaryLoader.completeWith(data: makeData())
 
         XCTAssertNil(receivedResult, "Expected no results in primary task after instance has been deallocated")
+    }
+
+    func test_fallbackLoad_deliversNoResultsAfterInstanceHasBeenDeallocated() {
+        let primaryLoader = ImageLoaderSpy()
+        let fallbackLoader = ImageLoaderSpy()
+        var sut: FeedImageLoaderWithFallbackComposite? = FeedImageLoaderWithFallbackComposite(primaryLoader: primaryLoader, fallbackLoader: fallbackLoader)
+
+        var receivedResult: FeedImageLoader.Result?
+        _ = sut?.load(from: makeURL()) { receivedResult = $0 }
+        primaryLoader.completeWith(error: makeNSError())
+        sut = nil
+        fallbackLoader.completeWith(data: makeData())
+
+        XCTAssertNil(receivedResult, "Expected no results in fallback task after instance has been deallocated")
     }
 
     func test_primaryLoadCancel_deliversNoResult() {
