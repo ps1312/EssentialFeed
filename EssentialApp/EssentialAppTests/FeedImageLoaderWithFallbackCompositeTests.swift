@@ -71,15 +71,15 @@ class FeedImageLoaderWithFallbackCompositeTests: XCTestCase {
 
     func test_primaryLoadCancel_requestsTaskCancelation() {
         let url = makeURL()
-        let fallbackData = makeData()
         let primaryLoader = ImageLoaderSpy()
-        let fallbackLoader = ImageLoaderStub(.success(fallbackData))
+        let fallbackLoader = ImageLoaderSpy()
         let sut = FeedImageLoaderWithFallbackComposite(primaryLoader: primaryLoader, fallbackLoader: fallbackLoader)
 
         let task = sut.load(from: url) { _ in }
         task.cancel()
 
-        XCTAssertEqual(primaryLoader.canceledURLs, [url])
+        XCTAssertEqual(primaryLoader.canceledURLs, [url], "Expected canceled task onlys on primary loader")
+        XCTAssertEqual(fallbackLoader.canceledURLs, [], "Expected no canceled tasks on fallback loader")
     }
 
     func test_fallbackLoadCancel_requestsTaskCancelation() {
@@ -92,7 +92,8 @@ class FeedImageLoaderWithFallbackCompositeTests: XCTestCase {
         primaryLoader.completeWith(error: makeNSError())
         task.cancel()
 
-        XCTAssertEqual(fallbackLoader.canceledURLs, [url])
+        XCTAssertEqual(primaryLoader.canceledURLs, [], "Expected no canceled tasks on primary loader")
+        XCTAssertEqual(fallbackLoader.canceledURLs, [url], "Expected canceled tasks only on fallback loader")
     }
 
     func test_fallbackLoadCancel_deliversNoResultsAfterFallbackLoadIsCanceled() {
