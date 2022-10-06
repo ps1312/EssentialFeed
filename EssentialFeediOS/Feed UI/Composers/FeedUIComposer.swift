@@ -2,8 +2,8 @@ import EssentialFeed
 import UIKit
 import EssentialFeed
 
-final class FeedUIComposer {
-    static func composeWith(feedLoader: FeedLoader, imageLoader: FeedImageLoader) -> FeedViewController {
+public final class FeedUIComposer {
+    public static func composeWith(feedLoader: FeedLoader, imageLoader: FeedImageLoader) -> FeedViewController {
         // abstracts the communication between domain and presentation (by *adapting* the domain api output to presenter input)
         let presentationAdapter = FeedLoadPresentationAdapter(feedLoader: MainQueueDispatchDecorator<FeedLoader>(decoratee: feedLoader))
 
