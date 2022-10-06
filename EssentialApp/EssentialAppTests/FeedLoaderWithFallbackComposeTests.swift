@@ -20,9 +20,7 @@ final class FeedLoaderWithFallbackComposeTests: XCTestCase {
     func test_FeedLoaderWithFallback_deliversPrimaryResultOnPrimaryLoadSuccess() {
         let primaryFeed = uniqueFeed()
         let fallbackFeed = uniqueFeed()
-        let primaryLoader = LoaderStub(.success(primaryFeed))
-        let fallbackLoader = LoaderStub(.success(fallbackFeed))
-        let sut = FeedLoaderWithFallbackComposite(primary: primaryLoader, fallback: fallbackLoader)
+        let sut = makeSUT(primaryResult: .success(primaryFeed), fallbackResult: .success(fallbackFeed))
 
         let exp = expectation(description: "wait for feed load to complete")
         sut.load { result in
