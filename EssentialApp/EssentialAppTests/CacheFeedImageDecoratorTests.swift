@@ -44,26 +44,4 @@ class CacheFeedImageDecoratorTests: XCTestCase, FeedImageLoaderTestCase {
         return (sut, loaderSpy)
     }
 
-    private final class FeedImageLoaderSpy: FeedImageLoader {
-        var completions = [(FeedImageLoader.Result) -> Void]()
-
-        private final class Task: FeedImageLoaderTask {
-            func cancel() {}
-        }
-
-        func load(from url: URL, completion: @escaping (FeedImageLoader.Result) -> Void) -> FeedImageLoaderTask {
-            completions.append(completion)
-            return Task()
-        }
-
-        func completeWith(data: Data, at index: Int = 0) {
-            completions[index](.success(data))
-        }
-
-        func completeWith(error: Error, at index: Int = 0) {
-            completions[index](.failure(error))
-        }
-
-    }
-
 }

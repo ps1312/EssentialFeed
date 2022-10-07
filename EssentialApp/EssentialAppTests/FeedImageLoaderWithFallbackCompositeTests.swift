@@ -27,8 +27,8 @@ class FeedImageLoaderWithFallbackCompositeTests: XCTestCase {
     }
 
     func test_primaryLoad_deliversNoResultsAfterInstanceHasBeenDeallocated() {
-        let primaryLoader = ImageLoaderSpy()
-        let fallbackLoader = ImageLoaderSpy()
+        let primaryLoader = FeedImageLoaderSpy()
+        let fallbackLoader = FeedImageLoaderSpy()
         var sut: FeedImageLoaderWithFallbackComposite? = FeedImageLoaderWithFallbackComposite(primaryLoader: primaryLoader, fallbackLoader: fallbackLoader)
 
         var receivedResult: FeedImageLoader.Result?
@@ -40,8 +40,8 @@ class FeedImageLoaderWithFallbackCompositeTests: XCTestCase {
     }
 
     func test_fallbackLoad_deliversNoResultsAfterInstanceHasBeenDeallocated() {
-        let primaryLoader = ImageLoaderSpy()
-        let fallbackLoader = ImageLoaderSpy()
+        let primaryLoader = FeedImageLoaderSpy()
+        let fallbackLoader = FeedImageLoaderSpy()
         var sut: FeedImageLoaderWithFallbackComposite? = FeedImageLoaderWithFallbackComposite(primaryLoader: primaryLoader, fallbackLoader: fallbackLoader)
 
         var receivedResult: FeedImageLoader.Result?
@@ -56,7 +56,7 @@ class FeedImageLoaderWithFallbackCompositeTests: XCTestCase {
     func test_primaryLoadCancel_deliversNoResult() {
         let primaryData = makeData()
         let fallbackData = makeData()
-        let primaryLoader = ImageLoaderSpy()
+        let primaryLoader = FeedImageLoaderSpy()
         let fallbackLoader = ImageLoaderStub(.success(fallbackData))
         let sut = FeedImageLoaderWithFallbackComposite(primaryLoader: primaryLoader, fallbackLoader: fallbackLoader)
 
@@ -71,8 +71,8 @@ class FeedImageLoaderWithFallbackCompositeTests: XCTestCase {
 
     func test_primaryLoadCancel_requestsTaskCancelation() {
         let url = makeURL()
-        let primaryLoader = ImageLoaderSpy()
-        let fallbackLoader = ImageLoaderSpy()
+        let primaryLoader = FeedImageLoaderSpy()
+        let fallbackLoader = FeedImageLoaderSpy()
         let sut = FeedImageLoaderWithFallbackComposite(primaryLoader: primaryLoader, fallbackLoader: fallbackLoader)
 
         let task = sut.load(from: url) { _ in }
@@ -84,8 +84,8 @@ class FeedImageLoaderWithFallbackCompositeTests: XCTestCase {
 
     func test_fallbackLoadCancel_requestsTaskCancelation() {
         let url = makeURL()
-        let primaryLoader = ImageLoaderSpy()
-        let fallbackLoader = ImageLoaderSpy()
+        let primaryLoader = FeedImageLoaderSpy()
+        let fallbackLoader = FeedImageLoaderSpy()
         let sut = FeedImageLoaderWithFallbackComposite(primaryLoader: primaryLoader, fallbackLoader: fallbackLoader)
 
         let task = sut.load(from: url) { _ in }
@@ -97,8 +97,8 @@ class FeedImageLoaderWithFallbackCompositeTests: XCTestCase {
     }
 
     func test_fallbackLoadCancel_deliversNoResultsAfterFallbackLoadIsCanceled() {
-        let primaryLoader = ImageLoaderSpy()
-        let fallbackLoader = ImageLoaderSpy()
+        let primaryLoader = FeedImageLoaderSpy()
+        let fallbackLoader = FeedImageLoaderSpy()
         let sut = FeedImageLoaderWithFallbackComposite(primaryLoader: primaryLoader, fallbackLoader: fallbackLoader)
 
         var receivedResult: FeedImageLoader.Result?
@@ -121,34 +121,6 @@ class FeedImageLoaderWithFallbackCompositeTests: XCTestCase {
         testMemoryLeak(sut, file: file, line: line)
 
         return sut
-    }
-
-    private final class ImageLoaderSpy: FeedImageLoader {
-        var completions = [(FeedImageLoader.Result) -> Void]()
-        var canceledURLs = [URL]()
-
-        private final class ImageLoaderTaskSpy: FeedImageLoaderTask {
-            var onCancel: (() -> Void)?
-
-            func cancel() {
-                onCancel?()
-            }
-        }
-
-        func load(from url: URL, completion: @escaping (FeedImageLoader.Result) -> Void) -> FeedImageLoaderTask {
-            let task = ImageLoaderTaskSpy()
-            completions.append(completion)
-            task.onCancel = { self.canceledURLs.append(url) }
-            return task
-        }
-
-        func completeWith(data: Data, at index: Int = 0) {
-            completions[index](.success(data))
-        }
-
-        func completeWith(error: Error, at index: Int = 0) {
-            completions[index](.failure(error))
-        }
     }
 
     private final class ImageLoaderStub: FeedImageLoader {
