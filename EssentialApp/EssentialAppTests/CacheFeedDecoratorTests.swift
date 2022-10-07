@@ -38,13 +38,6 @@ class CacheFeedDecoratorTests: XCTestCase {
         wait(for: [exp], timeout: 1.0)
     }
 
-    private func uniqueFeed() -> [FeedImage] {
-        let url = URL(string: "https://www.any-url.com")!
-        let feedImage1 = FeedImage(id: UUID(), description: nil, location: nil, url: url)
-        let feedImage2 = FeedImage(id: UUID(), description: nil, location: nil, url: url)
-        return [feedImage1, feedImage2]
-    }
-
     private final class FeedLoaderSpy: FeedLoader {
         var completions = [(LoadFeedResult) -> Void]()
 

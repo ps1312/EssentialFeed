@@ -96,13 +96,6 @@ final class FeedLoaderWithFallbackCompositeTests: XCTestCase {
         return (sut, primaryLoader, fallbackLoader)
     }
 
-    private func uniqueFeed() -> [FeedImage] {
-        let url = URL(string: "https://www.any-url.com")!
-        let feedImage1 = FeedImage(id: UUID(), description: nil, location: nil, url: url)
-        let feedImage2 = FeedImage(id: UUID(), description: nil, location: nil, url: url)
-        return [feedImage1, feedImage2]
-    }
-
     private class LoaderSpy: FeedLoader {
         var completions = [(LoadFeedResult) -> Void]()
 
