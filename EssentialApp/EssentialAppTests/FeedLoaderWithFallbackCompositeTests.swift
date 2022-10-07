@@ -2,7 +2,7 @@ import XCTest
 import EssentialFeed
 import EssentialApp
 
-final class FeedLoaderWithFallbackCompositeTests: XCTestCase {
+final class FeedLoaderWithFallbackCompositeTests: XCTestCase, FeedLoaderTestCase {
 
     func test_FeedLoaderWithFallback_deliversPrimaryResultOnPrimaryLoadSuccess() {
         let primaryFeed = uniqueFeed()
@@ -59,29 +59,6 @@ final class FeedLoaderWithFallbackCompositeTests: XCTestCase {
         fallbackLoader.completeWith(feed: uniqueFeed())
 
         XCTAssertNil(receivedResult, "Expected no results after fallback task has been canceled, instead got \(String(describing: receivedResult))")
-    }
-
-    private func expect(_ sut: FeedLoaderWithFallbackComposite, toCompleteWith expectedResult: LoadFeedResult, when action: () -> Void) {
-        let exp = expectation(description: "wait for feed load to complete")
-
-        sut.load { receivedResult in
-            switch (receivedResult, expectedResult) {
-            case let (.success(receivedFeed), .success(expectedFeed)):
-                XCTAssertEqual(receivedFeed, expectedFeed)
-
-            case let (.failure(receivedError), .failure(expectedError)):
-                XCTAssertEqual(receivedError as NSError, expectedError as NSError)
-
-            default:
-                XCTFail("Expected \(expectedResult), instead got \(receivedResult)")
-            }
-
-            exp.fulfill()
-        }
-
-        action()
-
-        wait(for: [exp], timeout: 1.0)
     }
 
     private func makeSUT(file: StaticString = #filePath, line: UInt = #line) -> (sut: FeedLoaderWithFallbackComposite, primaryLoader: LoaderSpy, fallbackLoader: LoaderSpy) {
