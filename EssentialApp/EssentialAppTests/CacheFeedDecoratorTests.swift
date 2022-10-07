@@ -18,12 +18,26 @@ class CacheFeedDecoratorTests: XCTestCase, FeedLoaderTestCase {
 
     func test_load_deliversFeedWhenFeedLoaderSucceeds() {
         let feed = uniqueFeed()
-        let loader = FeedLoaderSpy()
-        let sut = CacheFeedDecorator(decoratee: loader)
+        let (sut, loader) = makeSUT()
 
         expect(sut, toCompleteWith: .success(feed), when: {
             loader.completeFeedLoad(with: feed)
         })
+    }
+
+    func test_load_deliversErrorWhenFeedLoaderFails() {
+        let error = makeNSError()
+        let (sut, loader) = makeSUT()
+
+        expect(sut, toCompleteWith: .failure(error), when: {
+            loader.completeFeedLoad(with: error)
+        })
+    }
+
+    private func makeSUT() -> (CacheFeedDecorator, FeedLoaderSpy) {
+        let loader = FeedLoaderSpy()
+        let sut = CacheFeedDecorator(decoratee: loader)
+        return (sut, loader)
     }
 
     private final class FeedLoaderSpy: FeedLoader {
@@ -35,6 +49,10 @@ class CacheFeedDecoratorTests: XCTestCase, FeedLoaderTestCase {
 
         func completeFeedLoad(with feed: [FeedImage], at index: Int = 0) {
             completions[index](.success(feed))
+        }
+
+        func completeFeedLoad(with error: Error, at index: Int = 0) {
+            completions[index](.failure(error))
         }
 
     }
