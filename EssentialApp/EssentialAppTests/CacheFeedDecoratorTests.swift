@@ -9,7 +9,7 @@ class CacheFeedDecoratorTests: XCTestCase, FeedLoaderTestCase {
         let (sut, loader, _) = makeSUT()
 
         expect(sut, toCompleteWith: .success(feed), when: {
-            loader.completeFeedLoad(with: feed)
+            loader.completeWith(feed: feed)
         })
     }
 
@@ -18,7 +18,7 @@ class CacheFeedDecoratorTests: XCTestCase, FeedLoaderTestCase {
         let (sut, loader, _) = makeSUT()
 
         expect(sut, toCompleteWith: .failure(error), when: {
-            loader.completeFeedLoad(with: error)
+            loader.completeWith(error: error)
         })
     }
 
@@ -27,7 +27,7 @@ class CacheFeedDecoratorTests: XCTestCase, FeedLoaderTestCase {
         let (sut, loader, cache) = makeSUT()
 
         sut.load { _ in }
-        loader.completeFeedLoad(with: feed)
+        loader.completeWith(feed: feed)
 
         XCTAssertEqual(cache.messages, [.save(feed)])
     }
@@ -36,7 +36,7 @@ class CacheFeedDecoratorTests: XCTestCase, FeedLoaderTestCase {
         let (sut, loader, cache) = makeSUT()
 
         sut.load { _ in }
-        loader.completeFeedLoad(with: makeNSError())
+        loader.completeWith(error: makeNSError())
 
         XCTAssertEqual(cache.messages, [])
     }
@@ -61,23 +61,6 @@ class CacheFeedDecoratorTests: XCTestCase, FeedLoaderTestCase {
 
         func save(feed: [FeedImage], completion: @escaping LocalFeedLoader.SaveResult) {
             messages.append(.save(feed))
-        }
-
-    }
-
-    private final class FeedLoaderSpy: FeedLoader {
-        var completions = [(LoadFeedResult) -> Void]()
-
-        func load(completion: @escaping (LoadFeedResult) -> Void) {
-            completions.append(completion)
-        }
-
-        func completeFeedLoad(with feed: [FeedImage], at index: Int = 0) {
-            completions[index](.success(feed))
-        }
-
-        func completeFeedLoad(with error: Error, at index: Int = 0) {
-            completions[index](.failure(error))
         }
 
     }

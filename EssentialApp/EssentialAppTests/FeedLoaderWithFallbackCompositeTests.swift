@@ -34,8 +34,8 @@ final class FeedLoaderWithFallbackCompositeTests: XCTestCase, FeedLoaderTestCase
     }
 
     func test_primaryLoader_deliversNoResultsAfterInstanceHasBeenDeallocated() {
-        let primaryLoader = LoaderSpy()
-        let fallbackLoader = LoaderSpy()
+        let primaryLoader = FeedLoaderSpy()
+        let fallbackLoader = FeedLoaderSpy()
         var sut: FeedLoaderWithFallbackComposite? = FeedLoaderWithFallbackComposite(primary: primaryLoader, fallback: fallbackLoader)
 
         var receivedResult: LoadFeedResult?
@@ -48,8 +48,8 @@ final class FeedLoaderWithFallbackCompositeTests: XCTestCase, FeedLoaderTestCase
     }
 
     func test_fallbackLoader_deliversNoResultsAfterInstanceHasBeenDeallocated() {
-        let primaryLoader = LoaderSpy()
-        let fallbackLoader = LoaderSpy()
+        let primaryLoader = FeedLoaderSpy()
+        let fallbackLoader = FeedLoaderSpy()
         var sut: FeedLoaderWithFallbackComposite? = FeedLoaderWithFallbackComposite(primary: primaryLoader, fallback: fallbackLoader)
 
         var receivedResult: LoadFeedResult?
@@ -61,9 +61,9 @@ final class FeedLoaderWithFallbackCompositeTests: XCTestCase, FeedLoaderTestCase
         XCTAssertNil(receivedResult, "Expected no results after fallback task has been canceled, instead got \(String(describing: receivedResult))")
     }
 
-    private func makeSUT(file: StaticString = #filePath, line: UInt = #line) -> (sut: FeedLoaderWithFallbackComposite, primaryLoader: LoaderSpy, fallbackLoader: LoaderSpy) {
-        let primaryLoader = LoaderSpy()
-        let fallbackLoader = LoaderSpy()
+    private func makeSUT(file: StaticString = #filePath, line: UInt = #line) -> (sut: FeedLoaderWithFallbackComposite, primaryLoader: FeedLoaderSpy, fallbackLoader: FeedLoaderSpy) {
+        let primaryLoader = FeedLoaderSpy()
+        let fallbackLoader = FeedLoaderSpy()
         let sut = FeedLoaderWithFallbackComposite(primary: primaryLoader, fallback: fallbackLoader)
 
         testMemoryLeak(sut, file: file, line: line)
@@ -71,22 +71,6 @@ final class FeedLoaderWithFallbackCompositeTests: XCTestCase, FeedLoaderTestCase
         testMemoryLeak(fallbackLoader, file: file, line: line)
 
         return (sut, primaryLoader, fallbackLoader)
-    }
-
-    private class LoaderSpy: FeedLoader {
-        var completions = [(LoadFeedResult) -> Void]()
-
-        func load(completion: @escaping (LoadFeedResult) -> Void) {
-            completions.append(completion)
-        }
-
-        func completeWith(feed: [FeedImage], at index: Int = 0) {
-            completions[index](.success(feed))
-        }
-
-        func completeWith(error: Error, at index: Int = 0) {
-            completions[index](.failure(error))
-        }
     }
 
 }
