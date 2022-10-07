@@ -59,12 +59,16 @@ extension LocalFeedImageLoader: FeedImageLoader {
     }
 }
 
-extension LocalFeedImageLoader {
+public protocol FeedImageCache {
+    func save(url: URL, with data: Data, completion: @escaping (Error?) -> Void)
+}
+
+extension LocalFeedImageLoader: FeedImageCache {
     public enum SaveError: Error {
         case failed
     }
 
-    public func save(url: URL, with data: Data, completion: @escaping (SaveError?) -> Void) {
+    public func save(url: URL, with data: Data, completion: @escaping (Error?) -> Void) {
         store.insert(url: url, with: data) { [weak self] error in
             guard self != nil else { return }
 
