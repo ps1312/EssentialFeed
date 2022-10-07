@@ -1,34 +1,6 @@
 import XCTest
 import EssentialFeed
-
-protocol FeedCache {
-    func save(feed: [FeedImage], completion: @escaping LocalFeedLoader.SaveResult)
-}
-
-class CacheFeedDecorator: FeedLoader {
-    private let decoratee: FeedLoader
-    private let feedCache: FeedCache
-
-    init(decoratee: FeedLoader, feedCache: FeedCache) {
-        self.decoratee = decoratee
-        self.feedCache = feedCache
-    }
-
-    func load(completion: @escaping (LoadFeedResult) -> Void) {
-        decoratee.load { [weak self] result in
-            switch (result) {
-            case .success(let feed):
-                self?.feedCache.save(feed: feed) { _ in }
-                completion(.success(feed))
-
-            case .failure(let error):
-                completion(.failure(error))
-
-            }
-        }
-    }
-
-}
+import EssentialApp
 
 class CacheFeedDecoratorTests: XCTestCase, FeedLoaderTestCase {
 
@@ -90,7 +62,6 @@ class CacheFeedDecoratorTests: XCTestCase, FeedLoaderTestCase {
         func save(feed: [FeedImage], completion: @escaping LocalFeedLoader.SaveResult) {
             messages.append(.save(feed))
         }
-
 
     }
 
