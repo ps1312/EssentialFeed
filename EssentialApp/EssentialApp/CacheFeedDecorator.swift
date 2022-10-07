@@ -1,10 +1,6 @@
 import Foundation
 import EssentialFeed
 
-public protocol FeedCache {
-    func save(feed: [FeedImage], completion: @escaping LocalFeedLoader.SaveResult)
-}
-
 public final class CacheFeedDecorator: FeedLoader {
     private let decoratee: FeedLoader
     private let feedCache: FeedCache
