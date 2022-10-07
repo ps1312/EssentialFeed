@@ -111,28 +111,6 @@ class FeedImageLoaderWithFallbackCompositeTests: XCTestCase {
         XCTAssertNil(receivedResult, "Expected no results after fallback task has been canceled, instead got \(String(describing: receivedResult))")
     }
 
-    private func expect(_ sut: FeedImageLoaderWithFallbackComposite, toCompleteWith expectedResult: FeedImageLoader.Result, file: StaticString = #filePath, line: UInt = #line) {
-        let exp = expectation(description: "wait for image load to complete")
-
-        _ = sut.load(from: makeURL()) { receivedResult in
-            switch (receivedResult, expectedResult) {
-            case let (.failure(receivedFailure), .failure(expectedFailure)):
-                XCTAssertEqual(receivedFailure as NSError, expectedFailure as NSError, file: file, line: line)
-
-            case let (.success(receivedData), .success(expectedData)):
-                XCTAssertEqual(receivedData, expectedData, file: file, line: line)
-
-            default:
-                XCTFail("Expected load to succeed, instead got \(receivedResult)", file: file, line: line)
-
-            }
-
-            exp.fulfill()
-        }
-
-        wait(for: [exp], timeout: 1.0)
-    }
-
     private func makeSUT(primaryResult: FeedImageLoader.Result, fallbackResult: FeedImageLoader.Result, file: StaticString = #filePath, line: UInt = #line) -> FeedImageLoaderWithFallbackComposite {
         let primaryLoader = ImageLoaderStub(primaryResult)
         let fallbackLoader = ImageLoaderStub(fallbackResult)
