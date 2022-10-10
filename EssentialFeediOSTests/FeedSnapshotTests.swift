@@ -44,6 +44,8 @@ class FeedSnapshotTests: XCTestCase {
         let bundle = Bundle(for: FeedViewController.self)
         let storyboard = UIStoryboard(name: "Feed", bundle: bundle)
         let viewController = storyboard.instantiateInitialViewController() as! FeedViewController
+        viewController.tableView.showsVerticalScrollIndicator = false
+        viewController.tableView.showsHorizontalScrollIndicator = false
         viewController.loadViewIfNeeded()
         return viewController
     }
