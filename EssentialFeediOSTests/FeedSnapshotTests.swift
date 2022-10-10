@@ -7,7 +7,7 @@ class FeedSnapshotTests: XCTestCase {
     func test_emptyFeed() {
         let sut = makeSUT()
 
-        sut.cellControllers = emptyFeed()
+        sut.display(emptyFeed())
 
         record(snapshot: sut.snapshot(), name: "EMPTY_FEED")
     }
@@ -15,7 +15,7 @@ class FeedSnapshotTests: XCTestCase {
     func test_nonEmptyFeed() {
         let sut = makeSUT()
 
-        sut.cellControllers = nonEmptyFeed()
+        sut.display(nonEmptyFeed())
 
         record(snapshot: sut.snapshot(), name: "FEED_WITH_CONTENT")
     }
@@ -31,7 +31,7 @@ class FeedSnapshotTests: XCTestCase {
     func test_feedLoadFail_displaysRetryButton() {
         let sut = makeSUT()
 
-        sut.cellControllers = failedImageLoadFeed()
+        sut.display(failedImageLoadFeed())
 
         record(snapshot: sut.snapshot(), name: "FEED_WITH_IMAGE_RETRY")
     }
