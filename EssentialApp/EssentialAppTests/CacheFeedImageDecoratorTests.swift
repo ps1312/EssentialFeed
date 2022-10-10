@@ -43,10 +43,10 @@ class CacheFeedImageDecoratorTests: XCTestCase, FeedImageLoaderTestCase {
         XCTAssertEqual(loaderSpy.canceledURLs, [url])
     }
 
-    private func makeSUT(file: StaticString = #filePath, line: UInt = #line) -> (CacheFeedImageDecorator, FeedImageLoaderSpy, FeedImageCacheSpy) {
+    private func makeSUT(file: StaticString = #filePath, line: UInt = #line) -> (FeedImageLoaderCacheDecorator, FeedImageLoaderSpy, FeedImageCacheSpy) {
         let loaderSpy = FeedImageLoaderSpy()
         let cacheSpy = FeedImageCacheSpy()
-        let sut = CacheFeedImageDecorator(imageLoader: loaderSpy, imageCache: cacheSpy)
+        let sut = FeedImageLoaderCacheDecorator(imageLoader: loaderSpy, imageCache: cacheSpy)
 
         testMemoryLeak(loaderSpy, file: file, line: line)
         testMemoryLeak(cacheSpy, file: file, line: line)

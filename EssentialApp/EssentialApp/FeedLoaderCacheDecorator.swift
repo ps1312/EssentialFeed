@@ -1,7 +1,7 @@
 import Foundation
 import EssentialFeed
 
-public final class CacheFeedDecorator: FeedLoader {
+public final class FeedLoaderCacheDecorator: FeedLoader {
     private let decoratee: FeedLoader
     private let feedCache: FeedCache
 

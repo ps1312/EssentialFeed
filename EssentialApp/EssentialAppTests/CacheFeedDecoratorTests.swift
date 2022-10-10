@@ -41,10 +41,10 @@ class CacheFeedDecoratorTests: XCTestCase, FeedLoaderTestCase {
         XCTAssertEqual(cache.messages, [])
     }
 
-    private func makeSUT(file: StaticString = #filePath, line: UInt = #line) -> (CacheFeedDecorator, FeedLoaderSpy, FeedCacheSpy) {
+    private func makeSUT(file: StaticString = #filePath, line: UInt = #line) -> (FeedLoaderCacheDecorator, FeedLoaderSpy, FeedCacheSpy) {
         let loader = FeedLoaderSpy()
         let cache = FeedCacheSpy()
-        let sut = CacheFeedDecorator(decoratee: loader, feedCache: cache)
+        let sut = FeedLoaderCacheDecorator(decoratee: loader, feedCache: cache)
 
         testMemoryLeak(loader, file: file, line: line)
         testMemoryLeak(cache, file: file, line: line)
