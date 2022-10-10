@@ -6,7 +6,7 @@ protocol FeedRefreshViewControllerDelegate {
 }
 
 public final class FeedViewController: UITableViewController, UITableViewDataSourcePrefetching, FeedLoadingView, FeedErrorView {
-    public var errorView: ErrorView? = ErrorView()
+    @IBOutlet public var errorView: ErrorView?
 
     var delegate: FeedRefreshViewControllerDelegate?
     public var cellControllers = [FeedImageCellController]() {
