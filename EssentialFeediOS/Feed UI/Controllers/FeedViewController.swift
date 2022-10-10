@@ -9,7 +9,7 @@ public final class FeedViewController: UITableViewController, UITableViewDataSou
     public var errorView: ErrorView? = ErrorView()
 
     var delegate: FeedRefreshViewControllerDelegate?
-    var cellControllers = [FeedImageCellController]() {
+    public var cellControllers = [FeedImageCellController]() {
         didSet { tableView.reloadData() }
     }
 
