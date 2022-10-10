@@ -1,16 +1,16 @@
 import UIKit
 import EssentialFeed
 
-protocol FeedImageCellControllerDelegate {
+public protocol FeedImageCellControllerDelegate {
     func didRequestImageLoad()
     func didCancelImageLoad()
 }
 
-final class FeedImageCellController: FeedImageView {
+public final class FeedImageCellController: FeedImageView {
     private let delegate: FeedImageCellControllerDelegate
     private(set) var cell: FeedImageCell?
 
-    init(delegate: FeedImageCellControllerDelegate) {
+    public init(delegate: FeedImageCellControllerDelegate) {
         self.delegate = delegate
     }
 
@@ -24,7 +24,7 @@ final class FeedImageCellController: FeedImageView {
         return cell!
     }
 
-    func display(_ viewModel: FeedImageViewModel<UIImage>) {
+    public func display(_ viewModel: FeedImageViewModel<UIImage>) {
         cell?.descriptionLabel.isHidden = !viewModel.hasDescription
         cell?.descriptionLabel.text = viewModel.description
 
@@ -43,7 +43,7 @@ final class FeedImageCellController: FeedImageView {
         }
     }
 
-    func cancelLoad() {
+    public func cancelLoad() {
         delegate.didCancelImageLoad()
         releaseCellForReuse()
     }
