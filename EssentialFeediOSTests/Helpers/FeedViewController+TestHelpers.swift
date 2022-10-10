@@ -63,4 +63,8 @@ extension FeedViewController {
         ds?.tableView?(tableView, cancelPrefetchingForRowsAt: [indexPath])
 
     }
+
+    func snapshot(for configuration: SnapshotConfiguration) -> UIImage {
+        return SnapshotWindow(configuration: configuration, root: self).snapshot()
+    }
 }
