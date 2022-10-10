@@ -28,6 +28,14 @@ class FeedSnapshotTests: XCTestCase {
         record(snapshot: sut.snapshot(), name: "FEED_WITH_ERROR")
     }
 
+    func test_feedLoadFail_displaysRetryButton() {
+        let sut = makeSUT()
+
+        sut.cellControllers = failedImageLoadFeed()
+
+        record(snapshot: sut.snapshot(), name: "FEED_WITH_IMAGE_RETRY")
+    }
+
     private func makeSUT() -> FeedViewController {
         let bundle = Bundle(for: FeedViewController.self)
         let storyboard = UIStoryboard(name: "Feed", bundle: bundle)
@@ -53,6 +61,10 @@ class FeedSnapshotTests: XCTestCase {
             location: nil
         )
         return [cellController1, cellController2]
+    }
+
+    private func failedImageLoadFeed() -> [FeedImageCellController] {
+        return [makeImageCellController(image: nil, description: nil, location: "Na Chom Thian, Thailand")]
     }
 
     private func makeImageCellController(image: UIImage?, description: String?, location: String?) -> FeedImageCellController {
