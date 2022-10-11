@@ -17,7 +17,7 @@ extension FeedViewController {
     }
 
     var errorMessage: String? {
-        return errorView?.button.titleLabel?.text
+        return errorView?.button?.titleLabel?.text
     }
 
     var isShowingErrorMessage: Bool? {

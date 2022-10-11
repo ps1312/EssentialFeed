@@ -3,15 +3,15 @@ import EssentialFeed
 
 class EssentialFeedEndToEndTests: XCTestCase {
 
-    func testRemoteFeedLoaderAndURLSessionHTTPClientReturnsCorrectFeedImages(file: StaticString = #filePath, line: UInt = #line) {
+    func testRemoteFeedLoaderAndURLSessionHTTPClientReturnsCorrectFeedImages() {
         let exp = expectation(description: "waiting for real request to complete")
 
         let url = URL(string: "https://essentialdeveloper.com/feed-case-study/test-api/feed")!
         let httpClient = URLSessionHTTPClient()
         let remoteFeedLoader = RemoteFeedLoader(url: url, client: httpClient)
 
-        testMemoryLeak(httpClient, file: file, line: line)
-        testMemoryLeak(remoteFeedLoader, file: file, line: line)
+        testMemoryLeak(httpClient)
+        testMemoryLeak(remoteFeedLoader)
 
         var capturedFeedImages = [FeedImage]()
         remoteFeedLoader.load { result in
@@ -31,15 +31,15 @@ class EssentialFeedEndToEndTests: XCTestCase {
         }
     }
 
-    func test_remoteImageLoader_and_URLSessionHTTPClient_deliversImageDataFromAPI(file: StaticString = #filePath, line: UInt = #line) {
+    func test_remoteImageLoader_and_URLSessionHTTPClient_deliversImageDataFromAPI() {
         let exp = expectation(description: "Wait for request to complete")
         let testServerURL = URL(string: "https://essentialdeveloper.com/feed-case-study/test-api/feed/73A7F70C-75DA-4C2E-B5A3-EED40DC53AA6/image")!
 
         let httpClient = URLSessionHTTPClient(session: URLSession(configuration: .ephemeral))
         let imageLoader = RemoteImageLoader(client: httpClient)
 
-        testMemoryLeak(httpClient, file: file, line: line)
-        testMemoryLeak(imageLoader, file: file, line: line)
+        testMemoryLeak(httpClient)
+        testMemoryLeak(imageLoader)
 
         _ = imageLoader.load(from: testServerURL) { result in
             switch (result) {

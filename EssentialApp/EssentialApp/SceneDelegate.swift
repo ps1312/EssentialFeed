@@ -10,7 +10,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
         guard let _ = (scene as? UIWindowScene) else { return }
 
-        let feedURL = URL(string: "https://ile-api.essentialdeveloper.com/essential-feed/v1/feed")!
+        let feedURL = URL(string: "https://ile-api.essentifasdfasdfasdaldeveloper.com/essential-feed/v1/feed")!
         let storeURL = NSPersistentContainer.defaultDirectoryURL().appendingPathExtension("feed-store.sqlite")
 
         let store = try! CoreDataFeedStore(storeURL: storeURL)
@@ -33,7 +33,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             fallbackLoader: fallbackImageLoader
         )
 
-        let feedViewController = FeedUIComposer.composeWith(feedLoader: feedLoader, imageLoader: imageLoader)
+        let feedViewController = FeedUIComposer.composeWith(feedLoader: primaryLoader, imageLoader: imageLoader)
 
         window?.rootViewController = feedViewController
     }
