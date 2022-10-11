@@ -302,6 +302,20 @@ class FeedUIIntegrationTests: XCTestCase {
         wait(for: [exp], timeout: 1.0)
     }
 
+    func test_feedLoad_displaysEmptyFeedOnRefreshAfterFeedLoader() {
+        let image1 = uniqueImage()
+        let image2 = uniqueImage()
+        let (sut, loader) = makeSUT()
+        sut.loadViewIfNeeded()
+
+        loader.completeFeedLoad(at: 0, with: [image1, image2])
+        expect(sut, toRender: [image1, image2])
+
+        sut.simulatePullToRefresh()
+        loader.completeFeedLoad(at: 0, with: [])
+        expect(sut, toRender: [])
+    }
+
     private func makeSUT(file: StaticString = #filePath, line: UInt = #line) -> (sut: FeedViewController, loader: FeedLoaderSpy) {
         let loader = FeedLoaderSpy()
         let sut = FeedUIComposer.composeWith(feedLoader: loader, imageLoader: loader)
@@ -313,6 +327,8 @@ class FeedUIIntegrationTests: XCTestCase {
     }
 
     private func expect(_ sut: FeedViewController, toRender expectedImages: [FeedImage], file: StaticString = #filePath, line: UInt = #line) {
+        sut.tableView.layoutIfNeeded()
+        RunLoop.main.run(until: Date())
         expectedImages.enumerated().forEach { index, image in expect(sut, toLoadFeedImage: image, inPosition: index, file: file, line: line) }
         XCTAssertEqual(sut.numberOfFeedImages, expectedImages.count)
     }
