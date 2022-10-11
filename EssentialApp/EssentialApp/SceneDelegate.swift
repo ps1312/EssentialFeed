@@ -8,8 +8,9 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     var window: UIWindow?
 
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
-        guard let _ = (scene as? UIWindowScene) else { return }
+        guard let scene = (scene as? UIWindowScene) else { return }
 
+        window = UIWindow(windowScene: scene)
         configureView()
     }
 
@@ -37,9 +38,10 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             fallbackLoader: fallbackImageLoader
         )
 
-        let feedViewController = FeedUIComposer.composeWith(feedLoader: primaryLoader, imageLoader: imageLoader)
+        let feedViewController = FeedUIComposer.composeWith(feedLoader: feedLoader, imageLoader: imageLoader)
 
         window?.rootViewController = UINavigationController(rootViewController: feedViewController)
+        window?.makeKeyAndVisible()
     }
 
 }

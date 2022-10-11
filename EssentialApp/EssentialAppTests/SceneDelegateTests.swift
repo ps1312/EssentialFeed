@@ -16,4 +16,22 @@ class SceneDelegateTests: XCTestCase {
         XCTAssertNotNil(root.topViewController as! FeedViewController, "Expected navigation top view controller to be a FeedViewController")
     }
 
+    func test_configureView_makesWindowAsKeyAndVisible() {
+        let window = UIWindowSpy()
+
+        let sut = SceneDelegate()
+        sut.window = window
+
+        sut.configureView()
+
+        XCTAssertEqual(window.makeKeyAndVisibleCallCount, 1, "Expected to make window key and visible")
+    }
+
+}
+
+private class UIWindowSpy: UIWindow {
+  var makeKeyAndVisibleCallCount = 0
+  override func makeKeyAndVisible() {
+    makeKeyAndVisibleCallCount = 1
+  }
 }
