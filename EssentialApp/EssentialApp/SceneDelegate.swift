@@ -22,20 +22,20 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         let session = URLSession(configuration: .ephemeral)
         let client = URLSessionHTTPClient(session: session)
 
-        let primaryLoader = RemoteFeedLoader(url: feedURL, client: client)
-        let fallbackLoader = LocalFeedLoader(store: store)
+        let remoteFeedLoader = RemoteFeedLoader(url: feedURL, client: client)
+        let localFeedLoader = LocalFeedLoader(store: store)
 
-        let primaryImageLoader = RemoteImageLoader(client: client)
-        let fallbackImageLoader = LocalFeedImageLoader(store: store)
+        let remoteImageLoader = RemoteImageLoader(client: client)
+        let localImageLoader = LocalFeedImageLoader(store: store)
 
         let feedLoader = FeedLoaderWithFallbackComposite(
-            primary: FeedLoaderCacheDecorator(decoratee: primaryLoader, feedCache: fallbackLoader),
-            fallback: fallbackLoader
+            primary: FeedLoaderCacheDecorator(decoratee: remoteFeedLoader, feedCache: localFeedLoader),
+            fallback: localFeedLoader
         )
 
         let imageLoader = FeedImageLoaderWithFallbackComposite(
-            primaryLoader: FeedImageLoaderCacheDecorator(imageLoader: primaryImageLoader, imageCache: fallbackImageLoader),
-            fallbackLoader: fallbackImageLoader
+            primaryLoader: FeedImageLoaderCacheDecorator(imageLoader: remoteImageLoader, imageCache: localImageLoader),
+            fallbackLoader: localImageLoader
         )
 
         let feedViewController = FeedUIComposer.composeWith(feedLoader: feedLoader, imageLoader: imageLoader)
