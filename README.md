@@ -136,7 +136,7 @@ Given the customer doesn't have connectivity
 #### Saving cache error (sad path):
 
 1. System delivers error
- 
+
 ### - Load Feed Image Data From Remote Use Case
 
 #### Data:
