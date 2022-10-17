@@ -1,6 +1,7 @@
 import XCTest
 import EssentialFeed
-@testable import EssentialFeediOS
+import EssentialFeediOS
+import EssentialApp
 
 class FeedUIIntegrationTests: XCTestCase {
 

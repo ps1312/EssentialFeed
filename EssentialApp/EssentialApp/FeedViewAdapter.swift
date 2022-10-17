@@ -1,5 +1,6 @@
-import EssentialFeed
 import UIKit
+import EssentialFeed
+import EssentialFeediOS
 
 final class FeedViewAdapter: FeedView {
     private let imageLoader: FeedImageLoader

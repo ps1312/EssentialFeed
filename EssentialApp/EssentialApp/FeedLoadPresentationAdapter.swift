@@ -1,4 +1,5 @@
 import EssentialFeed
+import EssentialFeediOS
 
 final class FeedLoadPresentationAdapter: FeedRefreshViewControllerDelegate {
     private let feedLoader: FeedLoader
@@ -18,7 +19,7 @@ final class FeedLoadPresentationAdapter: FeedRefreshViewControllerDelegate {
 
             case .failure:
                 self?.presenter?.didFinishLoadingFeedWithError()
-        
+
             }
         }
     }

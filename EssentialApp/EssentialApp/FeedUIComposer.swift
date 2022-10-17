@@ -1,6 +1,6 @@
-import EssentialFeed
 import UIKit
 import EssentialFeed
+import EssentialFeediOS
 
 public final class FeedUIComposer {
     public static func composeWith(feedLoader: FeedLoader, imageLoader: FeedImageLoader) -> FeedViewController {
@@ -30,7 +30,7 @@ public final class FeedUIComposer {
 
 private extension FeedViewController {
     static func makeWith(delegate: FeedRefreshViewControllerDelegate, title: String) -> FeedViewController {
-        let bundle = Bundle(for: FeedUIComposer.self)
+        let bundle = Bundle(for: FeedViewController.self)
         let storyboard = UIStoryboard(name: "Feed", bundle: bundle)
         let feedController = storyboard.instantiateInitialViewController() as! FeedViewController
         feedController.title = title
