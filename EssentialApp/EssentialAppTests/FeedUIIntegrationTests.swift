@@ -41,7 +41,7 @@ class FeedUIIntegrationTests: XCTestCase {
         sut.simulatePullToRefresh()
         XCTAssertTrue(sut.isShowingLoadingIndicator, "Loading indicator should be visible when user executes a pull to refresh")
 
-        loader.completeFeedLoad(at: 0, with: [])
+        loader.completeFeedLoad(at: 1, with: [])
         XCTAssertFalse(sut.isShowingLoadingIndicator, "Loading indicator should disappear after refresh completes with a success")
     }
 
@@ -313,7 +313,7 @@ class FeedUIIntegrationTests: XCTestCase {
         expect(sut, toRender: [image1, image2])
 
         sut.simulatePullToRefresh()
-        loader.completeFeedLoad(at: 0, with: [])
+        loader.completeFeedLoad(at: 1, with: [])
         expect(sut, toRender: [])
     }
 
