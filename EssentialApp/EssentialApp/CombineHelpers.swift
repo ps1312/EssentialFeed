@@ -65,7 +65,7 @@ extension Publisher {
 }
 
 extension DispatchQueue {
-    static var mainQueueScheduler = MainQueueScheduler()
+    static var mainQueueScheduler = MainQueueScheduler.shared
 
     struct MainQueueScheduler: Scheduler {
         typealias SchedulerTimeType = DispatchQueue.SchedulerTimeType
@@ -74,8 +74,21 @@ extension DispatchQueue {
         var now = DispatchQueue.main.now
         var minimumTolerance = DispatchQueue.main.minimumTolerance
 
+        public static let shared = Self()
+
+        private static let key = DispatchSpecificKey<UInt8>()
+        private static let value = UInt8.max
+
+        private init() {
+            DispatchQueue.main.setSpecific(key: Self.key, value: Self.value)
+        }
+
+        private func isMainQueue() -> Bool {
+            return DispatchQueue.getSpecific(key: Self.key) == Self.value
+        }
+
         func schedule(options: DispatchQueue.SchedulerOptions?, _ action: @escaping () -> Void) {
-            guard Thread.isMainThread else { return DispatchQueue.main.async { action() } }
+            guard isMainQueue() else { return DispatchQueue.main.async { action() } }
             action()
         }
 
