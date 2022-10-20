@@ -21,7 +21,6 @@ class URLSessionHTTPClientTests: XCTestCase {
         URLProtocolStub.observeRequest(observer: { request in
             XCTAssertEqual(request.httpMethod, "GET")
             XCTAssertEqual(request.url, expectedURL)
-            print("this should be printed TWICE?...")
             exp.fulfill()
         })
 
@@ -188,19 +187,21 @@ private class URLProtocolStub: URLProtocol {
     override class func canonicalRequest(for request: URLRequest) -> URLRequest { return request }
 
     override func startLoading() {
-        if let requestObserver = URLProtocolStub.stub?.requestObserver {
+        guard let stub = URLProtocolStub.stub else { return }
+
+        if let requestObserver = stub.requestObserver {
             return requestObserver(request)
         }
 
-        if let data = URLProtocolStub.stub?.data {
+        if let data = stub.data {
             client?.urlProtocol(self, didLoad: data)
         }
 
-        if let response = URLProtocolStub.stub?.response {
+        if let response = stub.response {
             client?.urlProtocol(self, didReceive: response, cacheStoragePolicy: .notAllowed)
         }
 
-        if let error = URLProtocolStub.stub?.error {
+        if let error = stub.error {
             client?.urlProtocol(self, didFailWithError: error)
         }
 
