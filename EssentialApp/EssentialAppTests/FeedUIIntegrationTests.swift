@@ -1,6 +1,7 @@
 import XCTest
 import EssentialFeed
-@testable import EssentialFeediOS
+import EssentialFeediOS
+import EssentialApp
 
 class FeedUIIntegrationTests: XCTestCase {
 
@@ -40,7 +41,7 @@ class FeedUIIntegrationTests: XCTestCase {
         sut.simulatePullToRefresh()
         XCTAssertTrue(sut.isShowingLoadingIndicator, "Loading indicator should be visible when user executes a pull to refresh")
 
-        loader.completeFeedLoad(at: 0, with: [])
+        loader.completeFeedLoad(at: 1, with: [])
         XCTAssertFalse(sut.isShowingLoadingIndicator, "Loading indicator should disappear after refresh completes with a success")
     }
 
@@ -312,13 +313,13 @@ class FeedUIIntegrationTests: XCTestCase {
         expect(sut, toRender: [image1, image2])
 
         sut.simulatePullToRefresh()
-        loader.completeFeedLoad(at: 0, with: [])
+        loader.completeFeedLoad(at: 1, with: [])
         expect(sut, toRender: [])
     }
 
     private func makeSUT(file: StaticString = #filePath, line: UInt = #line) -> (sut: FeedViewController, loader: FeedLoaderSpy) {
         let loader = FeedLoaderSpy()
-        let sut = FeedUIComposer.composeWith(feedLoader: loader, imageLoader: loader)
+        let sut = FeedUIComposer.composeWith(feedLoader: loader.loadPublisher, imageLoader: loader.loadImagePublisher)
 
         testMemoryLeak(loader, file: file, line: line)
         testMemoryLeak(sut, file: file, line: line)

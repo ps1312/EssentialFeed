@@ -1,14 +1,14 @@
 import UIKit
 import EssentialFeed
 
-protocol FeedRefreshViewControllerDelegate {
+public protocol FeedRefreshViewControllerDelegate {
     func didRequestFeedLoad()
 }
 
 public final class FeedViewController: UITableViewController, UITableViewDataSourcePrefetching, FeedLoadingView, FeedErrorView {
     @IBOutlet public var errorView: ErrorView?
 
-    var delegate: FeedRefreshViewControllerDelegate?
+    public var delegate: FeedRefreshViewControllerDelegate?
 
     private var loadingControllers = [IndexPath: FeedImageCellController]()
     public var cellControllers = [FeedImageCellController]() {
