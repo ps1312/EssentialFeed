@@ -37,44 +37,56 @@ class LoadImageCommentsFromRemoteUseCaseTests: XCTestCase {
         })
     }
 
-    func testLoadDeliversInvalidDataErrorOnNon200HTTPResponse() {
+    func testLoadDeliversInvalidDataErrorOnNon2xxHTTPResponse() {
+        let validJSON = makeItemsJSON([])
         let (sut, httpClientSpy) = makeSUT()
 
-        let samples = [199, 201, 300, 400, 500]
+        let samples = [198, 199, 300, 400, 500]
         samples.enumerated().forEach { index, statusCode in
             expect(sut, toCompleteWith: .failure(RemoteImageCommentsLoader.Error.invalidData), when: {
-                httpClientSpy.completeWith(statusCode: statusCode, data: makeItemsJSON([]), at: index)
+                httpClientSpy.completeWith(statusCode: statusCode, data: validJSON, at: index)
             })
         }
     }
 
-    func testLoadDeliversInvalidDataErrorWhenStatusCode200AndInvalidJSON() {
+    func testLoadDeliversInvalidDataErrorWhenStatusCode2xxAndInvalidJSON() {
+        let invalidJSON = makeData()
         let (sut, httpClientSpy) = makeSUT()
 
-        expect(sut, toCompleteWith: .failure(RemoteImageCommentsLoader.Error.invalidData), when: {
-            let invalidJSON = makeData()
-            httpClientSpy.completeWith(statusCode: 200, data: invalidJSON)
-        })
+        let samples = [200, 201, 202, 250, 299]
+        samples.enumerated().forEach { index, code in
+            expect(sut, toCompleteWith: .failure(RemoteImageCommentsLoader.Error.invalidData), when: {
+                httpClientSpy.completeWith(statusCode: code, data: invalidJSON, at: index)
+            })
+        }
     }
 
-    func testLoadDeliversEmptyListOnStatusCode200AndValidJSON() {
+    func testLoadDeliversEmptyListOnStatusCode2xxAndValidJSON() {
+        let validJSON = makeItemsJSON([])
         let (sut, httpClientSpy) = makeSUT()
 
-        expect(sut, toCompleteWith: .success([]), when: {
-            httpClientSpy.completeWith(statusCode: 200, data: makeItemsJSON([]))
-        })
+        let samples = [200, 201, 202, 250, 299]
+        samples.enumerated().forEach { index, code in
+            expect(sut, toCompleteWith: .success([]), when: {
+                httpClientSpy.completeWith(statusCode: code, data: validJSON, at: index)
+            })
+        }
     }
 
-    func testLoadDeliversFeedItemsListOnStatusCode200AndValidJSON() {
+    func testLoadDeliversFeedItemsListOnStatusCode2xxAndValidJSON() {
         let (sut, httpClientSpy) = makeSUT()
 
         let (model1, json1) = makeFeedItem(id: UUID(), description: "a description", location: "a location", imageURL: makeURL())
         let (model2, json2) = makeFeedItem(id: UUID(), description: nil, location: nil, imageURL: makeURL())
 
-        expect(sut, toCompleteWith: .success([model1, model2]), when: {
-            let itemsJSON = makeItemsJSON([json1, json2])
-            httpClientSpy.completeWith(statusCode: 200, data: itemsJSON)
-        })
+        let itemsJSON = makeItemsJSON([json1, json2])
+        let samples = [200, 201, 202, 250, 299]
+
+        samples.enumerated().forEach { index, code in
+            expect(sut, toCompleteWith: .success([model1, model2]), when: {
+                httpClientSpy.completeWith(statusCode: code, data: itemsJSON, at: index)
+            })
+        }
     }
 
     func testLoadDoesNotCompleteIfSUTHasBeenDeallocated() {
