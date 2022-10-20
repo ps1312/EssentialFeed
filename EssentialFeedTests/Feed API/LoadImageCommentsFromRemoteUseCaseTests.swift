@@ -3,23 +3,22 @@ import EssentialFeed
 
 class LoadImageCommentsFromRemoteUseCaseTests: XCTestCase {
 
-    func testInitDoesNotMakeRequests() {
+    func test_init_doesNotMakeRequests() {
         let (_, httpClientSpy) = makeSUT()
 
         XCTAssertTrue(httpClientSpy.requestedURLs.isEmpty)
     }
 
-    func testLoadMakesRequestWithProvidedURL() {
+    func test_load_makesRequestWithProvidedURL() {
         let expectedURL = URL(string: "https://www.expected-url.com")!
         let (sut, httpClientSpy) = makeSUT(url: expectedURL)
 
         sut.load { _ in }
 
         XCTAssertEqual(httpClientSpy.requestedURLs, [expectedURL])
-
     }
 
-    func testLoadTwiceMakesRequestTwice() {
+    func test_load_twiceMakesRequestTwice() {
         let expectedURL = makeURL()
         let (sut, httpClientSpy) = makeSUT(url: makeURL())
 
@@ -29,7 +28,7 @@ class LoadImageCommentsFromRemoteUseCaseTests: XCTestCase {
         XCTAssertEqual(httpClientSpy.requestedURLs, [expectedURL, expectedURL])
     }
 
-    func testLoadDeliversConnectivityErrorOnClientError() {
+    func test_load_deliversConnectivityErrorOnClientError() {
         let (sut, httpClientSpy) = makeSUT()
 
         expect(sut, toCompleteWith: .failure(RemoteImageCommentsLoader.Error.connectivity), when: {
@@ -37,7 +36,7 @@ class LoadImageCommentsFromRemoteUseCaseTests: XCTestCase {
         })
     }
 
-    func testLoadDeliversInvalidDataErrorOnNon2xxHTTPResponse() {
+    func test_load_deliversInvalidDataErrorOnNon2xxHTTPResponse() {
         let validJSON = makeItemsJSON([])
         let (sut, httpClientSpy) = makeSUT()
 
@@ -49,7 +48,7 @@ class LoadImageCommentsFromRemoteUseCaseTests: XCTestCase {
         }
     }
 
-    func testLoadDeliversInvalidDataErrorWhenStatusCode2xxAndInvalidJSON() {
+    func test_load_deliversInvalidDataErrorWhenStatusCode2xxAndInvalidJSON() {
         let invalidJSON = makeData()
         let (sut, httpClientSpy) = makeSUT()
 
@@ -61,7 +60,7 @@ class LoadImageCommentsFromRemoteUseCaseTests: XCTestCase {
         }
     }
 
-    func testLoadDeliversEmptyListOnStatusCode2xxAndValidJSON() {
+    func test_load_deliversEmptyListOnStatusCode2xxAndValidJSON() {
         let validJSON = makeItemsJSON([])
         let (sut, httpClientSpy) = makeSUT()
 
@@ -73,7 +72,7 @@ class LoadImageCommentsFromRemoteUseCaseTests: XCTestCase {
         }
     }
 
-    func testLoadDeliversImageCommentsOnStatusCode2xxAndValidJSON() {
+    func test_load_deliversImageCommentsOnStatusCode2xxAndValidJSON() {
         let (sut, httpClientSpy) = makeSUT()
 
         let (model1, json1) = makeImageCommment(
@@ -99,7 +98,7 @@ class LoadImageCommentsFromRemoteUseCaseTests: XCTestCase {
         }
     }
 
-    func testLoadDoesNotCompleteIfSUTHasBeenDeallocated() {
+    func test_load_doesNotCompleteIfSUTHasBeenDeallocated() {
         let httpClient = HTTPClientSpy()
         var sut: RemoteImageCommentsLoader? = RemoteImageCommentsLoader(url: makeURL(), client: httpClient)
 
