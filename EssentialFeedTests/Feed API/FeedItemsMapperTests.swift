@@ -4,7 +4,7 @@ import EssentialFeed
 class FeedItemsMapperTests: XCTestCase {
     func test_load_throwsInvalidDataErrorOnNon200HTTPResponse() throws {
         let validJSON = makeItemsJSON([])
-        try [199, 201, 300, 400, 500].enumerated().forEach { index, statusCode in
+        try [199, 201, 300, 400, 500].forEach { statusCode in
             XCTAssertThrowsError(try FeedItemsMapper.map(validJSON, from: makeHTTPURLResponse(with: statusCode)))
         }
     }

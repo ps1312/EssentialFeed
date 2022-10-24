@@ -4,14 +4,14 @@ import EssentialFeed
 class ImageCommentsMapperTests: XCTestCase {
     func test_load_throwsErrorOnNon2xxHTTPResponse() throws {
         let validJSON = makeItemsJSON([])
-        try [198, 199, 300, 400, 500].enumerated().forEach { index, statusCode in
+        try [198, 199, 300, 400, 500].forEach { statusCode in
             XCTAssertThrowsError(try ImageCommentsMapper.map(validJSON, makeHTTPURLResponse(with: statusCode)))
         }
     }
 
     func test_load_throwsErrorOnStatusCode2xxAndInvalidJSON() throws {
         let invalidJSON = makeData()
-        try [200, 201, 202, 250, 299].enumerated().forEach { index, statusCode in
+        try [200, 201, 202, 250, 299].forEach { statusCode in
             XCTAssertThrowsError(try ImageCommentsMapper.map(invalidJSON, makeHTTPURLResponse(with: statusCode)))
         }
     }
@@ -19,7 +19,7 @@ class ImageCommentsMapperTests: XCTestCase {
     func test_load_deliversEmptyListOnStatusCode2xxAndValidJSON() throws {
         let validJSON = makeItemsJSON([])
 
-        try [200, 201, 202, 250, 299].enumerated().forEach { index, statusCode in
+        try [200, 201, 202, 250, 299].forEach { statusCode in
             let result = try ImageCommentsMapper.map(validJSON, makeHTTPURLResponse(with: statusCode))
             XCTAssertTrue(result.isEmpty)
         }
@@ -40,7 +40,7 @@ class ImageCommentsMapperTests: XCTestCase {
         )
         let itemsJSON = makeItemsJSON([json1, json2])
 
-        try [200, 201, 202, 250, 299].enumerated().forEach { index, statusCode in
+        try [200, 201, 202, 250, 299].forEach { statusCode in
             let result = try ImageCommentsMapper.map(itemsJSON, makeHTTPURLResponse(with: statusCode))
             XCTAssertEqual(result, [model1, model2])
         }
