@@ -24,7 +24,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     private lazy var remoteFeedLoader = {
         let feedURL = URL(string: "https://ile-api.essentialdeveloper.com/essential-feed/v1/feed")!
-        return RemoteFeedLoader(url: feedURL, client: client)
+        return RemoteLoader(url: feedURL, client: client, mapper: FeedItemsMapper.map)
     }()
 
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
@@ -63,12 +63,4 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
 }
 
-typealias RemoteFeedLoader = RemoteLoader<[FeedImage]>
-
-extension RemoteFeedLoader {
-    convenience init(url: URL, client: HTTPClient) {
-        self.init(url: url, client: client, mapper: FeedItemsMapper.map)
-    }
-}
-
-extension RemoteFeedLoader: FeedLoader where Resource == [FeedImage] {}
+extension RemoteLoader: FeedLoader where Resource == [FeedImage] {}
