@@ -365,7 +365,6 @@
 				3AC4F9E028B3C72A0067CE4C /* FeedItemsMapper.swift */,
 				3A44CB1728B1A9EA006EE8DB /* RemoteFeedLoader.swift */,
 				3A139EF428EB2F0C008FA78B /* RemoteImageLoader.swift */,
-				3A9991A02906BE11007CF168 /* RemoteLoader.swift */,
 			);
 			path = "Feed API";
 			sourceTree = "<group>";
@@ -529,6 +528,7 @@
 			isa = PBXGroup;
 			children = (
 				3AC4F9DE28B3C6F70067CE4C /* HTTPClient.swift */,
+				3A9991A02906BE11007CF168 /* RemoteLoader.swift */,
 			);
 			path = "Shared API";
 			sourceTree = "<group>";
