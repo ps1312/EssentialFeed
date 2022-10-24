@@ -1,7 +1,7 @@
 import Foundation
 
 class ImageCommentsMapper {
-    private struct RemoteImageCommentsBody: Decodable {
+    private struct Root: Decodable {
         struct RemoteImageComment: Decodable {
             struct RemoteAuthor: Decodable {
                 let username: String
@@ -13,9 +13,9 @@ class ImageCommentsMapper {
             let author: RemoteAuthor
         }
 
-        let items: [RemoteImageComment]
+        private let items: [RemoteImageComment]
 
-        func toModels() -> [ImageComment] {
+        var comments: [ImageComment] {
             items.map { ImageComment(id: $0.id, message: $0.message, createdAt: $0.created_at, author: $0.author.username) }
         }
     }
@@ -27,9 +27,8 @@ class ImageCommentsMapper {
         decoder.dateDecodingStrategy = .iso8601
 
         do {
-            let body = try decoder.decode(RemoteImageCommentsBody.self, from: data)
-            return body.toModels()
-
+            let root = try decoder.decode(Root.self, from: data)
+            return root.comments
         } catch {
             throw RemoteImageCommentsLoader.Error.invalidData
         }
