@@ -20,7 +20,7 @@ class ImageCommentsMapper {
         }
     }
 
-    static func map(_ data: Data, from response: HTTPURLResponse) throws -> [ImageComment] {
+    static func map(_ data: Data, _ response: HTTPURLResponse) throws -> [ImageComment] {
         guard isOK(response) else { throw RemoteImageCommentsLoader.Error.invalidData }
 
         let decoder = JSONDecoder()

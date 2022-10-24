@@ -2,41 +2,6 @@ import XCTest
 import EssentialFeed
 
 class LoadFeedFromRemoteUseCase: XCTestCase {
-
-    func testInitDoesNotMakeRequests() {
-        let (_, httpClientSpy) = makeSUT()
-
-        XCTAssertTrue(httpClientSpy.requestedURLs.isEmpty)
-    }
-
-    func testLoadMakesRequestWithProvidedURL() {
-        let expectedURL = URL(string: "https://www.expected-url.com")!
-        let (sut, httpClientSpy) = makeSUT(url: expectedURL)
-
-        sut.load { _ in }
-
-        XCTAssertEqual(httpClientSpy.requestedURLs, [expectedURL])
-
-    }
-
-    func testLoadTwiceMakesRequestTwice() {
-        let expectedURL = makeURL()
-        let (sut, httpClientSpy) = makeSUT(url: makeURL())
-
-        sut.load { _ in }
-        sut.load { _ in }
-
-        XCTAssertEqual(httpClientSpy.requestedURLs, [expectedURL, expectedURL])
-    }
-
-    func testLoadDeliversConnectivityErrorOnClientError() {
-        let (sut, httpClientSpy) = makeSUT()
-
-        expect(sut, toCompleteWith: .failure(RemoteFeedLoader.Error.connectivity), when: {
-            httpClientSpy.completeWith(error: makeNSError())
-        })
-    }
-
     func testLoadDeliversInvalidDataErrorOnNon200HTTPResponse() {
         let (sut, httpClientSpy) = makeSUT()
 
@@ -75,21 +40,6 @@ class LoadFeedFromRemoteUseCase: XCTestCase {
             let itemsJSON = makeItemsJSON([json1, json2])
             httpClientSpy.completeWith(statusCode: 200, data: itemsJSON)
         })
-    }
-
-    func testLoadDoesNotCompleteIfSUTHasBeenDeallocated() {
-        let httpClient = HTTPClientSpy()
-        var sut: RemoteFeedLoader? = RemoteFeedLoader(url: makeURL(), client: httpClient)
-
-        var capturedResult: RemoteFeedLoader.Result? = nil
-        sut?.load { receivedResult in
-            capturedResult = receivedResult
-        }
-
-        sut = nil
-        httpClient.completeWith(error: makeNSError())
-
-        XCTAssertNil(capturedResult)
     }
 
     // MARK: - Helpers

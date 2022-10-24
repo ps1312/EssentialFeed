@@ -2,40 +2,6 @@ import XCTest
 import EssentialFeed
 
 class LoadImageCommentsFromRemoteUseCaseTests: XCTestCase {
-
-    func test_init_doesNotMakeRequests() {
-        let (_, httpClientSpy) = makeSUT()
-
-        XCTAssertTrue(httpClientSpy.requestedURLs.isEmpty)
-    }
-
-    func test_load_makesRequestWithProvidedURL() {
-        let expectedURL = URL(string: "https://www.expected-url.com")!
-        let (sut, httpClientSpy) = makeSUT(url: expectedURL)
-
-        sut.load { _ in }
-
-        XCTAssertEqual(httpClientSpy.requestedURLs, [expectedURL])
-    }
-
-    func test_load_twiceMakesRequestTwice() {
-        let expectedURL = makeURL()
-        let (sut, httpClientSpy) = makeSUT(url: makeURL())
-
-        sut.load { _ in }
-        sut.load { _ in }
-
-        XCTAssertEqual(httpClientSpy.requestedURLs, [expectedURL, expectedURL])
-    }
-
-    func test_load_deliversConnectivityErrorOnClientError() {
-        let (sut, httpClientSpy) = makeSUT()
-
-        expect(sut, toCompleteWith: .failure(RemoteImageCommentsLoader.Error.connectivity), when: {
-            httpClientSpy.completeWith(error: makeNSError())
-        })
-    }
-
     func test_load_deliversInvalidDataErrorOnNon2xxHTTPResponse() {
         let validJSON = makeItemsJSON([])
         let (sut, httpClientSpy) = makeSUT()
@@ -96,21 +62,6 @@ class LoadImageCommentsFromRemoteUseCaseTests: XCTestCase {
                 httpClientSpy.completeWith(statusCode: code, data: itemsJSON, at: index)
             })
         }
-    }
-
-    func test_load_doesNotCompleteIfSUTHasBeenDeallocated() {
-        let httpClient = HTTPClientSpy()
-        var sut: RemoteImageCommentsLoader? = RemoteImageCommentsLoader(url: makeURL(), client: httpClient)
-
-        var capturedResult: RemoteImageCommentsLoader.Result? = nil
-        sut?.load { receivedResult in
-            capturedResult = receivedResult
-        }
-
-        sut = nil
-        httpClient.completeWith(error: makeNSError())
-
-        XCTAssertNil(capturedResult)
     }
 
     // MARK: - Helpers
