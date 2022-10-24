@@ -35,9 +35,19 @@ class RemoteLoaderTests: XCTestCase {
         })
     }
 
+    func test_load_deliversInvalidDataErrorWhenMapperThrows() {
+        let (sut, client) = makeSUT(url: makeURL(), mapper: { _, _ in
+            throw makeNSError()
+        })
+
+        expect(sut, toCompleteWith: .failure(RemoteLoader<String>.Error.invalidData), when: {
+            client.completeWith(statusCode: 200, data: makeData())
+        })
+    }
+
     func test_load_doesNotCompleteWhenSUTHasBeenDeallocated() {
         let httpClient = HTTPClientSpy()
-        var sut: RemoteLoader<String>? = RemoteLoader<String>(url: makeURL(), client: httpClient)
+        var sut: RemoteLoader<String>? = RemoteLoader<String>(url: makeURL(), client: httpClient, mapper: { _, _ in "" })
 
         var capturedResult: RemoteLoader<String>.Result? = nil
         sut?.load { receivedResult in
@@ -50,9 +60,14 @@ class RemoteLoaderTests: XCTestCase {
         XCTAssertNil(capturedResult)
     }
 
-    private func makeSUT(url: URL = makeURL(), file: StaticString = #filePath, line: UInt = #line) -> (RemoteLoader<String>, HTTPClientSpy) {
+    private func makeSUT(
+        url: URL = makeURL(),
+        mapper: @escaping (Data, HTTPURLResponse) throws -> String = { _, _ in "mapper result" },
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) -> (RemoteLoader<String>, HTTPClientSpy) {
         let httpClientSpy = HTTPClientSpy()
-        let sut = RemoteLoader<String>(url: url, client: httpClientSpy)
+        let sut = RemoteLoader<String>(url: url, client: httpClientSpy, mapper: mapper)
 
         testMemoryLeak(sut, file: file, line: line)
         testMemoryLeak(httpClientSpy, file: file, line: line)
@@ -69,7 +84,7 @@ class RemoteLoaderTests: XCTestCase {
                 XCTAssertEqual(receivedImages, expectedItems)
 
             case (.failure(let receivedError as NSError), .failure(let expectedError as NSError)):
-                XCTAssertEqual(receivedError, expectedError)
+                XCTAssertEqual(receivedError, expectedError, file: file, line: line)
 
             default:
                 XCTFail("Expected \(expectedResult), instead got \(receivedResult)", file: file, line: line)
@@ -82,5 +97,4 @@ class RemoteLoaderTests: XCTestCase {
 
         wait(for: [exp], timeout: 1.0)
     }
-
 }
