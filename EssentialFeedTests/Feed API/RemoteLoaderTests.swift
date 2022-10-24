@@ -45,6 +45,15 @@ class RemoteLoaderTests: XCTestCase {
         })
     }
 
+    func test_load_deliversMappedResultOnSuccess() {
+        let mapResult = "expected map result"
+        let (sut, client) = makeSUT(url: makeURL(), mapper: { _, _ in mapResult })
+
+        expect(sut, toCompleteWith: .success(mapResult), when: {
+            client.completeWith(statusCode: 200, data: makeData())
+        })
+    }
+
     func test_load_doesNotCompleteWhenSUTHasBeenDeallocated() {
         let httpClient = HTTPClientSpy()
         var sut: RemoteLoader<String>? = RemoteLoader<String>(url: makeURL(), client: httpClient, mapper: { _, _ in "" })
