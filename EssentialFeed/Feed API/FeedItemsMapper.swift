@@ -1,6 +1,6 @@
 import Foundation
 
-class FeedItemsMapper {
+public class FeedItemsMapper {
     private struct Root: Decodable {
         struct RemoteFeedItem: Decodable {
             var id: UUID
@@ -15,14 +15,16 @@ class FeedItemsMapper {
         }
     }
 
-    static func map(_ data: Data, from response: HTTPURLResponse) throws -> [FeedImage] {
-        guard response.statusCode == OK_200 else { throw RemoteFeedLoader.Error.invalidData }
+    struct MapError: Error {}
+
+    public static func map(_ data: Data, from response: HTTPURLResponse) throws -> [FeedImage] {
+        guard response.statusCode == OK_200 else { throw MapError() }
 
         do {
             let root = try JSONDecoder().decode(Root.self, from: data)
             return root.images
         } catch {
-            throw RemoteFeedLoader.Error.invalidData
+            throw MapError()
         }
     }
 
