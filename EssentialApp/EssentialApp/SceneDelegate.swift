@@ -21,12 +21,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     private lazy var localFeedLoader: FeedLoader & FeedCache = {
         LocalFeedLoader(store: store)
     }()
-
-    private lazy var remoteFeedLoader = {
-        let feedURL = URL(string: "https://ile-api.essentialdeveloper.com/essential-feed/v1/feed")!
-        return RemoteLoader(url: feedURL, client: client, mapper: FeedItemsMapper.map)
-    }()
-
+    
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
         guard let scene = (scene as? UIWindowScene) else { return }
 

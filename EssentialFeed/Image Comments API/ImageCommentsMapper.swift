@@ -20,8 +20,10 @@ public class ImageCommentsMapper {
         }
     }
 
+    struct MapError: Error {}
+
     public static func map(_ data: Data, _ response: HTTPURLResponse) throws -> [ImageComment] {
-        guard isOK(response) else { throw RemoteImageCommentsLoader.Error.invalidData }
+        guard isOK(response) else { throw MapError() }
 
         let decoder = JSONDecoder()
         decoder.dateDecodingStrategy = .iso8601
@@ -30,7 +32,7 @@ public class ImageCommentsMapper {
             let root = try decoder.decode(Root.self, from: data)
             return root.comments
         } catch {
-            throw RemoteImageCommentsLoader.Error.invalidData
+            throw MapError()
         }
     }
 
