@@ -17,11 +17,11 @@ class URLProtocolStub: URLProtocol {
     private static let queue = DispatchQueue(label: "URLProtocolStub.queue")
 
     static func setStub(data: Data?, response: URLResponse?, error: Error?) {
-        URLProtocolStub.stub = Stub(data: data, response: response, error: error, requestObserver: nil)
+        stub = Stub(data: data, response: response, error: error, requestObserver: nil)
     }
 
     static func observeRequest(observer: @escaping ((URLRequest) -> Void)) {
-        URLProtocolStub.stub = Stub(data: nil, response: nil, error: nil, requestObserver: observer)
+        stub = Stub(data: nil, response: nil, error: nil, requestObserver: observer)
     }
 
     static func startInterceptingRequests() {
@@ -29,8 +29,8 @@ class URLProtocolStub: URLProtocol {
     }
 
     static func stopInterceptingRequests() {
-        URLProtocolStub.stub = nil
         URLProtocol.unregisterClass(URLProtocolStub.self)
+        stub = nil
     }
 
     override class func canInit(with request: URLRequest) -> Bool { return true }
@@ -39,10 +39,6 @@ class URLProtocolStub: URLProtocol {
 
     override func startLoading() {
         guard let stub = URLProtocolStub.stub else { return }
-
-        if let requestObserver = stub.requestObserver {
-            return requestObserver(request)
-        }
 
         if let data = stub.data {
             client?.urlProtocol(self, didLoad: data)
@@ -54,9 +50,11 @@ class URLProtocolStub: URLProtocol {
 
         if let error = stub.error {
             client?.urlProtocol(self, didFailWithError: error)
+        } else {
+            client?.urlProtocolDidFinishLoading(self)
         }
 
-        client?.urlProtocolDidFinishLoading(self)
+        stub.requestObserver?(request)
     }
 
     override func stopLoading() {}
