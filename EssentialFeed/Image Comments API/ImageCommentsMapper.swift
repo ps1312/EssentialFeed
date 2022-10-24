@@ -1,6 +1,6 @@
 import Foundation
 
-class ImageCommentsMapper {
+public class ImageCommentsMapper {
     private struct Root: Decodable {
         struct RemoteImageComment: Decodable {
             struct RemoteAuthor: Decodable {
@@ -20,7 +20,7 @@ class ImageCommentsMapper {
         }
     }
 
-    static func map(_ data: Data, _ response: HTTPURLResponse) throws -> [ImageComment] {
+    public static func map(_ data: Data, _ response: HTTPURLResponse) throws -> [ImageComment] {
         guard isOK(response) else { throw RemoteImageCommentsLoader.Error.invalidData }
 
         let decoder = JSONDecoder()
