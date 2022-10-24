@@ -1,18 +1,19 @@
 import Foundation
 
-public final class RemoteLoader<T> {
+public final class RemoteLoader<Resource> {
     private let url: URL
     private let client: HTTPClient
-    private let mapper: (Data, HTTPURLResponse) throws -> T
+    private let mapper: Mapper
 
     public enum Error: Swift.Error {
         case connectivity
         case invalidData
     }
 
-    public typealias Result = Swift.Result<T, Swift.Error>
+    public typealias Result = Swift.Result<Resource, Swift.Error>
+    public typealias Mapper = (Data, HTTPURLResponse) throws -> Resource
 
-    public init(url: URL, client: HTTPClient, mapper: @escaping (Data, HTTPURLResponse) throws -> T) {
+    public init(url: URL, client: HTTPClient, mapper: @escaping Mapper) {
         self.url = url
         self.client = client
         self.mapper = mapper

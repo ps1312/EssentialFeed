@@ -56,7 +56,7 @@ class RemoteLoaderTests: XCTestCase {
 
     func test_load_doesNotCompleteWhenSUTHasBeenDeallocated() {
         let httpClient = HTTPClientSpy()
-        var sut: RemoteLoader<String>? = RemoteLoader<String>(url: makeURL(), client: httpClient, mapper: { _, _ in "" })
+        var sut: RemoteLoader<String>? = RemoteLoader<String>(url: makeURL(), client: httpClient, mapper: { _, _ in "mapper result" })
 
         var capturedResult: RemoteLoader<String>.Result? = nil
         sut?.load { receivedResult in
@@ -71,7 +71,7 @@ class RemoteLoaderTests: XCTestCase {
 
     private func makeSUT(
         url: URL = makeURL(),
-        mapper: @escaping (Data, HTTPURLResponse) throws -> String = { _, _ in "mapper result" },
+        mapper: @escaping RemoteLoader<String>.Mapper = { _, _ in "mapper result" },
         file: StaticString = #filePath,
         line: UInt = #line
     ) -> (RemoteLoader<String>, HTTPClientSpy) {
