@@ -33,8 +33,8 @@ extension LocalFeedLoader: FeedCache {
     }
 }
 
-extension LocalFeedLoader: FeedLoader {
-    public typealias LoadResult = (LoadFeedResult) -> Void
+extension LocalFeedLoader {
+    public typealias LoadResult = (Result<[FeedImage], Error>) -> Void
 
     public func load(completion: @escaping LoadResult) {
         store.retrieve { [weak self] result in

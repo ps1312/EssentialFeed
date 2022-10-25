@@ -2,10 +2,8 @@ import Foundation
 import Combine
 import EssentialFeed
 
-extension FeedLoader {
-    public typealias Publisher = AnyPublisher<[FeedImage], Swift.Error>
-
-    public func loadPublisher() -> Publisher {
+extension LocalFeedLoader {
+    public func loadPublisher() -> AnyPublisher<[FeedImage], Swift.Error> {
         return Deferred {
             Future(self.load)
         }.eraseToAnyPublisher()

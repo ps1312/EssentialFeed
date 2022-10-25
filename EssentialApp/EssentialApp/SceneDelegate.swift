@@ -18,7 +18,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         )
     }()
 
-    private lazy var localFeedLoader: FeedLoader & FeedCache = {
+    private lazy var localFeedLoader = {
         LocalFeedLoader(store: store)
     }()
     
@@ -37,7 +37,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         window?.makeKeyAndVisible()
     }
 
-    private func makeRemoteFeedLoaderWithLocalFallback() -> FeedLoader.Publisher {
+    private func makeRemoteFeedLoaderWithLocalFallback() -> AnyPublisher<[FeedImage], Error> {
         client
             .getPublisher(url: URL(string: "https://ile-api.essentialdeveloper.com/essential-feed/v1/feed")!)
             .tryMap(FeedItemsMapper.map)
@@ -63,10 +63,14 @@ extension HTTPClient {
     typealias Publisher = AnyPublisher<(Data, HTTPURLResponse), Error>
 
     func getPublisher(url: URL) -> Publisher {
-        Deferred {
+        var task: HTTPClientTask?
+
+        return Deferred {
             Future { completion in
-                get(from: url, completion: completion)
+                task = get(from: url, completion: completion)
             }
-        }.eraseToAnyPublisher()
+        }
+        .handleEvents(receiveCancel: task?.cancel)
+        .eraseToAnyPublisher()
     }
 }
