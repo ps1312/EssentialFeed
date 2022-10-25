@@ -18,8 +18,8 @@ class FeedPresenterTests: XCTestCase {
     }
 
     func test_loadError_hasLocalizedError() {
-        let expectedKey = "FEED_VIEW_CONNECTION_ERROR"
-        let expectedTitle = localized(key: expectedKey, in: "Feed")
+        let expectedKey = "GENERIC_CONNECTION_ERROR"
+        let expectedTitle = localized(key: expectedKey, in: "Shared")
 
         XCTAssertNotEqual(FeedPresenter.loadError, expectedKey)
         XCTAssertEqual(FeedPresenter.loadError, expectedTitle)

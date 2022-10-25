@@ -16,10 +16,10 @@ public class FeedPresenter {
 
     public static var loadError: String {
         NSLocalizedString(
-            "FEED_VIEW_CONNECTION_ERROR",
-            tableName: "Feed",
+            "GENERIC_CONNECTION_ERROR",
+            tableName: "Shared",
             bundle: Bundle(for: FeedPresenter.self),
-            comment: "The error message for feed load failure"
+            comment: "The error message for load failure"
         )
     }
 
