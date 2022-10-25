@@ -3,7 +3,7 @@ import Foundation
 public class FeedPresenter {
     private let loadingView: ResourceLoadingView
     private let feedView: FeedView
-    private let errorView: FeedErrorView
+    private let errorView: ResourceErrorView
 
     public static var title: String {
         NSLocalizedString(
@@ -23,14 +23,14 @@ public class FeedPresenter {
         )
     }
 
-    public init(loadingView: ResourceLoadingView, feedView: FeedView, errorView: FeedErrorView) {
+    public init(loadingView: ResourceLoadingView, feedView: FeedView, errorView: ResourceErrorView) {
         self.loadingView = loadingView
         self.feedView = feedView
         self.errorView = errorView
     }
 
     public func didStartLoadingFeed() {
-        errorView.display(FeedErrorViewModel.noError)
+        errorView.display(ResourceErrorViewModel.noError)
         loadingView.display(ResourceLoadingViewModel(isLoading: true))
     }
 
@@ -41,6 +41,6 @@ public class FeedPresenter {
 
     public func didFinishLoadingFeedWithError() {
         loadingView.display(ResourceLoadingViewModel(isLoading: false))
-        errorView.display(FeedErrorViewModel.error(message: FeedPresenter.loadError))
+        errorView.display(ResourceErrorViewModel.error(message: FeedPresenter.loadError))
     }
 }

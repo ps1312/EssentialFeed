@@ -8,7 +8,7 @@ public protocol ResourceView {
 
 public final class LoadResourcePresenter<Resource, View: ResourceView> {
     private let loadingView: ResourceLoadingView
-    private let errorView: FeedErrorView
+    private let errorView: ResourceErrorView
 
     private let mapper: Mapper
     private let resourceView: View
@@ -23,7 +23,7 @@ public final class LoadResourcePresenter<Resource, View: ResourceView> {
         )
     }
 
-    public init(loadingView: ResourceLoadingView, errorView: FeedErrorView, resourceView: View, mapper: @escaping Mapper) {
+    public init(loadingView: ResourceLoadingView, errorView: ResourceErrorView, resourceView: View, mapper: @escaping Mapper) {
         self.loadingView = loadingView
         self.errorView = errorView
         self.resourceView = resourceView
@@ -31,7 +31,7 @@ public final class LoadResourcePresenter<Resource, View: ResourceView> {
     }
 
     public func didStartLoading() {
-        errorView.display(FeedErrorViewModel.noError)
+        errorView.display(ResourceErrorViewModel.noError)
         loadingView.display(ResourceLoadingViewModel(isLoading: true))
     }
 
@@ -42,6 +42,6 @@ public final class LoadResourcePresenter<Resource, View: ResourceView> {
 
     public func didFinishLoadingFeedWithError() {
         loadingView.display(ResourceLoadingViewModel(isLoading: false))
-        errorView.display(FeedErrorViewModel.error(message: Self.loadError))
+        errorView.display(ResourceErrorViewModel.error(message: Self.loadError))
     }
 }
