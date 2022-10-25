@@ -13,8 +13,8 @@ class LoadResourcePresenterTests: XCTestCase {
         let expectedKey = "FEED_VIEW_CONNECTION_ERROR"
         let expectedTitle = localized(key: expectedKey, in: "Feed")
 
-        XCTAssertNotEqual(LoadResourcePresenter<String, FeedViewSpy>.loadError, expectedKey)
-        XCTAssertEqual(LoadResourcePresenter<String, FeedViewSpy>.loadError, expectedTitle)
+        XCTAssertNotEqual(LoadResourcePresenter<String, ViewSpy>.loadError, expectedKey)
+        XCTAssertEqual(LoadResourcePresenter<String, ViewSpy>.loadError, expectedTitle)
     }
 
     func test_didStartLoading_displaysLoadingAndRemovesErrorMessages() {
@@ -52,12 +52,12 @@ class LoadResourcePresenterTests: XCTestCase {
     }
 
     private func makeSUT(
-        mapper: @escaping (String) -> String = { _ in "any" },
+        mapper: @escaping LoadResourcePresenter<String, ViewSpy>.Mapper = { _ in "any" },
         file: StaticString = #filePath,
         line: UInt = #line
-    ) -> (sut: LoadResourcePresenter<String, FeedViewSpy>, spy: FeedViewSpy) {
-        let spy = FeedViewSpy()
-        let sut = LoadResourcePresenter<String, FeedViewSpy>(loadingView: spy, errorView: spy, resourceView: spy, mapper: mapper)
+    ) -> (sut: LoadResourcePresenter<String, ViewSpy>, spy: ViewSpy) {
+        let spy = ViewSpy()
+        let sut = LoadResourcePresenter<String, ViewSpy>(loadingView: spy, errorView: spy, resourceView: spy, mapper: mapper)
 
         testMemoryLeak(spy, file: file, line: line)
         testMemoryLeak(sut, file: file, line: line)
@@ -117,7 +117,7 @@ class LoadResourcePresenterTests: XCTestCase {
         }
     }
 
-    private final class FeedViewSpy: ResourceView, FeedLoadingView, FeedErrorView {
+    private final class ViewSpy: ResourceView, FeedLoadingView, FeedErrorView {
         typealias ResourceViewModel = String
 
         enum Message: Hashable {
