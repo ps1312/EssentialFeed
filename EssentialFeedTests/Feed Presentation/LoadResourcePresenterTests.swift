@@ -9,9 +9,9 @@ class LoadResourcePresenterTests: XCTestCase {
         XCTAssertEqual(spy.messages, [])
     }
 
-    func test_loadError_hasLocalizedError() {
-        let expectedKey = "FEED_VIEW_CONNECTION_ERROR"
-        let expectedTitle = localized(key: expectedKey, in: "Feed")
+    func test_loadError_hasLocalizedGenericError() {
+        let expectedKey = "GENERIC_CONNECTION_ERROR"
+        let expectedTitle = localized(key: expectedKey, in: "Shared")
 
         XCTAssertNotEqual(LoadResourcePresenter<String, ViewSpy>.loadError, expectedKey)
         XCTAssertEqual(LoadResourcePresenter<String, ViewSpy>.loadError, expectedTitle)
@@ -47,7 +47,7 @@ class LoadResourcePresenterTests: XCTestCase {
 
         XCTAssertEqual(spy.messages, [
             .display(isLoading: false),
-            .display(errorMessage: FeedPresenter.loadError)
+            .display(errorMessage: LoadResourcePresenter<String, ViewSpy>.loadError)
         ])
     }
 

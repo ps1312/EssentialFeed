@@ -16,10 +16,10 @@ public final class LoadResourcePresenter<Resource, View: ResourceView> {
     public typealias Mapper = (Resource) -> View.ResourceViewModel
     public static var loadError: String {
         NSLocalizedString(
-            "FEED_VIEW_CONNECTION_ERROR",
-            tableName: "Feed",
-            bundle: Bundle(for: FeedPresenter.self),
-            comment: "The error message for feed load failure"
+            "GENERIC_CONNECTION_ERROR",
+            tableName: "Shared",
+            bundle: Bundle(for: LoadResourcePresenter.self),
+            comment: "The error message for resource load failure"
         )
     }
 
@@ -42,6 +42,6 @@ public final class LoadResourcePresenter<Resource, View: ResourceView> {
 
     public func didFinishLoadingFeedWithError() {
         loadingView.display(FeedLoadingViewModel(isLoading: false))
-        errorView.display(FeedErrorViewModel.error(message: FeedPresenter.loadError))
+        errorView.display(FeedErrorViewModel.error(message: Self.loadError))
     }
 }
