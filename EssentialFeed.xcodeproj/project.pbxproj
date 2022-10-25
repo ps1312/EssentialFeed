@@ -451,8 +451,7 @@
 				3A9991AA2906D3D2007CF168 /* Image Comments API */,
 				3ABA207928B6B4A8002D31BF /* Feed API */,
 				3A0C28DC28BD44C2009989AD /* Feed Cache */,
-				3AA1C10C28E508380027CB35 /* FeedPresenterTests.swift */,
-				3A43540C28E5CE1800C1A7D9 /* FeedImagePresenterTests.swift */,
+				3AE9F912290807A6006CB0EA /* Feed Presentation */,
 			);
 			path = EssentialFeedTests;
 			sourceTree = "<group>";
@@ -622,6 +621,15 @@
 				3AE976D628FDA4A50080D5D2 /* FeedViewController+TestHelpers.swift */,
 			);
 			path = Helpers;
+			sourceTree = "<group>";
+		};
+		3AE9F912290807A6006CB0EA /* Feed Presentation */ = {
+			isa = PBXGroup;
+			children = (
+				3AA1C10C28E508380027CB35 /* FeedPresenterTests.swift */,
+				3A43540C28E5CE1800C1A7D9 /* FeedImagePresenterTests.swift */,
+			);
+			path = "Feed Presentation";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
