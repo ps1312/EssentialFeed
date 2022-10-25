@@ -13,8 +13,8 @@ class LoadResourcePresenterTests: XCTestCase {
         let expectedKey = "FEED_VIEW_CONNECTION_ERROR"
         let expectedTitle = localized(key: expectedKey, in: "Feed")
 
-        XCTAssertNotEqual(LoadResourcePresenter.loadError, expectedKey)
-        XCTAssertEqual(LoadResourcePresenter.loadError, expectedTitle)
+        XCTAssertNotEqual(LoadResourcePresenter<String, FeedViewSpy>.loadError, expectedKey)
+        XCTAssertEqual(LoadResourcePresenter<String, FeedViewSpy>.loadError, expectedTitle)
     }
 
     func test_didStartLoading_displaysLoadingAndRemovesErrorMessages() {
@@ -55,9 +55,9 @@ class LoadResourcePresenterTests: XCTestCase {
         mapper: @escaping (String) -> String = { _ in "any" },
         file: StaticString = #filePath,
         line: UInt = #line
-    ) -> (sut: LoadResourcePresenter, spy: FeedViewSpy) {
+    ) -> (sut: LoadResourcePresenter<String, FeedViewSpy>, spy: FeedViewSpy) {
         let spy = FeedViewSpy()
-        let sut = LoadResourcePresenter(loadingView: spy, errorView: spy, resourceView: spy, mapper: mapper)
+        let sut = LoadResourcePresenter<String, FeedViewSpy>(loadingView: spy, errorView: spy, resourceView: spy, mapper: mapper)
 
         testMemoryLeak(spy, file: file, line: line)
         testMemoryLeak(sut, file: file, line: line)
@@ -118,9 +118,11 @@ class LoadResourcePresenterTests: XCTestCase {
     }
 
     private final class FeedViewSpy: ResourceView, FeedLoadingView, FeedErrorView {
+        typealias ResourceViewModel = String
+
         enum Message: Hashable {
             case display(isLoading: Bool)
-            case display(resource: String)
+            case display(resource: ResourceViewModel)
             case display(errorMessage: String?)
         }
 
@@ -130,7 +132,7 @@ class LoadResourcePresenterTests: XCTestCase {
             messages.insert(.display(isLoading: viewModel.isLoading))
         }
 
-        func display(_ viewModel: String) {
+        func display(_ viewModel: ResourceViewModel) {
             messages.insert(.display(resource: viewModel))
         }
 
