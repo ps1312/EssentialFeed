@@ -28,15 +28,15 @@ class LoadResourcePresenterTests: XCTestCase {
         ])
     }
 
-    func test_didLoadFeed_stopsLoadingAndDisplaysFeed() {
-        let (sut, spy) = makeSUT()
-        let emptyFeed = [FeedImage]()
+    func test_didLoad_stopsLoadingAndDisplaysMappedResource() {
+        let resource = "resource"
+        let (sut, spy) = makeSUT(mapper: { $0 + " view model" })
 
-        sut.didLoadFeed(emptyFeed)
+        sut.didLoad(resource)
 
         XCTAssertEqual(spy.messages, [
             .display(isLoading: false),
-            .display(feed: emptyFeed)
+            .display(resource: "\(resource) view model")
         ])
     }
 
@@ -51,9 +51,13 @@ class LoadResourcePresenterTests: XCTestCase {
         ])
     }
 
-    private func makeSUT(file: StaticString = #filePath, line: UInt = #line) -> (sut: LoadResourcePresenter, spy: FeedViewSpy) {
+    private func makeSUT(
+        mapper: @escaping (String) -> String = { _ in "any" },
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) -> (sut: LoadResourcePresenter, spy: FeedViewSpy) {
         let spy = FeedViewSpy()
-        let sut = LoadResourcePresenter(loadingView: spy, feedView: spy, errorView: spy)
+        let sut = LoadResourcePresenter(loadingView: spy, errorView: spy, resourceView: spy, mapper: mapper)
 
         testMemoryLeak(spy, file: file, line: line)
         testMemoryLeak(sut, file: file, line: line)
@@ -113,10 +117,10 @@ class LoadResourcePresenterTests: XCTestCase {
         }
     }
 
-    private class FeedViewSpy: FeedLoadingView, FeedView, FeedErrorView {
+    private final class FeedViewSpy: ResourceView, FeedLoadingView, FeedErrorView {
         enum Message: Hashable {
             case display(isLoading: Bool)
-            case display(feed: [FeedImage])
+            case display(resource: String)
             case display(errorMessage: String?)
         }
 
@@ -126,8 +130,8 @@ class LoadResourcePresenterTests: XCTestCase {
             messages.insert(.display(isLoading: viewModel.isLoading))
         }
 
-        func display(_ viewModel: FeedViewModel) {
-            messages.insert(.display(feed: viewModel.feed))
+        func display(_ viewModel: String) {
+            messages.insert(.display(resource: viewModel))
         }
 
         func display(_ viewModel: EssentialFeed.FeedErrorViewModel) {

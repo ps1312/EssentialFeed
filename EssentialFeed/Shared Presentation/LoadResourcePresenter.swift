@@ -1,9 +1,15 @@
 import Foundation
 
+public protocol ResourceView {
+    func display(_ viewModel: String)
+}
+
 public final class LoadResourcePresenter {
     private let loadingView: FeedLoadingView
-    private let feedView: FeedView
     private let errorView: FeedErrorView
+
+    private let mapper: (String) -> String
+    private let resourceView: ResourceView
 
     public static var loadError: String {
         NSLocalizedString(
@@ -14,10 +20,11 @@ public final class LoadResourcePresenter {
         )
     }
 
-    public init(loadingView: FeedLoadingView, feedView: FeedView, errorView: FeedErrorView) {
+    public init(loadingView: FeedLoadingView, errorView: FeedErrorView, resourceView: ResourceView, mapper: @escaping (String) -> String) {
         self.loadingView = loadingView
-        self.feedView = feedView
         self.errorView = errorView
+        self.resourceView = resourceView
+        self.mapper = mapper
     }
 
     public func didStartLoading() {
@@ -25,9 +32,9 @@ public final class LoadResourcePresenter {
         loadingView.display(FeedLoadingViewModel(isLoading: true))
     }
 
-    public func didLoadFeed(_ feed: [FeedImage]) {
+    public func didLoad(_ resource: String) {
         loadingView.display(FeedLoadingViewModel(isLoading: false))
-        feedView.display(FeedViewModel(feed: feed))
+        resourceView.display(mapper(resource))
     }
 
     public func didFinishLoadingFeedWithError() {
