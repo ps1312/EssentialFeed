@@ -97,6 +97,7 @@
 		3AE9F91529084946006CB0EA /* LoadResourcePresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AE9F91429084946006CB0EA /* LoadResourcePresenter.swift */; };
 		3AE9F9172908496B006CB0EA /* LoadResourcePresenterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AE9F9162908496B006CB0EA /* LoadResourcePresenterTests.swift */; };
 		3AE9F91A2908593B006CB0EA /* Shared.strings in Resources */ = {isa = PBXBuildFile; fileRef = 3AE9F91C2908593B006CB0EA /* Shared.strings */; };
+		3AE9F91F29085A6A006CB0EA /* LocalizationHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AE9F91E29085A6A006CB0EA /* LocalizationHelpers.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -239,6 +240,7 @@
 		3AE9F9162908496B006CB0EA /* LoadResourcePresenterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadResourcePresenterTests.swift; sourceTree = "<group>"; };
 		3AE9F91B2908593B006CB0EA /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Shared.strings; sourceTree = "<group>"; };
 		3AE9F91D2908593E006CB0EA /* pt-BR */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "pt-BR"; path = "pt-BR.lproj/Shared.strings"; sourceTree = "<group>"; };
+		3AE9F91E29085A6A006CB0EA /* LocalizationHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalizationHelpers.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -352,6 +354,7 @@
 			children = (
 				3AC4F9E428B3FDEC0067CE4C /* SharedHelpers.swift */,
 				3A40290128B4BC7A00E420F5 /* XCTestCase+testMemoryLeak.swift */,
+				3AE9F91E29085A6A006CB0EA /* LocalizationHelpers.swift */,
 			);
 			path = Helpers;
 			sourceTree = "<group>";
@@ -977,6 +980,7 @@
 				3A90DA0928EC76A30092931D /* CacheFeedImageUseCase.swift in Sources */,
 				3A341CF028C02AB100B427F3 /* FeedStoreSpecs.swift in Sources */,
 				3A345A91290190E8006B7258 /* ImageCommentsMapperTests.swift in Sources */,
+				3AE9F91F29085A6A006CB0EA /* LocalizationHelpers.swift in Sources */,
 				3AC4F9E328B3EF570067CE4C /* URLSessionHTTPClientTests.swift in Sources */,
 				3A341CF228C02B5700B427F3 /* XCTestCase+FeedStoreSpecs.swift in Sources */,
 				3A9991A82906D2BB007CF168 /* URLProtocolStub.swift in Sources */,
