@@ -5,15 +5,6 @@ public final class LoadResourcePresenter {
     private let feedView: FeedView
     private let errorView: FeedErrorView
 
-    public static var title: String {
-        NSLocalizedString(
-            "FEED_VIEW_TITLE",
-            tableName: "Feed",
-            bundle: Bundle(for: FeedPresenter.self),
-            comment: "The feed view screen title"
-        )
-    }
-
     public static var loadError: String {
         NSLocalizedString(
             "FEED_VIEW_CONNECTION_ERROR",

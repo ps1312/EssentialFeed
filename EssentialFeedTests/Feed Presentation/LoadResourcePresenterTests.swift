@@ -9,20 +9,12 @@ class LoadResourcePresenterTests: XCTestCase {
         XCTAssertEqual(spy.messages, [])
     }
 
-    func test_title_hasLocalizedTitle() {
-        let expectedKey = "FEED_VIEW_TITLE"
-        let expectedTitle = localized(key: expectedKey, in: "Feed")
-
-        XCTAssertNotEqual(FeedPresenter.title, expectedKey)
-        XCTAssertEqual(FeedPresenter.title, expectedTitle)
-    }
-
     func test_loadError_hasLocalizedError() {
         let expectedKey = "FEED_VIEW_CONNECTION_ERROR"
         let expectedTitle = localized(key: expectedKey, in: "Feed")
 
-        XCTAssertNotEqual(FeedPresenter.loadError, expectedKey)
-        XCTAssertEqual(FeedPresenter.loadError, expectedTitle)
+        XCTAssertNotEqual(LoadResourcePresenter.loadError, expectedKey)
+        XCTAssertEqual(LoadResourcePresenter.loadError, expectedTitle)
     }
 
     func test_didStartLoading_displaysLoadingAndRemovesErrorMessages() {
