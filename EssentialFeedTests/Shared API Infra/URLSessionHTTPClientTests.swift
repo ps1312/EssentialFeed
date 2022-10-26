@@ -10,13 +10,11 @@ class URLSessionHTTPClientTests: XCTestCase {
         URLProtocolStub.stopInterceptingRequests()
     }
 
-    func testGetMakesAGetRequestWithProvidedURL() {
+    func test_get_makesAGetRequestWithProvidedURL() {
         let exp = expectation(description: "Wait for request observation")
 
         let expectedURL = URL(string: "https://www.a-specific-url.com")!
         let sut = makeSUT()
-
-        URLProtocolStub.setStub(data: nil, response: nil, error: nil)
 
         URLProtocolStub.observeRequest(observer: { request in
             XCTAssertEqual(request.httpMethod, "GET")
@@ -31,7 +29,7 @@ class URLSessionHTTPClientTests: XCTestCase {
         URLProtocolStub.stopInterceptingRequests()
     }
 
-    func testGetDeliversErrorOnRequestFailure() {
+    func test_get_deliversErrorOnRequestFailure() {
         let expectedError = makeNSError()
         let receivedError = resultErrorFor(data: nil, response: nil, error: expectedError) as? NSError
 
@@ -39,14 +37,14 @@ class URLSessionHTTPClientTests: XCTestCase {
         XCTAssertEqual(receivedError?.domain, expectedError.domain)
     }
 
-    func testGetCompletesWithEmptyDataWhenResponseHasNoData() {
+    func test_get_completesWithEmptyDataWhenResponseHasNoData() {
         let result = resultValuesFor(data: nil, response: makeHTTPURLResponse(), error: nil)
 
         let emptyData = Data()
         XCTAssertEqual(result?.data, emptyData)
     }
 
-    func testGetDeliversDataAndResponseWhenRequestSucceeds() {
+    func test_get_deliversDataAndResponseWhenRequestSucceeds() {
         let expectedStatusCode = 999
         let expectedData = makeData()
         let expectedResponse = makeHTTPURLResponse(statusCode: expectedStatusCode)
@@ -57,7 +55,7 @@ class URLSessionHTTPClientTests: XCTestCase {
         XCTAssertEqual(result?.response.url, expectedResponse.url)
     }
 
-    func testGetDeliverUnexpectedErrorWhenRequestCompletesWithUnexpectedValues() {
+    func test_get_deliverUnexpectedErrorWhenRequestCompletesWithUnexpectedValues() {
         XCTAssertNotNil(resultErrorFor(data: nil, response: nil, error: nil))
         XCTAssertNotNil(resultErrorFor(data: makeData(), response: nil, error: nil))
         XCTAssertNotNil(resultErrorFor(data: nil, response: makeURLResponse(), error: nil))
