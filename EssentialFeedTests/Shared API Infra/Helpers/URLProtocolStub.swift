@@ -24,12 +24,7 @@ class URLProtocolStub: URLProtocol {
         stub = Stub(data: nil, response: nil, error: nil, requestObserver: observer)
     }
 
-    static func startInterceptingRequests() {
-        URLProtocol.registerClass(URLProtocolStub.self)
-    }
-
-    static func stopInterceptingRequests() {
-        URLProtocol.unregisterClass(URLProtocolStub.self)
+    static func removeStub() {
         stub = nil
     }
 

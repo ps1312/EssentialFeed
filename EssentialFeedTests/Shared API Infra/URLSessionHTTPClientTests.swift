@@ -2,31 +2,26 @@ import XCTest
 import EssentialFeed
 
 class URLSessionHTTPClientTests: XCTestCase {
-    override func setUp() {
-        URLProtocolStub.startInterceptingRequests()
-    }
 
     override func tearDown() {
-        URLProtocolStub.stopInterceptingRequests()
+        super.tearDown()
+
+        URLProtocolStub.removeStub()
     }
 
     func test_get_makesAGetRequestWithProvidedURL() {
+        let url = URL(string: "https://www.a-specific-url.com")!
         let exp = expectation(description: "Wait for request observation")
-
-        let expectedURL = URL(string: "https://www.a-specific-url.com")!
-        let sut = makeSUT()
 
         URLProtocolStub.observeRequest(observer: { request in
             XCTAssertEqual(request.httpMethod, "GET")
-            XCTAssertEqual(request.url, expectedURL)
+            XCTAssertEqual(request.url, url)
             exp.fulfill()
         })
 
-        _ = sut.get(from: expectedURL) { _ in }
+        _ = makeSUT().get(from: url) { _ in }
 
         wait(for: [exp], timeout: 1.0)
-
-        URLProtocolStub.stopInterceptingRequests()
     }
 
     func test_get_deliversErrorOnRequestFailure() {
@@ -69,46 +64,32 @@ class URLSessionHTTPClientTests: XCTestCase {
     }
 
     func test_cancelGetFromURLTask_cancelsURLRequest() {
-        let url = makeURL()
-        let sut = makeSUT()
+        let result = resultErrorFor(data: nil, response: nil, error: nil, taskHandler: { $0.cancel() }) as NSError?
 
-        let exp = expectation(description: "Wait for request")
-        let task = sut.get(from: url) { result in
-            switch result {
-            case let .failure(error as NSError) where error.code == URLError.cancelled.rawValue:
-                break
-
-            default:
-                XCTFail("Expected cancelled result, got \(result) instead")
-
-            }
-
-            exp.fulfill()
-        }
-
-        task.cancel()
-        wait(for: [exp], timeout: 1.0)
+        XCTAssertEqual(result?.code, URLError.cancelled.rawValue)
     }
 
-    private func makeSUT(file: StaticString = #filePath, line: UInt = #line) -> URLSessionHTTPClient {
-        let sut = URLSessionHTTPClient()
+    private func makeSUT(file: StaticString = #filePath, line: UInt = #line) -> HTTPClient {
+        let configuration = URLSessionConfiguration.ephemeral
+        configuration.protocolClasses = [URLProtocolStub.self]
+        let session = URLSession(configuration: configuration)
 
+        let sut = URLSessionHTTPClient(session: session)
         testMemoryLeak(sut, file: file, line: line)
-
         return sut
     }
 
-    private func resultFor(data: Data?, response: URLResponse?, error: Error?) -> HTTPClientResult {
+    private func resultFor(data: Data?, response: URLResponse?, error: Error?, taskHandler: ((HTTPClientTask) -> Void)? = { _ in }) -> HTTPClientResult {
         let exp = expectation(description: "Wait for request completion")
         let sut = makeSUT()
 
         URLProtocolStub.setStub(data: data, response: response, error: error)
 
         var capturedResult: HTTPClientResult!
-        _ = sut.get(from: makeURL()) { receivedResult in
+        taskHandler?(sut.get(from: makeURL()) { receivedResult in
             capturedResult = receivedResult
             exp.fulfill()
-        }
+        })
 
         wait(for: [exp], timeout: 1.0)
         return capturedResult
@@ -126,8 +107,8 @@ class URLSessionHTTPClientTests: XCTestCase {
         }
     }
 
-    private func resultErrorFor(data: Data?, response: URLResponse?, error: Error?) -> Error? {
-        let result = resultFor(data: data, response: response, error: error)
+    private func resultErrorFor(data: Data?, response: URLResponse?, error: Error?, taskHandler: ((HTTPClientTask) -> Void)? = { _ in }) -> Error? {
+        let result = resultFor(data: data, response: response, error: error, taskHandler: taskHandler)
 
         switch (result) {
         case .failure(let receivedError):
