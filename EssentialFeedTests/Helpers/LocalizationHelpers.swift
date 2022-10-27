@@ -1,11 +1,5 @@
-//
-//  LocalizationHelpers.swift
-//  EssentialFeedTests
-//
-//  Created by Paulo Sergio da Silva Rodrigues on 25/10/22.
-//
-
 import Foundation
+import EssentialFeed
 import XCTest
 
 typealias LocalizedBundle = (bundle: Bundle, localization: String)
@@ -54,4 +48,9 @@ func allLocalizedStringKeys(in bundles: [LocalizedBundle], table: String, file: 
 
         return acc.union(Set(keys))
     }
+}
+
+func localized(key: String, in table: String) -> String {
+    let bundle = Bundle(for: FeedPresenter.self)
+    return bundle.localizedString(forKey: key, value: nil, table: table)
 }

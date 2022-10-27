@@ -26,18 +26,12 @@ class FeedPresenterTests: XCTestCase {
         assertStringsLocalized(for: bundle, in: table)
     }
 
+    // MARK: - Helpers
+
     private func makeSUT(file: StaticString = #filePath, line: UInt = #line) -> FeedPresenter {
         let sut = FeedPresenter()
         testMemoryLeak(sut, file: file, line: line)
 
         return sut
     }
-
-    // MARK: - Helpers
-
-    private func localized(key: String, in table: String) -> String {
-        let bundle = Bundle(for: FeedPresenter.self)
-        return bundle.localizedString(forKey: key, value: nil, table: table)
-    }
-
 }

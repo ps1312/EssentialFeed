@@ -97,10 +97,4 @@ class LoadResourcePresenterTests: XCTestCase {
             messages.insert(.display(errorMessage: viewModel.message))
         }
     }
-
-    private func localized(key: String, in table: String) -> String {
-        let bundle = Bundle(for: LoadResourcePresenter<String, ViewSpy>.self)
-        return bundle.localizedString(forKey: key, value: nil, table: table)
-    }
-
 }
