@@ -5,7 +5,7 @@ import EssentialFeediOS
 
 public final class FeedUIComposer {
     public static func composeWith(feedLoader: @escaping () -> AnyPublisher<[FeedImage], Error>, imageLoader: @escaping (URL) -> FeedImageLoader.Publisher) -> FeedViewController {
-        let presentationAdapter = FeedLoadPresentationAdapter(feedLoader: { feedLoader().dispatchOnMainQueue() })
+        let presentationAdapter = LoadResourcePresentationAdapter<[FeedImage], FeedViewAdapter>(loader: { feedLoader().dispatchOnMainQueue() })
         
         let viewController = FeedViewController.makeWith(delegate: presentationAdapter, title: FeedPresenter.title)
         let viewAdapter = FeedViewAdapter(imageLoader: { imageLoader($0).dispatchOnMainQueue() })
