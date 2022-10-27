@@ -2,7 +2,7 @@ import UIKit
 import EssentialFeed
 import EssentialFeediOS
 
-final class FeedViewAdapter: FeedView {
+final class FeedViewAdapter: ResourceView {
     private let imageLoader: (URL) -> FeedImageLoader.Publisher
     weak var feedController: FeedViewController?
 
