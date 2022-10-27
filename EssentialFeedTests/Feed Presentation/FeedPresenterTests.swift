@@ -19,7 +19,7 @@ class FeedPresenterTests: XCTestCase {
         XCTAssertEqual(viewModel.feed, feed)
     }
 
-    func test_localizedStrings_haveKeysAndValuesForAllSupportedLocalizations() {
+    func test_localizedFeedStrings_haveKeysAndValuesForAllSupportedLocalizations() {
         let table = "Feed"
         let bundle = Bundle(for: FeedPresenter.self)
 

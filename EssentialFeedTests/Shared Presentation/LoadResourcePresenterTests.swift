@@ -65,7 +65,7 @@ class LoadResourcePresenterTests: XCTestCase {
         return (sut, spy)
     }
 
-    func test_localizedStrings_haveKeysAndValuesForAllSupportedLocalizations() {
+    func test_localizedSharedStrings_haveKeysAndValuesForAllSupportedLocalizations() {
         let table = "Shared"
         let bundle = Bundle(for: LoadResourcePresenter<String, ViewSpy>.self)
 
