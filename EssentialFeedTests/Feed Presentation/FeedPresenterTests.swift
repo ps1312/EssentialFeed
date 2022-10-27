@@ -17,6 +17,14 @@ class FeedPresenterTests: XCTestCase {
         XCTAssertEqual(FeedPresenter.title, expectedTitle)
     }
 
+    func test_map_completesWithViewModel() {
+        let feed = uniqueImages().models
+
+        let viewModel = FeedPresenter.map(feed)
+
+        XCTAssertEqual(viewModel.feed, feed)
+    }
+
     func test_loadError_hasLocalizedGenericError() {
         let expectedKey = "GENERIC_CONNECTION_ERROR"
         let expectedTitle = localized(key: expectedKey, in: "Shared")
