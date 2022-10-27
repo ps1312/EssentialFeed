@@ -302,6 +302,14 @@
 			path = "Image Comment Feature";
 			sourceTree = "<group>";
 		};
+		3A014C31290AEA9100F16806 /* Shared Presentation */ = {
+			isa = PBXGroup;
+			children = (
+				3AE9F9162908496B006CB0EA /* LoadResourcePresenterTests.swift */,
+			);
+			path = "Shared Presentation";
+			sourceTree = "<group>";
+		};
 		3A0C28D928BD4483009989AD /* Helpers */ = {
 			isa = PBXGroup;
 			children = (
@@ -460,6 +468,7 @@
 				3A9991AA2906D3D2007CF168 /* Image Comments API */,
 				3ABA207928B6B4A8002D31BF /* Feed API */,
 				3A0C28DC28BD44C2009989AD /* Feed Cache */,
+				3A014C31290AEA9100F16806 /* Shared Presentation */,
 				3AE9F912290807A6006CB0EA /* Feed Presentation */,
 			);
 			path = EssentialFeedTests;
@@ -632,7 +641,6 @@
 			children = (
 				3AA1C10C28E508380027CB35 /* FeedPresenterTests.swift */,
 				3A43540C28E5CE1800C1A7D9 /* FeedImagePresenterTests.swift */,
-				3AE9F9162908496B006CB0EA /* LoadResourcePresenterTests.swift */,
 			);
 			path = "Feed Presentation";
 			sourceTree = "<group>";

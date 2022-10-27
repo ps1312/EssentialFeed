@@ -40,10 +40,10 @@ class LoadResourcePresenterTests: XCTestCase {
         ])
     }
 
-    func test_didFinishLoadingFeedWithError_stopsLoadingAndPresentsAnError() {
+    func test_didFinishLoadingWithError_stopsLoadingAndPresentsAnError() {
         let (sut, spy) = makeSUT()
 
-        sut.didFinishLoadingFeedWithError()
+        sut.didFinishLoadingWithError()
 
         XCTAssertEqual(spy.messages, [
             .display(isLoading: false),
@@ -99,7 +99,7 @@ class LoadResourcePresenterTests: XCTestCase {
     }
 
     private func localized(key: String, in table: String) -> String {
-        let bundle = Bundle(for: FeedPresenter.self)
+        let bundle = Bundle(for: LoadResourcePresenter<String, ViewSpy>.self)
         return bundle.localizedString(forKey: key, value: nil, table: table)
     }
 
