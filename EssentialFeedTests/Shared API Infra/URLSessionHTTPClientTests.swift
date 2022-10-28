@@ -10,9 +10,9 @@ class URLSessionHTTPClientTests: XCTestCase {
     }
 
     func test_cancelGetFromURLTask_cancelsURLRequest() {
-        let result = resultErrorFor(data: nil, response: nil, error: nil, taskHandler: { $0.cancel() }) as NSError?
+        let receivedError = resultErrorFor(taskHandler: { $0.cancel() }) as NSError?
 
-        XCTAssertEqual(result?.code, URLError.cancelled.rawValue)
+        XCTAssertEqual(receivedError?.code, URLError.cancelled.rawValue)
     }
 
     func test_get_makesAGetRequestWithProvidedURL() {
@@ -32,14 +32,14 @@ class URLSessionHTTPClientTests: XCTestCase {
 
     func test_get_deliversErrorOnRequestFailure() {
         let expectedError = makeNSError()
-        let receivedError = resultErrorFor(data: nil, response: nil, error: expectedError) as? NSError
+        let receivedError = resultErrorFor((data: nil, response: nil, error: expectedError)) as? NSError
 
         XCTAssertEqual(receivedError?.code, expectedError.code)
         XCTAssertEqual(receivedError?.domain, expectedError.domain)
     }
 
     func test_get_completesWithEmptyDataWhenResponseHasNoData() {
-        let result = resultValuesFor(data: nil, response: makeHTTPURLResponse(), error: nil)
+        let result = resultValuesFor((data: nil, response: makeHTTPURLResponse(), error: nil))
 
         let emptyData = Data()
         XCTAssertEqual(result?.data, emptyData)
@@ -49,7 +49,7 @@ class URLSessionHTTPClientTests: XCTestCase {
         let expectedStatusCode = 999
         let expectedData = makeData()
         let expectedResponse = makeHTTPURLResponse(statusCode: expectedStatusCode)
-        let result = resultValuesFor(data: expectedData, response: expectedResponse, error: nil)
+        let result = resultValuesFor((data: expectedData, response: expectedResponse, error: nil))
 
         XCTAssertEqual(result?.data, expectedData)
         XCTAssertEqual(result?.response.statusCode, expectedStatusCode)
@@ -57,16 +57,16 @@ class URLSessionHTTPClientTests: XCTestCase {
     }
 
     func test_get_deliverUnexpectedErrorWhenRequestCompletesWithUnexpectedValues() {
-        XCTAssertNotNil(resultErrorFor(data: nil, response: nil, error: nil))
-        XCTAssertNotNil(resultErrorFor(data: makeData(), response: nil, error: nil))
-        XCTAssertNotNil(resultErrorFor(data: nil, response: makeURLResponse(), error: nil))
-        XCTAssertNotNil(resultErrorFor(data: nil, response: nil, error: makeNSError()))
-        XCTAssertNotNil(resultErrorFor(data: nil, response: makeHTTPURLResponse(), error: makeNSError()))
-        XCTAssertNotNil(resultErrorFor(data: nil, response: makeURLResponse(), error: makeNSError()))
-        XCTAssertNotNil(resultErrorFor(data: makeData(), response: nil, error: makeNSError()))
-        XCTAssertNotNil(resultErrorFor(data: makeData(), response: makeHTTPURLResponse(), error: makeNSError()))
-        XCTAssertNotNil(resultErrorFor(data: makeData(), response: makeURLResponse(), error: makeNSError()))
-        XCTAssertNotNil(resultErrorFor(data: makeData(), response: makeURLResponse(), error: nil))
+        XCTAssertNotNil(resultErrorFor((data: nil, response: nil, error: nil)))
+        XCTAssertNotNil(resultErrorFor((data: makeData(), response: nil, error: nil)))
+        XCTAssertNotNil(resultErrorFor((data: nil, response: makeURLResponse(), error: nil)))
+        XCTAssertNotNil(resultErrorFor((data: nil, response: nil, error: makeNSError())))
+        XCTAssertNotNil(resultErrorFor((data: nil, response: makeHTTPURLResponse(), error: makeNSError())))
+        XCTAssertNotNil(resultErrorFor((data: nil, response: makeURLResponse(), error: makeNSError())))
+        XCTAssertNotNil(resultErrorFor((data: makeData(), response: nil, error: makeNSError())))
+        XCTAssertNotNil(resultErrorFor((data: makeData(), response: makeHTTPURLResponse(), error: makeNSError())))
+        XCTAssertNotNil(resultErrorFor((data: makeData(), response: makeURLResponse(), error: makeNSError())))
+        XCTAssertNotNil(resultErrorFor((data: makeData(), response: makeURLResponse(), error: nil)))
     }
 
     private func makeSUT(file: StaticString = #filePath, line: UInt = #line) -> HTTPClient {
@@ -79,8 +79,8 @@ class URLSessionHTTPClientTests: XCTestCase {
         return sut
     }
 
-    private func resultValuesFor(data: Data?, response: URLResponse?, error: Error?) -> (data: Data, response: HTTPURLResponse)? {
-        let result = resultFor(data: data, response: response, error: error)
+    private func resultValuesFor(_ values: (data: Data?, response: URLResponse?, error: Error?)) -> (data: Data, response: HTTPURLResponse)? {
+        let result = resultFor(values)
 
         switch (result) {
         case .success(let (data, response)):
@@ -91,8 +91,8 @@ class URLSessionHTTPClientTests: XCTestCase {
         }
     }
 
-    private func resultErrorFor(data: Data?, response: URLResponse?, error: Error?, taskHandler: (HTTPClientTask) -> Void = { _ in }) -> Error? {
-        let result = resultFor(data: data, response: response, error: error, taskHandler: taskHandler)
+    private func resultErrorFor(_ values: (data: Data?, response: URLResponse?, error: Error?)? = nil, taskHandler: (HTTPClientTask) -> Void = { _ in }) -> Error? {
+        let result = resultFor(values, taskHandler: taskHandler)
 
         switch (result) {
         case .failure(let receivedError):
@@ -103,9 +103,9 @@ class URLSessionHTTPClientTests: XCTestCase {
         }
     }
 
-    private func resultFor(data: Data?, response: URLResponse?, error: Error?, taskHandler: (HTTPClientTask) -> Void = { _ in }) -> HTTPClientResult {
-        print("setting stub")
-        URLProtocolStub.stub(data: data, response: response, error: error)
+    private func resultFor(_ values: (data: Data?, response: URLResponse?, error: Error?)?, taskHandler: (HTTPClientTask) -> Void = { _ in }) -> HTTPClientResult {
+        values.map { URLProtocolStub.stub(data: $0, response: $1, error: $2) }
+
         let sut = makeSUT()
 
         let exp = expectation(description: "Wait for request completion")
