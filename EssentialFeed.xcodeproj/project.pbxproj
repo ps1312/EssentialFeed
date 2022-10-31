@@ -100,6 +100,7 @@
 		3AFBBD79291053D70029FDD3 /* ImageCommentsPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AFBBD78291053D70029FDD3 /* ImageCommentsPresenter.swift */; };
 		3AFBBD7D291055110029FDD3 /* ImageCommentsLocalizationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AFBBD7C291055110029FDD3 /* ImageCommentsLocalizationTests.swift */; };
 		3AFBBD7E291055760029FDD3 /* ImageComments.strings in Resources */ = {isa = PBXBuildFile; fileRef = 3AFBBD80291055760029FDD3 /* ImageComments.strings */; };
+		3AFBBD83291056740029FDD3 /* ImageCommentViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AFBBD82291056740029FDD3 /* ImageCommentViewModel.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -246,6 +247,7 @@
 		3AFBBD7C291055110029FDD3 /* ImageCommentsLocalizationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageCommentsLocalizationTests.swift; sourceTree = "<group>"; };
 		3AFBBD7F291055760029FDD3 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/ImageComments.strings; sourceTree = "<group>"; };
 		3AFBBD812910557A0029FDD3 /* pt-BR */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "pt-BR"; path = "pt-BR.lproj/ImageComments.strings"; sourceTree = "<group>"; };
+		3AFBBD82291056740029FDD3 /* ImageCommentViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageCommentViewModel.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -677,6 +679,7 @@
 			children = (
 				3AFBBD78291053D70029FDD3 /* ImageCommentsPresenter.swift */,
 				3AFBBD80291055760029FDD3 /* ImageComments.strings */,
+				3AFBBD82291056740029FDD3 /* ImageCommentViewModel.swift */,
 			);
 			path = "Image Comments Presentation";
 			sourceTree = "<group>";
@@ -979,6 +982,7 @@
 				3ACE9F5428B4460D00C7A772 /* URLSessionHTTPClient.swift in Sources */,
 				3A9F011328C6C15C000B0299 /* ManagedCache.swift in Sources */,
 				3A43541328E5DD7700C1A7D9 /* FeedImageViewModel.swift in Sources */,
+				3AFBBD83291056740029FDD3 /* ImageCommentViewModel.swift in Sources */,
 				3AD6E18228C29D1200D5D0FB /* CoreDataFeedStore.swift in Sources */,
 				3A8A138D28CE1ECE00F2D5DB /* FeedImageLoader.swift in Sources */,
 				3A43540F28E5DD4100C1A7D9 /* FeedImagePresenter.swift in Sources */,
