@@ -6,7 +6,7 @@ typealias LocalizedBundle = (bundle: Bundle, localization: String)
 
 func assertStringsLocalized(for bundle: Bundle, in table: String, file: StaticString = #file, line: UInt = #line) {
     let localizationBundles = allLocalizationBundles(in: bundle)
-    let localizedStringKeys = allLocalizedStringKeys(in: localizationBundles, table: table)
+    let localizedStringKeys = allLocalizedStringKeys(in: localizationBundles, table: table, file: file, line: line)
 
     localizationBundles.forEach { (bundle, localization) in
         localizedStringKeys.forEach { key in
