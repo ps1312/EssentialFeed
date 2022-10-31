@@ -1,17 +1,19 @@
 import UIKit
+import Combine
 import EssentialFeed
 import EssentialFeediOS
 
 public final class FeedUIComposer {
-    public static func composeWith(feedLoader: @escaping () -> FeedLoader.Publisher, imageLoader: @escaping (URL) -> FeedImageLoader.Publisher) -> FeedViewController {
-        let presentationAdapter = FeedLoadPresentationAdapter(feedLoader: { feedLoader().dispatchOnMainQueue() })
+    public static func composeWith(feedLoader: @escaping () -> AnyPublisher<[FeedImage], Error>, imageLoader: @escaping (URL) -> FeedImageLoader.Publisher) -> FeedViewController {
+        let presentationAdapter = LoadResourcePresentationAdapter<[FeedImage], FeedViewAdapter>(loader: { feedLoader().dispatchOnMainQueue() })
         
         let viewController = FeedViewController.makeWith(delegate: presentationAdapter, title: FeedPresenter.title)
         let viewAdapter = FeedViewAdapter(imageLoader: { imageLoader($0).dispatchOnMainQueue() })
-        let presenter = FeedPresenter(
+        let presenter = LoadResourcePresenter<[FeedImage], FeedViewAdapter>(
             loadingView: WeakRefVirtualProxy(viewController),
-            feedView: viewAdapter,
-            errorView: WeakRefVirtualProxy(viewController)
+            errorView: WeakRefVirtualProxy(viewController),
+            resourceView: viewAdapter,
+            mapper: FeedPresenter.map
         )
 
         viewAdapter.feedController = viewController

@@ -2,7 +2,7 @@ import UIKit
 import EssentialFeed
 import EssentialFeediOS
 
-final class FeedViewAdapter: FeedView {
+final class FeedViewAdapter: ResourceView {
     private let imageLoader: (URL) -> FeedImageLoader.Publisher
     weak var feedController: FeedViewController?
 
@@ -12,25 +12,31 @@ final class FeedViewAdapter: FeedView {
 
     func display(_ viewModel: FeedViewModel) {
         feedController?.cellControllers = viewModel.feed.map { model in
-            // abstracts the communication between domain and presentation (by *adapting the image load output to the presenter input)
-            let cellControllerDelegate = FeedImageLoadPresentationAdapter<WeakRefVirtualProxy<FeedImageCellController>, UIImage>(
-                model: model,
-                imageLoader: imageLoader
+            let adapter = LoadResourcePresentationAdapter<Data, WeakRefVirtualProxy<FeedImageCellController>>(
+                loader: { [imageLoader] in imageLoader(model.url) }
             )
 
-            // configures cell and requests for image load through a protocol
-            let feedImageView = FeedImageCellController(delegate: cellControllerDelegate)
-
-            // present views by using display() methods
-            let feedImagePresenter = FeedImagePresenter<WeakRefVirtualProxy<FeedImageCellController>, UIImage>(
-                feedImageView: WeakRefVirtualProxy(feedImageView),
-                imageTransformer: UIImage.init
+            let view = FeedImageCellController(
+                viewModel: FeedImagePresenter.map(model),
+                delegate: adapter
             )
 
-            // handle composition details...
-            cellControllerDelegate.presenter = feedImagePresenter
+            adapter.presenter = LoadResourcePresenter<Data, WeakRefVirtualProxy<FeedImageCellController>>(
+                loadingView: WeakRefVirtualProxy(view),
+                errorView: WeakRefVirtualProxy(view),
+                resourceView: WeakRefVirtualProxy(view),
+                mapper: { resource in
+                    guard let image = UIImage(data: resource) else {
+                        throw InvalidImageData()
+                    }
+                    return image
+                }
+            )
 
-            return feedImageView
+
+            return view
         }
     }
 }
+
+private struct InvalidImageData: Error {}

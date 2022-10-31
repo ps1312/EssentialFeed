@@ -6,11 +6,15 @@ public protocol FeedImageCellControllerDelegate {
     func didCancelImageLoad()
 }
 
-public final class FeedImageCellController: FeedImageView {
+public final class FeedImageCellController: ResourceLoadingView, ResourceErrorView, ResourceView {
+    public typealias ResourceViewModel = UIImage
+
+    private let viewModel: FeedImageViewModel
     private let delegate: FeedImageCellControllerDelegate
     private(set) var cell: FeedImageCell?
 
-    public init(delegate: FeedImageCellControllerDelegate) {
+    public init(viewModel: FeedImageViewModel, delegate: FeedImageCellControllerDelegate) {
+        self.viewModel = viewModel
         self.delegate = delegate
     }
 
@@ -20,28 +24,33 @@ public final class FeedImageCellController: FeedImageView {
 
     func view(in tableView: UITableView) -> FeedImageCell {
         cell = tableView.dequeueReusableCell()
-        delegate.didRequestImageLoad()
-        return cell!
-    }
-
-    public func display(_ viewModel: FeedImageViewModel<UIImage>) {
         cell?.descriptionLabel.isHidden = !viewModel.hasDescription
         cell?.descriptionLabel.text = viewModel.description
 
         cell?.locationContainer.isHidden = !viewModel.hasLocation
         cell?.locationLabel.text = viewModel.location
-
-        cell?.retryButton.isHidden = !viewModel.shouldRetry
         cell?.onRetry = delegate.didRequestImageLoad
 
-        cell?.feedImageView.image = viewModel.image
+        delegate.didRequestImageLoad()
+        return cell!
+    }
 
+    public func display(_ viewModel: ResourceLoadingViewModel) {
         if viewModel.isLoading {
             cell?.imageContainer.startShimmering()
         } else {
             cell?.imageContainer.stopShimmering()
         }
     }
+
+    public func display(_ viewModel: ResourceErrorViewModel) {
+        cell?.retryButton.isHidden = viewModel.message == nil
+    }
+
+    public func display(_ viewModel: UIImage) {
+        cell?.feedImageView.image = viewModel
+    }
+
 
     public func cancelLoad() {
         delegate.didCancelImageLoad()

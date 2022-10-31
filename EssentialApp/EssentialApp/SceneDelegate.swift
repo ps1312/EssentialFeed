@@ -18,15 +18,18 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         )
     }()
 
-    private lazy var localFeedLoader: FeedLoader & FeedCache = {
+    private lazy var localFeedLoader = {
         LocalFeedLoader(store: store)
     }()
 
-    private lazy var remoteFeedLoader = {
-        let feedURL = URL(string: "https://ile-api.essentialdeveloper.com/essential-feed/v1/feed")!
-        return RemoteFeedLoader(url: feedURL, client: client)
+    private lazy var remoteImageLoader = {
+        RemoteImageLoader(client: client)
     }()
 
+    private lazy var localImageLoader = {
+        LocalFeedImageLoader(store: store)
+    }()
+    
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
         guard let scene = (scene as? UIWindowScene) else { return }
 
@@ -42,23 +45,37 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         window?.makeKeyAndVisible()
     }
 
-    private func makeRemoteFeedLoaderWithLocalFallback() -> FeedLoader.Publisher {
-        return remoteFeedLoader
-            .loadPublisher()
+    private func makeRemoteFeedLoaderWithLocalFallback() -> AnyPublisher<[FeedImage], Error> {
+        client
+            .getPublisher(url: URL(string: "https://ile-api.essentialdeveloper.com/essential-feed/v1/feed")!)
+            .tryMap(FeedItemsMapper.map)
             .caching(to: localFeedLoader)
             .fallback(to: localFeedLoader.loadPublisher)
     }
 
     private func makeLocalFeedImageLoaderWithRemoteFallback(url: URL) -> AnyPublisher<Data, Error> {
-        let remoteImageLoader = RemoteImageLoader(client: client)
-        let localImageLoader = LocalFeedImageLoader(store: store)
-
-        return localImageLoader
+        localImageLoader
             .loadImagePublisher(from: url)
-            .fallback(to: { remoteImageLoader
+            .fallback(to: { self.remoteImageLoader
                             .loadImagePublisher(from: url)
-                            .caching(to: localImageLoader, with: url) }
+                            .caching(to: self.localImageLoader, with: url) }
             )
     }
 
+}
+
+extension HTTPClient {
+    typealias Publisher = AnyPublisher<(Data, HTTPURLResponse), Error>
+
+    func getPublisher(url: URL) -> Publisher {
+        var task: HTTPClientTask?
+
+        return Deferred {
+            Future { completion in
+                task = get(from: url, completion: completion)
+            }
+        }
+        .handleEvents(receiveCancel: task?.cancel)
+        .eraseToAnyPublisher()
+    }
 }

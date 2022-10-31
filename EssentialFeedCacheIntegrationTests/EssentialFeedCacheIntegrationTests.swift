@@ -107,7 +107,7 @@ class EssentialFeedCacheIntegrationTests: XCTestCase {
     }
 
 
-    private func expect(_ sut: LocalFeedLoader, toReceive expectedResult: LoadFeedResult, file: StaticString = #filePath, line: UInt = #line) {
+    private func expect(_ sut: LocalFeedLoader, toReceive expectedResult: Result<[FeedImage], Error>, file: StaticString = #filePath, line: UInt = #line) {
         let exp = expectation(description: "Wait for save and load to complete")
 
         sut.load { receivedResult in

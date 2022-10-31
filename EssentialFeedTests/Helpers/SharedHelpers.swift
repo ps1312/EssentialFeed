@@ -13,4 +13,6 @@ func makeData() -> Data {
     return Data("{}".utf8)
 }
 
-
+func makeHTTPURLResponse(with statusCode: Int) -> HTTPURLResponse {
+    return HTTPURLResponse(url: makeURL(), statusCode: statusCode, httpVersion: nil, headerFields: nil)!
+}

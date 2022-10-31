@@ -1,4 +1,4 @@
-public struct FeedLoadingViewModel: Equatable {
+public struct ResourceLoadingViewModel: Equatable {
     public let isLoading: Bool
 
     public init(isLoading: Bool) {

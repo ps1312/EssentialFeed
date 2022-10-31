@@ -74,8 +74,11 @@ class FeedSnapshotTests: XCTestCase {
     }
 
     private func makeImageCellController(image: UIImage?, description: String?, location: String?) -> FeedImageCellController {
-        let delegate = FeedImageCellControllerDelegateStub(image: image, description: description, location: location)
-        let controller = FeedImageCellController(delegate: delegate)
+        let delegate = FeedImageCellControllerDelegateStub(image: image)
+        let controller = FeedImageCellController(
+            viewModel: FeedImageViewModel(description: description, location: location),
+            delegate: delegate
+        )
         delegate.controller = controller
 
         return controller
@@ -125,15 +128,25 @@ class FeedSnapshotTests: XCTestCase {
     }
 
     private class FeedImageCellControllerDelegateStub: FeedImageCellControllerDelegate {
-        private let stubbedResult: FeedImageViewModel<UIImage>
+        private let image: UIImage?
+
         weak var controller: FeedImageCellController?
 
-        init (image: UIImage?, description: String?, location: String?) {
-            self.stubbedResult = FeedImageViewModel(isLoading: false, shouldRetry: image == nil, image: image, description: description, location: location)
+        init (image: UIImage?) {
+            self.image = image
         }
 
         func didRequestImageLoad() {
-            controller?.display(stubbedResult)
+            controller?.display(ResourceLoadingViewModel(isLoading: true))
+
+            if let image = image {
+                controller?.display(image)
+                controller?.display(ResourceErrorViewModel(message: .none))
+            } else {
+                controller?.display(ResourceErrorViewModel(message: "any"))
+            }
+
+            controller?.display(ResourceLoadingViewModel(isLoading: false))
         }
 
         func didCancelImageLoad() {}

@@ -8,16 +8,18 @@ class EssentialFeedEndToEndTests: XCTestCase {
 
         let url = URL(string: "https://essentialdeveloper.com/feed-case-study/test-api/feed")!
         let httpClient = URLSessionHTTPClient()
-        let remoteFeedLoader = RemoteFeedLoader(url: url, client: httpClient)
 
         testMemoryLeak(httpClient)
-        testMemoryLeak(remoteFeedLoader)
 
         var capturedFeedImages = [FeedImage]()
-        remoteFeedLoader.load { result in
+        _ = httpClient.get(from: url) { result in
             switch (result) {
-            case .success(let feedImages):
-                capturedFeedImages = feedImages
+            case let .success((data, response)):
+            do {
+                capturedFeedImages = try FeedItemsMapper.map(data, from: response)
+            } catch {
+                XCTFail()
+            }
             case .failure(let error):
                 XCTFail("Expected real request to succeed, instead got \(error)")
             }
