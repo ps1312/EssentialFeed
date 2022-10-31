@@ -1,14 +1,8 @@
-public struct FeedImageViewModel<Image> {
-    public let isLoading: Bool
-    public let shouldRetry: Bool
-    public let image: Image?
+public struct FeedImageViewModel {
     public let description: String?
     public let location: String?
 
-    public init(isLoading: Bool, shouldRetry: Bool, image: Image?, description: String?, location: String?) {
-        self.isLoading = isLoading
-        self.shouldRetry = shouldRetry
-        self.image = image
+    public init(description: String?, location: String?) {
         self.description = description
         self.location = location
     }
