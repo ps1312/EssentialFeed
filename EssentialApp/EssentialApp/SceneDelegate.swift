@@ -21,6 +21,14 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     private lazy var localFeedLoader = {
         LocalFeedLoader(store: store)
     }()
+
+    private lazy var remoteImageLoader = {
+        RemoteImageLoader(client: client)
+    }()
+
+    private lazy var localImageLoader = {
+        LocalFeedImageLoader(store: store)
+    }()
     
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
         guard let scene = (scene as? UIWindowScene) else { return }
@@ -46,14 +54,11 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     }
 
     private func makeLocalFeedImageLoaderWithRemoteFallback(url: URL) -> AnyPublisher<Data, Error> {
-        let remoteImageLoader = RemoteImageLoader(client: client)
-        let localImageLoader = LocalFeedImageLoader(store: store)
-
-        return localImageLoader
+        localImageLoader
             .loadImagePublisher(from: url)
-            .fallback(to: { remoteImageLoader
+            .fallback(to: { self.remoteImageLoader
                             .loadImagePublisher(from: url)
-                            .caching(to: localImageLoader, with: url) }
+                            .caching(to: self.localImageLoader, with: url) }
             )
     }
 
