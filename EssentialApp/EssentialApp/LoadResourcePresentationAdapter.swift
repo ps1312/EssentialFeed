@@ -21,8 +21,8 @@ final class LoadResourcePresentationAdapter<Resource, View: ResourceView> {
             case .failure:
                 self?.presenter?.didFinishLoadingWithError()
             }
-        }, receiveValue: { [weak self] feed in
-            self?.presenter?.didLoad(feed)
+        }, receiveValue: { [weak self] resource in
+            self?.presenter?.didLoad(resource)
         })
     }
 }
