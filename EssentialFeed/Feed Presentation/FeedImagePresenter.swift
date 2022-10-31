@@ -21,7 +21,7 @@ public class FeedImagePresenter<View: FeedImageView, Image> where View.Image == 
         )
     }
 
-    public func didFinishLoadingImage(model: FeedImage, data: Data) {
+    public func didLoadImage(model: FeedImage, data: Data) {
         let image = imageTransformer(data)
 
         feedImageView.display(

@@ -28,7 +28,7 @@ final class FeedImageLoadPresentationAdapter<View: FeedImageView, Image>: FeedIm
             }
         }, receiveValue: { [weak self] image in
             guard let self = self else { return }
-            self.presenter?.didFinishLoadingImage(model: self.model, data: image)
+            self.presenter?.didLoadImage(model: self.model, data: image)
         })
     }
 

@@ -35,7 +35,7 @@ class FeedImagePresenterTests: XCTestCase {
         let model = uniqueImage()
         let (sut, spy) = makeSUT(imageTransformationResult: nil)
 
-        sut.didFinishLoadingImage(model: model, data: Data())
+        sut.didLoadImage(model: model, data: Data())
 
         let message = spy.messages.first
         XCTAssertEqual(message?.isLoading, false)
@@ -50,7 +50,7 @@ class FeedImagePresenterTests: XCTestCase {
         let image = AnyImage()
         let (sut, spy) = makeSUT()
 
-        sut.didFinishLoadingImage(model: model, data: Data())
+        sut.didLoadImage(model: model, data: Data())
 
         let message = spy.messages.first
         XCTAssertEqual(message?.isLoading, false)
