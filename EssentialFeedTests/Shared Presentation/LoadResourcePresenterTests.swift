@@ -40,6 +40,17 @@ class LoadResourcePresenterTests: XCTestCase {
         ])
     }
 
+    func test_mapFailure_stopsLoadingAndPresentsAnError() {
+        let (sut, spy) = makeSUT(mapper: { _ in throw makeNSError() })
+
+        sut.didLoad("resource")
+
+        XCTAssertEqual(spy.messages, [
+            .display(isLoading: false),
+            .display(errorMessage: LoadResourcePresenter<String, ViewSpy>.loadError)
+        ])
+    }
+
     func test_didFinishLoadingWithError_stopsLoadingAndPresentsAnError() {
         let (sut, spy) = makeSUT()
 

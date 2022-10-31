@@ -13,7 +13,8 @@ public final class LoadResourcePresenter<Resource, View: ResourceView> {
     private let mapper: Mapper
     private let resourceView: View
 
-    public typealias Mapper = (Resource) -> View.ResourceViewModel
+    public typealias Mapper = (Resource) throws -> View.ResourceViewModel
+
     public static var loadError: String {
         NSLocalizedString(
             "GENERIC_CONNECTION_ERROR",
@@ -36,8 +37,12 @@ public final class LoadResourcePresenter<Resource, View: ResourceView> {
     }
 
     public func didLoad(_ resource: Resource) {
-        loadingView.display(ResourceLoadingViewModel(isLoading: false))
-        resourceView.display(mapper(resource))
+        do {
+            loadingView.display(ResourceLoadingViewModel(isLoading: false))
+            resourceView.display(try mapper(resource))
+        } catch {
+            didFinishLoadingWithError()
+        }
     }
 
     public func didFinishLoadingWithError() {
