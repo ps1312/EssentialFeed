@@ -9,6 +9,14 @@ class FeedImagePresenterTests: XCTestCase {
         XCTAssertEqual(spy.messages.count, 0)
     }
 
+    func test_map_createsViewModel() {
+        let model = uniqueImage()
+        let viewModel = FeedImagePresenter<FeedViewSpy, AnyImage>.map(model)
+
+        XCTAssertEqual(viewModel.description, model.description)
+        XCTAssertEqual(viewModel.location, model.location)
+    }
+
     func test_didStartLoadingImage_displaysLoadingWithData() {
         let model = uniqueImage()
         let (sut, spy) = makeSUT()
