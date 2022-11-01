@@ -400,8 +400,9 @@
 		3A5C698428CA331900E0E759 /* EssentialFeediOS */ = {
 			isa = PBXGroup;
 			children = (
-				3A7D2B962911601E00867205 /* Image Comments UI */,
+				3A7D2B9A291160F000867205 /* Shared UI */,
 				3A8A138E28CE1FA900F2D5DB /* Feed UI */,
+				3A7D2B962911601E00867205 /* Image Comments UI */,
 			);
 			path = EssentialFeediOS;
 			sourceTree = "<group>";
@@ -535,6 +536,33 @@
 			path = Views;
 			sourceTree = "<group>";
 		};
+		3A7D2B9A291160F000867205 /* Shared UI */ = {
+			isa = PBXGroup;
+			children = (
+				3A7D2B9C2911612200867205 /* Helpers */,
+				3A7D2B9B2911611B00867205 /* Views */,
+			);
+			path = "Shared UI";
+			sourceTree = "<group>";
+		};
+		3A7D2B9B2911611B00867205 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				3A2471B828E33D8C0081334F /* ErrorView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		3A7D2B9C2911612200867205 /* Helpers */ = {
+			isa = PBXGroup;
+			children = (
+				3A9D718528CD26B500F207ED /* UIView+Shimmering.swift */,
+				3AB6915328F4951C00FCDD7B /* UITableView+HeaderSizing.swift */,
+				3A31ED1C28DB596B004DF769 /* UITableView+dequeueReusableCell.swift */,
+			);
+			path = Helpers;
+			sourceTree = "<group>";
+		};
 		3A856EA228C780E100961DC6 /* EssentialFeedCacheIntegrationTests */ = {
 			isa = PBXGroup;
 			children = (
@@ -546,13 +574,9 @@
 		3A85F58B28DA2192008991B0 /* Views */ = {
 			isa = PBXGroup;
 			children = (
-				3A9D718528CD26B500F207ED /* UIView+Shimmering.swift */,
 				3A8A138928CE1E8900F2D5DB /* FeedImageCell.swift */,
 				3A7FB31B28DA7EEB001DAD50 /* Feed.storyboard */,
 				3A7FB31D28DA7F13001DAD50 /* Feed.xcassets */,
-				3A31ED1C28DB596B004DF769 /* UITableView+dequeueReusableCell.swift */,
-				3A2471B828E33D8C0081334F /* ErrorView.swift */,
-				3AB6915328F4951C00FCDD7B /* UITableView+HeaderSizing.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -723,8 +747,8 @@
 			isa = PBXGroup;
 			children = (
 				3AFBBD78291053D70029FDD3 /* ImageCommentsPresenter.swift */,
-				3AFBBD80291055760029FDD3 /* ImageComments.strings */,
 				3AFBBD82291056740029FDD3 /* ImageCommentViewModel.swift */,
+				3AFBBD80291055760029FDD3 /* ImageComments.strings */,
 			);
 			path = "Image Comments Presentation";
 			sourceTree = "<group>";
