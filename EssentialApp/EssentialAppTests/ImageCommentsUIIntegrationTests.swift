@@ -121,6 +121,20 @@ class ImageCommentsUIIntegrationTests: XCTestCase {
         wait(for: [exp], timeout: 1.0)
     }
 
+    func test_commentsLoad_displaysEmptyListAfterRefreshDeliversNoComments() {
+        let image1 = uniqueComment()
+        let image2 = uniqueComment()
+        let (sut, loader) = makeSUT()
+        sut.loadViewIfNeeded()
+
+        loader.completeCommentsLoad(at: 0, with: [image1, image2])
+        XCTAssertEqual(sut.numberOfComments, 2)
+
+        sut.simulatePullToRefresh()
+        loader.completeCommentsLoad(at: 1, with: [])
+        XCTAssertEqual(sut.numberOfComments, 0)
+    }
+
     private func makeSUT(file: StaticString = #filePath, line: UInt = #line) -> (sut: ImageCommentsViewController, loader: ImageCommentsLoaderSpy) {
         let loader = ImageCommentsLoaderSpy()
         let sut = ImageCommentsUIComposer.composeWith(loader: loader.loadPublisher)
