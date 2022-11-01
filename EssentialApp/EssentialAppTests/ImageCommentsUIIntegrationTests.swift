@@ -108,6 +108,19 @@ class ImageCommentsUIIntegrationTests: XCTestCase {
         XCTAssertEqual(sut.errorMessage, nil, "Expected message to be nil after reloading feed")
     }
 
+    func test_commentsLoader_completesLoadingInMainQueue() {
+        let (sut, loader) = makeSUT()
+        sut.loadViewIfNeeded()
+
+        let exp = expectation(description: "Wait for load to finish in background queue")
+        DispatchQueue.global().async {
+            loader.completeCommentsLoad(at: 0, with: makeNSError())
+            exp.fulfill()
+        }
+
+        wait(for: [exp], timeout: 1.0)
+    }
+
     private func makeSUT(file: StaticString = #filePath, line: UInt = #line) -> (sut: ImageCommentsViewController, loader: ImageCommentsLoaderSpy) {
         let loader = ImageCommentsLoaderSpy()
         let sut = ImageCommentsUIComposer.composeWith(loader: loader.loadPublisher)
