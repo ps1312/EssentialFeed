@@ -16,3 +16,25 @@ func makeData() -> Data {
 func makeHTTPURLResponse(with statusCode: Int) -> HTTPURLResponse {
     return HTTPURLResponse(url: makeURL(), statusCode: statusCode, httpVersion: nil, headerFields: nil)!
 }
+
+extension Date {
+    func minusFeedCacheMaxAge() -> Date {
+        return adding(days: -feedCacheMaxAge)
+    }
+
+    private var feedCacheMaxAge: Int {
+        return 7
+    }
+
+    func adding(days: Int) -> Date {
+        return Calendar(identifier: .gregorian).date(byAdding: .day, value: days, to: self)!
+    }
+
+    func adding(minutes: Int) -> Date {
+        return Calendar(identifier: .gregorian).date(byAdding: .minute, value: minutes, to: self)!
+    }
+
+    func adding(seconds: TimeInterval) -> Date {
+        return self + seconds
+    }
+}
