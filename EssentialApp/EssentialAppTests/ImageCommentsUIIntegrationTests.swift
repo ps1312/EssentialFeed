@@ -30,6 +30,22 @@ class ImageCommentsUIIntegrationTests: XCTestCase {
         XCTAssertEqual(loader.loadCallsCount, 3, "Feed loader should be called again after user pulls to refresh")
     }
 
+    func test_refreshControl_isDisplayedWhileLoadingComments() {
+        let (sut, loader) = makeSUT()
+
+        sut.loadViewIfNeeded()
+        XCTAssertTrue(sut.isShowingLoadingIndicator, "Loading indicator should be visible when loading coments after view appears")
+
+        loader.completeCommentsLoad(at: 0, with: makeNSError())
+        XCTAssertFalse(sut.isShowingLoadingIndicator, "Loading indicator should disappear after loading completes with an error")
+
+        sut.simulatePullToRefresh()
+        XCTAssertTrue(sut.isShowingLoadingIndicator, "Loading indicator should be visible when user executes a pull to refresh")
+
+        loader.completeCommentsLoad(at: 1, with: [])
+        XCTAssertFalse(sut.isShowingLoadingIndicator, "Loading indicator should disappear after refresh completes with a success")
+    }
+
     private func makeSUT(file: StaticString = #filePath, line: UInt = #line) -> (sut: ImageCommentsViewController, loader: ImageCommentsLoaderSpy) {
         let loader = ImageCommentsLoaderSpy()
         let sut = ImageCommentsUIComposer.composeWith(commentsLoader: loader.loadPublisher)
@@ -41,12 +57,24 @@ class ImageCommentsUIIntegrationTests: XCTestCase {
     }
 
     final class ImageCommentsLoaderSpy {
-        var loadCallsCount = 0
+        var publishers = [PassthroughSubject<[ImageComment], Error>]()
+        var loadCallsCount: Int {
+            publishers.count
+        }
 
         func loadPublisher() -> AnyPublisher<[ImageComment], Error> {
             let publisher = PassthroughSubject<[ImageComment], Error>()
-            loadCallsCount += 1
+            publishers.append(publisher)
             return publisher.eraseToAnyPublisher()
+        }
+
+        func completeCommentsLoad(at index: Int = 0, with error: Error) {
+            publishers[index].send(completion: .failure(error))
+        }
+
+        func completeCommentsLoad(at index: Int = 0, with comments: [ImageComment]) {
+            publishers[index].send(comments)
+            publishers[index].send(completion: .finished)
         }
 
     }
