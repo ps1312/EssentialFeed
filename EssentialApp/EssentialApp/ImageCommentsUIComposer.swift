@@ -1,16 +1,13 @@
-import Foundation
 import Combine
 import UIKit
 import EssentialFeed
 import EssentialFeediOS
 
 public class ImageCommentsUIComposer {
+    public static func composeWith(loader: @escaping () -> AnyPublisher<[ImageComment], Error>) -> ImageCommentsViewController {
+        let adapter = LoadResourcePresentationAdapter<[ImageComment], ImageCommentsViewAdapter>(loader: loader)
 
-    public static func composeWith(commentsLoader: @escaping () -> AnyPublisher<[ImageComment], Error>) -> ImageCommentsViewController {
-        let adapter = LoadResourcePresentationAdapter<[ImageComment], ImageCommentsViewAdapter>(loader: commentsLoader)
-
-        let viewController = ImageCommentsUIComposer.createControllerWith(title: ImageCommentsPresenter.title, delegate: adapter)
-
+        let viewController = ImageCommentsViewController.makeWith(title: ImageCommentsPresenter.title, delegate: adapter)
         let view = ImageCommentsViewAdapter()
         view.controller = viewController
 
@@ -21,30 +18,18 @@ public class ImageCommentsUIComposer {
             mapper: { _ in return ImageCommentsViewModel(comments: []) }
         )
 
-        viewController.delegate = adapter
-
         return viewController
     }
-
-    private static func createControllerWith(title: String, delegate: ImageCommentsViewControllerDelegate) -> ImageCommentsViewController {
-        let bundle = Bundle(for: ImageCommentsViewController.self)
-        let storyboard = UIStoryboard(name: "ImageComments", bundle: bundle)
-        let tableView = storyboard.instantiateInitialViewController() as! ImageCommentsViewController
-        tableView.title = title
-        tableView.delegate = delegate
-
-        return tableView
-    }
-
 }
 
-class ImageCommentsViewAdapter: ResourceView {
-    weak var controller: ImageCommentsViewController?
+private extension ImageCommentsViewController {
+    static func makeWith(title: String, delegate: ImageCommentsViewControllerDelegate) -> ImageCommentsViewController {
+        let bundle = Bundle(for: ImageCommentsViewController.self)
+        let storyboard = UIStoryboard(name: "ImageComments", bundle: bundle)
+        let controller = storyboard.instantiateInitialViewController() as! ImageCommentsViewController
+        controller.title = title
+        controller.delegate = delegate
 
-    func display(_ viewModel: ImageCommentsViewModel) {
-        controller?.cellControllers = viewModel.comments.map {
-            ImageCommentCellController(viewModel: $0)
-        }
+        return controller
     }
-
 }
