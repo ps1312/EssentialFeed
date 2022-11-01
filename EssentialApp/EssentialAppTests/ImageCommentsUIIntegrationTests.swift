@@ -46,9 +46,18 @@ class ImageCommentsUIIntegrationTests: XCTestCase {
         XCTAssertFalse(sut.isShowingLoadingIndicator, "Loading indicator should disappear after refresh completes with a success")
     }
 
+    func test_commentsLoadFailure_stopsLoadingAnimation() {
+        let (sut, loader) = makeSUT()
+
+        sut.loadViewIfNeeded()
+        loader.completeCommentsLoad(at: 0, with: makeNSError())
+
+        XCTAssertFalse(sut.isShowingLoadingIndicator, "Expected loading indicator to not be visible after loading finishes with an error")
+    }
+
     private func makeSUT(file: StaticString = #filePath, line: UInt = #line) -> (sut: ImageCommentsViewController, loader: ImageCommentsLoaderSpy) {
         let loader = ImageCommentsLoaderSpy()
-        let sut = ImageCommentsUIComposer.composeWith(commentsLoader: loader.loadPublisher)
+        let sut = ImageCommentsUIComposer.composeWith(loader: loader.loadPublisher)
 
         testMemoryLeak(loader, file: file, line: line)
         testMemoryLeak(sut, file: file, line: line)
