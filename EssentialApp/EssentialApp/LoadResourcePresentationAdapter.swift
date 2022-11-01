@@ -42,3 +42,9 @@ extension LoadResourcePresentationAdapter: FeedImageCellControllerDelegate {
         cancellable?.cancel()
     }
 }
+
+extension LoadResourcePresentationAdapter: ImageCommentsViewControllerDelegate {
+    func didRequestImageCommentsLoad() {
+        loadResource()
+    }
+}

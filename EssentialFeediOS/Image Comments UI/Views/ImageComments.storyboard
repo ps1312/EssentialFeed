@@ -114,6 +114,12 @@
                             <outlet property="delegate" destination="n9g-AR-qrq" id="YmN-oG-ETc"/>
                         </connections>
                     </tableView>
+                    <refreshControl key="refreshControl" opaque="NO" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" enabled="NO" contentHorizontalAlignment="center" contentVerticalAlignment="center" id="U5A-M4-pQD">
+                        <autoresizingMask key="autoresizingMask"/>
+                        <connections>
+                            <action selector="refresh" destination="n9g-AR-qrq" eventType="valueChanged" id="0cA-Ym-OH7"/>
+                        </connections>
+                    </refreshControl>
                     <connections>
                         <outlet property="errorView" destination="hMa-09-vIf" id="Rq4-C9-5os"/>
                     </connections>
