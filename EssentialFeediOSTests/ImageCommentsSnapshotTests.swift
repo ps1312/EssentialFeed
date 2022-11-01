@@ -4,40 +4,31 @@ import EssentialFeediOS
 
 class ImageCommentsSnapshotTests: XCTestCase {
 
-    func test_emptyFeed() {
+    func test_emptyComments() {
         let sut = makeSUT()
 
-        sut.display(emptyFeed())
+        sut.display(emptyComments())
 
-        assert(snapshot: sut.snapshot(for: .iPhone8(style: .light)), named: "EMPTY_FEED_light")
-        assert(snapshot: sut.snapshot(for: .iPhone8(style: .dark)), named: "EMPTY_FEED_dark")
+        assert(snapshot: sut.snapshot(for: .iPhone8(style: .light)), named: "EMPTY_IMAGE_COMMENTS_light")
+        assert(snapshot: sut.snapshot(for: .iPhone8(style: .dark)), named: "EMPTY_IMAGE_COMMENTS_dark")
     }
 
-    func test_nonEmptyFeed() {
+    func test_nonEmptyComments() {
         let sut = makeSUT()
 
-        sut.display(nonEmptyFeed())
+        sut.display(nonEmptyComments())
 
-        assert(snapshot: sut.snapshot(for: .iPhone8(style: .light)), named: "FEED_WITH_CONTENT_light")
-        assert(snapshot: sut.snapshot(for: .iPhone8(style: .dark)), named: "FEED_WITH_CONTENT_dark")
+        assert(snapshot: sut.snapshot(for: .iPhone8(style: .light)), named: "IMAGE_COMMENTS_WITH_CONTENT_light")
+        assert(snapshot: sut.snapshot(for: .iPhone8(style: .dark)), named: "IMAGE_COMMENTS_WITH_CONTENT_dark")
     }
 
-    func test_feedWithError() {
+    func test_withError() {
         let sut = makeSUT()
 
         sut.display(.error(message: "An error message\nmultiline\ntriple line"))
 
-        assert(snapshot: sut.snapshot(for: .iPhone8(style: .light)), named: "FEED_WITH_ERROR_light")
-        assert(snapshot: sut.snapshot(for: .iPhone8(style: .dark)), named: "FEED_WITH_ERROR_dark")
-    }
-
-    func test_feedLoadFail_displaysRetryButton() {
-        let sut = makeSUT()
-
-        sut.display(failedImageLoadFeed())
-
-        assert(snapshot: sut.snapshot(for: .iPhone8(style: .light)), named: "FEED_WITH_IMAGE_RETRY_light")
-        assert(snapshot: sut.snapshot(for: .iPhone8(style: .dark)), named: "FEED_WITH_IMAGE_RETRY_dark")
+        assert(snapshot: sut.snapshot(for: .iPhone8(style: .light)), named: "IMAGE_COMMENTS_WITH_ERROR_light")
+        assert(snapshot: sut.snapshot(for: .iPhone8(style: .dark)), named: "IMAGE_COMMENTS_WITH_ERROR_dark")
     }
 
     private func makeSUT() -> ImageCommentsViewController {
@@ -50,38 +41,35 @@ class ImageCommentsSnapshotTests: XCTestCase {
         return viewController
     }
 
-    private func emptyFeed() -> [FeedImageCellController] {
+    private func emptyComments() -> [ImageCommentCellController] {
         return []
     }
 
-    private func nonEmptyFeed() -> [FeedImageCellController] {
-        let cellController1 = makeImageCellController(
-            image: UIImage.make(withColor: .orange),
-            description: "Mount Everest 🏔 is Earth's highest mountain above sea level, located in the Mahalangur Himal sub-range of the Himalayas. The China–Nepal border runs across its summit point. Its elevation of 8,848.86 m was most recently established in 2020 by the Chinese and Nepali authorities.",
-            location: "Solukhumbu District, Province No. 1\nNepal"
+    private func nonEmptyComments() -> [ImageCommentCellController] {
+        let cellController1 = makeImageCommentCellController(
+            message: "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s. 🔥",
+            username: "a username",
+            date: "1 day ago"
         )
 
-        let cellController2 = makeImageCellController(
-            image: UIImage.make(withColor: .magenta),
-            description: nil,
-            location: nil
+        let cellController2 = makeImageCommentCellController(
+            message: """
+            It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum. 🗿
+            .
+            .
+            .
+            .
+            loremipsum Letraset desktop ✅
+            """,
+            username: "another username",
+            date: "2 weeks ago"
         )
         return [cellController1, cellController2]
     }
 
-    private func failedImageLoadFeed() -> [FeedImageCellController] {
-        return [makeImageCellController(image: nil, description: nil, location: "Na Chom Thian, Thailand")]
-    }
-
-    private func makeImageCellController(image: UIImage?, description: String?, location: String?) -> FeedImageCellController {
-        let delegate = FeedImageCellControllerDelegateStub(image: image)
-        let controller = FeedImageCellController(
-            viewModel: FeedImageViewModel(description: description, location: location),
-            delegate: delegate
-        )
-        delegate.controller = controller
-
-        return controller
+    private func makeImageCommentCellController(message: String, username: String, date: String) -> ImageCommentCellController {
+        let viewModel = ImageCommentViewModel(message: message, username: username, date: date)
+        return ImageCommentCellController(viewModel: viewModel)
     }
 
     func assert(snapshot: UIImage, named: String, file: StaticString = #file, line: UInt = #line) {
@@ -125,30 +113,5 @@ class ImageCommentsSnapshotTests: XCTestCase {
 
     private func makeSnapshotURL(file: String, name: String) -> URL {
         return URL(filePath: "\(file)").deletingLastPathComponent().appending(component: "snapshots").appending(component: "\(name).png")
-    }
-
-    private class FeedImageCellControllerDelegateStub: FeedImageCellControllerDelegate {
-        private let image: UIImage?
-
-        weak var controller: FeedImageCellController?
-
-        init (image: UIImage?) {
-            self.image = image
-        }
-
-        func didRequestImageLoad() {
-            controller?.display(ResourceLoadingViewModel(isLoading: true))
-
-            if let image = image {
-                controller?.display(image)
-                controller?.display(ResourceErrorViewModel(message: .none))
-            } else {
-                controller?.display(ResourceErrorViewModel(message: "any"))
-            }
-
-            controller?.display(ResourceLoadingViewModel(isLoading: false))
-        }
-
-        func didCancelImageLoad() {}
     }
 }
