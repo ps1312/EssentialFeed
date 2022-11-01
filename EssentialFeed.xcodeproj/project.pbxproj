@@ -47,6 +47,8 @@
 		3A7D2B8A29114ACF00867205 /* ImageCommentsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A7D2B8929114ACF00867205 /* ImageCommentsViewController.swift */; };
 		3A7D2B8C29114BE600867205 /* ImageComments.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 3A7D2B8B29114BE600867205 /* ImageComments.storyboard */; };
 		3A7D2B8E29114DA000867205 /* ImageCommentsViewController+TestHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A7D2B8D29114DA000867205 /* ImageCommentsViewController+TestHelpers.swift */; };
+		3A7D2B9029114ECC00867205 /* ImageCommentCellController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A7D2B8F29114ECC00867205 /* ImageCommentCellController.swift */; };
+		3A7D2B9229114F6F00867205 /* ImageCommentCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A7D2B9129114F6F00867205 /* ImageCommentCell.swift */; };
 		3A7FB31C28DA7EEB001DAD50 /* Feed.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 3A7FB31B28DA7EEB001DAD50 /* Feed.storyboard */; };
 		3A7FB31E28DA7F13001DAD50 /* Feed.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 3A7FB31D28DA7F13001DAD50 /* Feed.xcassets */; };
 		3A856EA428C780E100961DC6 /* EssentialFeedCacheIntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A856EA328C780E100961DC6 /* EssentialFeedCacheIntegrationTests.swift */; };
@@ -199,6 +201,8 @@
 		3A7D2B8929114ACF00867205 /* ImageCommentsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageCommentsViewController.swift; sourceTree = "<group>"; };
 		3A7D2B8B29114BE600867205 /* ImageComments.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = ImageComments.storyboard; sourceTree = "<group>"; };
 		3A7D2B8D29114DA000867205 /* ImageCommentsViewController+TestHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ImageCommentsViewController+TestHelpers.swift"; sourceTree = "<group>"; };
+		3A7D2B8F29114ECC00867205 /* ImageCommentCellController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageCommentCellController.swift; sourceTree = "<group>"; };
+		3A7D2B9129114F6F00867205 /* ImageCommentCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageCommentCell.swift; sourceTree = "<group>"; };
 		3A7FB31B28DA7EEB001DAD50 /* Feed.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Feed.storyboard; sourceTree = "<group>"; };
 		3A7FB31D28DA7F13001DAD50 /* Feed.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Feed.xcassets; sourceTree = "<group>"; };
 		3A856EA128C780E100961DC6 /* EssentialFeedCacheIntegrationTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = EssentialFeedCacheIntegrationTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -520,6 +524,7 @@
 				3A2471B828E33D8C0081334F /* ErrorView.swift */,
 				3AB6915328F4951C00FCDD7B /* UITableView+HeaderSizing.swift */,
 				3A7D2B8B29114BE600867205 /* ImageComments.storyboard */,
+				3A7D2B9129114F6F00867205 /* ImageCommentCell.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -539,6 +544,7 @@
 				3A6E99C128CAB43F00DE9562 /* FeedViewController.swift */,
 				3A92328028D74EE4008C879F /* FeedImageCellController.swift */,
 				3A7D2B8929114ACF00867205 /* ImageCommentsViewController.swift */,
+				3A7D2B8F29114ECC00867205 /* ImageCommentCellController.swift */,
 			);
 			path = Controllers;
 			sourceTree = "<group>";
@@ -940,6 +946,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3A7D2B9029114ECC00867205 /* ImageCommentCellController.swift in Sources */,
+				3A7D2B9229114F6F00867205 /* ImageCommentCell.swift in Sources */,
 				3A6E99C228CAB43F00DE9562 /* FeedViewController.swift in Sources */,
 				3AB6915428F4951C00FCDD7B /* UITableView+HeaderSizing.swift in Sources */,
 				3A92328128D74EE4008C879F /* FeedImageCellController.swift in Sources */,

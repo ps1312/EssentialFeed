@@ -5,13 +5,13 @@ public protocol ImageCommentsViewControllerDelegate {
     func didRequestImageCommentsLoad()
 }
 
-public final class ImageCommentsViewController: UITableViewController, UITableViewDataSourcePrefetching, ResourceLoadingView, ResourceErrorView {
+public final class ImageCommentsViewController: UITableViewController, ResourceLoadingView, ResourceErrorView {
     @IBOutlet public var errorView: ErrorView?
 
     public var delegate: ImageCommentsViewControllerDelegate?
 
-    private var loadingControllers = [IndexPath: FeedImageCellController]()
-    public var cellControllers = [FeedImageCellController]() {
+    private var loadingControllers = [IndexPath: ImageCommentCellController]()
+    public var cellControllers = [ImageCommentCellController]() {
         didSet { tableView.reloadData() }
     }
 
@@ -28,7 +28,7 @@ public final class ImageCommentsViewController: UITableViewController, UITableVi
         delegate?.didRequestImageCommentsLoad()
     }
 
-    public func display(_ controllers: [FeedImageCellController]) {
+    public func display(_ controllers: [ImageCommentCellController]) {
         loadingControllers = [:]
         cellControllers = controllers
     }
@@ -53,14 +53,6 @@ public final class ImageCommentsViewController: UITableViewController, UITableVi
         return cellControllers.count
     }
 
-    public func tableView(_ tableView: UITableView, prefetchRowsAt indexPaths: [IndexPath]) {
-        indexPaths.forEach { cellController(at: $0).preload() }
-    }
-
-    public func tableView(_ tableView: UITableView, cancelPrefetchingForRowsAt indexPaths: [IndexPath]) {
-        indexPaths.forEach(cancelTask)
-    }
-
     public override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         cellController(at: indexPath).view(in: tableView)
     }
@@ -69,7 +61,7 @@ public final class ImageCommentsViewController: UITableViewController, UITableVi
         cancelTask(at: indexPath)
     }
 
-    private func cellController(at indexPath: IndexPath) -> FeedImageCellController {
+    private func cellController(at indexPath: IndexPath) -> ImageCommentCellController {
         let controller = cellControllers[indexPath.row]
         loadingControllers[indexPath] = controller
         return controller
