@@ -55,6 +55,17 @@ class ImageCommentsUIIntegrationTests: XCTestCase {
         XCTAssertFalse(sut.isShowingLoadingIndicator, "Expected loading indicator to not be visible after loading finishes with an error")
     }
 
+    func test_commentsLoadFailure_displaysAnErrorMessage() {
+        let (sut, loader) = makeSUT()
+
+        sut.loadViewIfNeeded()
+        loader.completeCommentsLoad(at: 0, with: makeNSError())
+
+        let localizedTitle = fetchLocalizedValue(table: "Shared", key: "GENERIC_CONNECTION_ERROR", inClass: FeedPresenter.self)
+        XCTAssertEqual(sut.isShowingErrorMessage, true, "Expected generic error message to be displayed on comments load failure")
+        XCTAssertEqual(sut.errorMessage, localizedTitle, "Expected generic message to be set on comments load failure")
+    }
+
     private func makeSUT(file: StaticString = #filePath, line: UInt = #line) -> (sut: ImageCommentsViewController, loader: ImageCommentsLoaderSpy) {
         let loader = ImageCommentsLoaderSpy()
         let sut = ImageCommentsUIComposer.composeWith(loader: loader.loadPublisher)
