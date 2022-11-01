@@ -66,6 +66,17 @@ class ImageCommentsUIIntegrationTests: XCTestCase {
         XCTAssertEqual(sut.errorMessage, localizedTitle, "Expected generic message to be set on comments load failure")
     }
 
+    func test_commentsRefresh_hidesErrorMessage() {
+        let (sut, loader) = makeSUT()
+
+        sut.loadViewIfNeeded()
+        loader.completeCommentsLoad(at: 0, with: makeNSError())
+        sut.simulatePullToRefresh()
+
+        XCTAssertEqual(sut.isShowingErrorMessage, false, "Expected error message not to be displayed after reloading feed")
+        XCTAssertEqual(sut.errorMessage, nil, "Expected message to be nil after reloading feed")
+    }
+
     private func makeSUT(file: StaticString = #filePath, line: UInt = #line) -> (sut: ImageCommentsViewController, loader: ImageCommentsLoaderSpy) {
         let loader = ImageCommentsLoaderSpy()
         let sut = ImageCommentsUIComposer.composeWith(loader: loader.loadPublisher)
