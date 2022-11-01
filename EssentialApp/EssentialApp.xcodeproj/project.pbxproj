@@ -165,12 +165,12 @@
 				3AE976BB28FD9EE60080D5D2 /* LoadResourcePresentationAdapter.swift */,
 				3AE976BD28FD9EFB0080D5D2 /* WeakRefVirtualProxy.swift */,
 				3AE976BF28FD9F0E0080D5D2 /* FeedViewAdapter.swift */,
+				3A94400B291198BA0013078D /* ImageCommentsViewAdapter.swift */,
 				3AF2D88E28EE334F007D5098 /* SceneDelegate.swift */,
 				3A8F5F50290077CC00084A85 /* CombineHelpers.swift */,
 				3AF2D89528EE3351007D5098 /* Assets.xcassets */,
 				3AF2D89728EE3351007D5098 /* LaunchScreen.storyboard */,
 				3AF2D89A28EE3351007D5098 /* Info.plist */,
-				3A94400B291198BA0013078D /* ImageCommentsViewAdapter.swift */,
 			);
 			path = EssentialApp;
 			sourceTree = "<group>";

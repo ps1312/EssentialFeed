@@ -1,7 +1,11 @@
 import Foundation
+import UIKit
 import EssentialFeediOS
 
 extension ImageCommentsViewController {
+    var commentsSection: Int {
+        0
+    }
 
     var isShowingLoadingIndicator: Bool {
         guard let refreshControl = refreshControl else { return false }
@@ -14,7 +18,11 @@ extension ImageCommentsViewController {
     }
 
     var errorMessage: String? {
-        return errorView?.button?.titleLabel?.text
+        errorView?.button?.titleLabel?.text
+    }
+
+    var numberOfComments: Int {
+        tableView(tableView, numberOfRowsInSection: commentsSection)
     }
 
     func simulatePullToRefresh() {
@@ -23,6 +31,11 @@ extension ImageCommentsViewController {
                 (target as NSObject).perform(Selector($0))
             }
         }
+    }
+
+    func imageComment(at row: Int) -> UITableViewCell {
+        let indexPath = IndexPath(row: row, section: commentsSection)
+        return tableView(tableView, cellForRowAt: indexPath)
     }
 
 }

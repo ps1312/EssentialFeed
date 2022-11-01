@@ -46,6 +46,37 @@ class ImageCommentsUIIntegrationTests: XCTestCase {
         XCTAssertFalse(sut.isShowingLoadingIndicator, "Loading indicator should disappear after refresh completes with a success")
     }
 
+    func test_commentsLoad_displaysCommentsWhenLoadSucceeds() {
+        let now = Date()
+        let firstComment = uniqueComment(
+            message: "first message",
+            createdAt: now.adding(minutes: -10),
+            author: "first author"
+        )
+        let lastComment = uniqueComment(
+            message: "last message",
+            createdAt: now.adding(days: -3),
+            author: "last author"
+        )
+        let comments = [firstComment, lastComment]
+        let (sut, loader) = makeSUT()
+        sut.loadViewIfNeeded()
+
+        loader.completeCommentsLoad(at: 0, with: comments)
+        let firstCell = sut.imageComment(at: 0) as? ImageCommentCell
+        let lastCell = sut.imageComment(at: 1) as? ImageCommentCell
+
+        XCTAssertEqual(sut.numberOfComments, comments.count)
+
+        XCTAssertEqual(firstCell?.messageLabel.text, firstComment.message)
+        XCTAssertEqual(firstCell?.usernameLabel.text, firstComment.author)
+        XCTAssertEqual(firstCell?.dateLabel.text, "10 minutes ago")
+
+        XCTAssertEqual(lastCell?.messageLabel.text, lastComment.message)
+        XCTAssertEqual(lastCell?.usernameLabel.text, lastComment.author)
+        XCTAssertEqual(lastCell?.dateLabel.text, "3 days ago")
+    }
+
     func test_commentsLoadFailure_stopsLoadingAnimation() {
         let (sut, loader) = makeSUT()
 
@@ -87,6 +118,10 @@ class ImageCommentsUIIntegrationTests: XCTestCase {
         return (sut, loader)
     }
 
+    private func uniqueComment(message: String = "any message", createdAt: Date = Date(), author: String = "any author") -> ImageComment {
+        return ImageComment(id: UUID(), message: message, createdAt: createdAt, author: author)
+    }
+
     final class ImageCommentsLoaderSpy {
         var publishers = [PassthroughSubject<[ImageComment], Error>]()
         var loadCallsCount: Int {
@@ -108,5 +143,27 @@ class ImageCommentsUIIntegrationTests: XCTestCase {
             publishers[index].send(completion: .finished)
         }
 
+    }
+}
+
+extension Date {
+    func minusFeedCacheMaxAge() -> Date {
+        return adding(days: -feedCacheMaxAge)
+    }
+
+    private var feedCacheMaxAge: Int {
+        return 7
+    }
+
+    func adding(days: Int) -> Date {
+        return Calendar(identifier: .gregorian).date(byAdding: .day, value: days, to: self)!
+    }
+
+    func adding(minutes: Int) -> Date {
+        return Calendar(identifier: .gregorian).date(byAdding: .minute, value: minutes, to: self)!
+    }
+
+    func adding(seconds: TimeInterval) -> Date {
+        return self + seconds
     }
 }
