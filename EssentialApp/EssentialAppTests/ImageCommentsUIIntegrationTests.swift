@@ -10,7 +10,7 @@ class ImageCommentsUIIntegrationTests: XCTestCase {
 
         sut.loadViewIfNeeded()
 
-        let localizedTitle = fetchLocalizedValue(table: "ImageComments", key: "IMAGE_COMMENTS_VIEW_TITLE")
+        let localizedTitle = fetchLocalizedValue(table: "ImageComments", key: "IMAGE_COMMENTS_VIEW_TITLE", inClass: ImageCommentsPresenter.self)
         XCTAssertEqual(sut.title, localizedTitle)
     }
 
@@ -23,17 +23,4 @@ class ImageCommentsUIIntegrationTests: XCTestCase {
 
         return (sut, loader)
     }
-
-    private func localized(key: String, in table: String) -> String {
-        let bundle = Bundle(for: ImageCommentsPresenter.self)
-        return bundle.localizedString(forKey: key, value: nil, table: table)
-    }
-
-    private func fetchLocalizedValue(table: String = "Feed", key: String, file: StaticString = #filePath, line: UInt = #line) -> String {
-        let table = table
-        let title = localized(key: key, in: table)
-        XCTAssertNotEqual(key, title, "Expect localized value to be different from key \(key)", file: file, line: line)
-        return title
-    }
-
 }

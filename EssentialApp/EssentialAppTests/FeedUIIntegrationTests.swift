@@ -10,7 +10,7 @@ class FeedUIIntegrationTests: XCTestCase {
 
         sut.loadViewIfNeeded()
 
-        let localizedTitle = fetchLocalizedValue(key: "FEED_VIEW_TITLE")
+        let localizedTitle = fetchLocalizedValue(table: "Feed", key: "FEED_VIEW_TITLE", inClass: FeedPresenter.self)
         XCTAssertEqual(sut.title, localizedTitle)
     }
 
@@ -84,7 +84,7 @@ class FeedUIIntegrationTests: XCTestCase {
         sut.loadViewIfNeeded()
         loader.completeFeedLoad(at: 0, with: makeNSError())
 
-        let localizedTitle = fetchLocalizedValue(table: "Shared", key: "GENERIC_CONNECTION_ERROR")
+        let localizedTitle = fetchLocalizedValue(table: "Shared", key: "GENERIC_CONNECTION_ERROR", inClass: FeedPresenter.self)
         XCTAssertEqual(sut.isShowingErrorMessage, true, "Expected error message to be displayed on feed load failure")
         XCTAssertEqual(sut.errorMessage, localizedTitle, "Expected message to be set on feed load failure")
     }
@@ -350,17 +350,4 @@ class FeedUIIntegrationTests: XCTestCase {
     private func uniqueImage(description: String? = nil, location: String? = nil, url: URL = makeURL()) -> FeedImage {
         return FeedImage(id: UUID(), description: description, location: location, url: url)
     }
-
-    private func localized(key: String, in table: String) -> String {
-        let bundle = Bundle(for: FeedPresenter.self)
-        return bundle.localizedString(forKey: key, value: nil, table: table)
-    }
-
-    private func fetchLocalizedValue(table: String = "Feed", key: String, file: StaticString = #filePath, line: UInt = #line) -> String {
-        let table = table
-        let title = localized(key: key, in: table)
-        XCTAssertNotEqual(key, title, "Expect localized value to be different from key \(key)", file: file, line: line)
-        return title
-    }
-
 }
