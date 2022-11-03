@@ -6,7 +6,7 @@ public protocol FeedImageCellControllerDelegate {
     func didCancelImageLoad()
 }
 
-public final class FeedImageCellController: CellController, ResourceLoadingView, ResourceErrorView, ResourceView {
+public final class FeedImageCellController: NSObject {
     public typealias ResourceViewModel = UIImage
 
     private let viewModel: FeedImageViewModel
@@ -17,12 +17,12 @@ public final class FeedImageCellController: CellController, ResourceLoadingView,
         self.viewModel = viewModel
         self.delegate = delegate
     }
+}
 
-    public func preload() {
-        delegate.didRequestImageLoad()
-    }
+extension FeedImageCellController: CellController {
+    public func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int { 1 }
 
-    public func view(in tableView: UITableView) -> UITableViewCell {
+    public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         cell = tableView.dequeueReusableCell()
         cell?.descriptionLabel.isHidden = !viewModel.hasDescription
         cell?.descriptionLabel.text = viewModel.description
@@ -35,6 +35,29 @@ public final class FeedImageCellController: CellController, ResourceLoadingView,
         return cell!
     }
 
+    public func tableView(_ tableView: UITableView, didEndDisplaying cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+        cancelLoad()
+    }
+
+    public func tableView(_ tableView: UITableView, prefetchRowsAt indexPaths: [IndexPath]) {
+        delegate.didRequestImageLoad()
+    }
+
+    public func tableView(_ tableView: UITableView, cancelPrefetchingForRowsAt indexPaths: [IndexPath]) {
+        cancelLoad()
+    }
+
+    private func cancelLoad() {
+        delegate.didCancelImageLoad()
+        releaseCellForReuse()
+    }
+
+    private func releaseCellForReuse() {
+        cell = nil
+    }
+}
+
+extension FeedImageCellController: ResourceLoadingView, ResourceErrorView, ResourceView {
     public func display(_ viewModel: ResourceLoadingViewModel) {
         if viewModel.isLoading {
             cell?.imageContainer.startShimmering()
@@ -49,15 +72,5 @@ public final class FeedImageCellController: CellController, ResourceLoadingView,
 
     public func display(_ viewModel: UIImage) {
         cell?.feedImageView.image = viewModel
-    }
-
-
-    public func cancelLoad() {
-        delegate.didCancelImageLoad()
-        releaseCellForReuse()
-    }
-
-    private func releaseCellForReuse() {
-        cell = nil
     }
 }

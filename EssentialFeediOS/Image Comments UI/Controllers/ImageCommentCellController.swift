@@ -2,7 +2,7 @@ import Foundation
 import EssentialFeed
 import UIKit
 
-public class ImageCommentCellController: CellController {
+public class ImageCommentCellController: NSObject, CellController {
     private let viewModel: ImageCommentViewModel
     private(set) var cell: ImageCommentCell?
 
@@ -10,7 +10,9 @@ public class ImageCommentCellController: CellController {
         self.viewModel = viewModel
     }
 
-    public func view(in tableView: UITableView) -> UITableViewCell {
+    public func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int { 1 }
+
+    public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         cell = tableView.dequeueReusableCell()
 
         cell?.usernameLabel.text = viewModel.username
@@ -20,11 +22,11 @@ public class ImageCommentCellController: CellController {
         return cell!
     }
 
-    public func preload() {}
-
-    public func cancelLoad() {
+    public func tableView(_ tableView: UITableView, didEndDisplaying cell: UITableViewCell, forRowAt indexPath: IndexPath) {
         releaseCellForReuse()
     }
+
+    public func tableView(_ tableView: UITableView, prefetchRowsAt indexPaths: [IndexPath]) {}
 
     private func releaseCellForReuse() {
         cell = nil
