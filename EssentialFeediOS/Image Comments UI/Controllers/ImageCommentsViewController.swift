@@ -1,14 +1,10 @@
 import UIKit
 import EssentialFeed
 
-public protocol ImageCommentsViewControllerDelegate {
-    func didRequestImageCommentsLoad()
-}
-
 public final class ImageCommentsViewController: UITableViewController, ResourceLoadingView, ResourceErrorView {
     @IBOutlet public var errorView: ErrorView?
 
-    public var delegate: ImageCommentsViewControllerDelegate?
+    public var delegate: LoadResourceViewControllerDelegate?
 
     private var loadingControllers = [IndexPath: ImageCommentCellController]()
     public var cellControllers = [ImageCommentCellController]() {
@@ -25,7 +21,7 @@ public final class ImageCommentsViewController: UITableViewController, ResourceL
     }
 
     @IBAction func refresh() {
-        delegate?.didRequestImageCommentsLoad()
+        delegate?.didRequestLoad()
     }
 
     public func display(_ controllers: [ImageCommentCellController]) {

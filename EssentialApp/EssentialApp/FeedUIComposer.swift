@@ -23,7 +23,7 @@ public final class FeedUIComposer {
 }
 
 private extension FeedViewController {
-    static func makeWith(title: String, delegate: FeedRefreshViewControllerDelegate) -> FeedViewController {
+    static func makeWith(title: String, delegate: LoadResourceViewControllerDelegate) -> FeedViewController {
         let bundle = Bundle(for: FeedViewController.self)
         let storyboard = UIStoryboard(name: "Feed", bundle: bundle)
         let controller = storyboard.instantiateInitialViewController() as! FeedViewController

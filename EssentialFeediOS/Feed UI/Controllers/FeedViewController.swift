@@ -1,14 +1,10 @@
 import UIKit
 import EssentialFeed
 
-public protocol FeedRefreshViewControllerDelegate {
-    func didRequestFeedLoad()
-}
-
 public final class FeedViewController: UITableViewController, UITableViewDataSourcePrefetching, ResourceLoadingView, ResourceErrorView {
     @IBOutlet public var errorView: ErrorView?
 
-    public var delegate: FeedRefreshViewControllerDelegate?
+    public var delegate: LoadResourceViewControllerDelegate?
 
     private var loadingControllers = [IndexPath: FeedImageCellController]()
     public var cellControllers = [FeedImageCellController]() {
@@ -25,7 +21,7 @@ public final class FeedViewController: UITableViewController, UITableViewDataSou
     }
 
     @IBAction func refresh() {
-        delegate?.didRequestFeedLoad()
+        delegate?.didRequestLoad()
     }
 
     public func display(_ controllers: [FeedImageCellController]) {

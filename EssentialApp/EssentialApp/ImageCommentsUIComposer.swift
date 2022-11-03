@@ -23,7 +23,7 @@ public class ImageCommentsUIComposer {
 }
 
 private extension ImageCommentsViewController {
-    static func makeWith(title: String, delegate: ImageCommentsViewControllerDelegate) -> ImageCommentsViewController {
+    static func makeWith(title: String, delegate: LoadResourceViewControllerDelegate) -> ImageCommentsViewController {
         let bundle = Bundle(for: ImageCommentsViewController.self)
         let storyboard = UIStoryboard(name: "ImageComments", bundle: bundle)
         let controller = storyboard.instantiateInitialViewController() as! ImageCommentsViewController

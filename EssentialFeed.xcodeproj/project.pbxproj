@@ -74,6 +74,7 @@
 		3A9F011128C6C146000B0299 /* ManagedFeedImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A9F011028C6C146000B0299 /* ManagedFeedImage.swift */; };
 		3A9F011328C6C15C000B0299 /* ManagedCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A9F011228C6C15C000B0299 /* ManagedCache.swift */; };
 		3A9F011528C732FC000B0299 /* CoreDataHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A9F011428C732FC000B0299 /* CoreDataHelpers.swift */; };
+		3AA1691E2913EAF500E8C84C /* LoadResourceViewControllerDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AA1691D2913EAF500E8C84C /* LoadResourceViewControllerDelegate.swift */; };
 		3AA1C10D28E508380027CB35 /* FeedPresenterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AA1C10C28E508380027CB35 /* FeedPresenterTests.swift */; };
 		3AA1C11028E50CF40027CB35 /* FeedPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AA1C10F28E50CF40027CB35 /* FeedPresenter.swift */; };
 		3AA1C11328E50EFD0027CB35 /* Feed.strings in Resources */ = {isa = PBXBuildFile; fileRef = 3AA1C11528E50EFD0027CB35 /* Feed.strings */; };
@@ -226,6 +227,7 @@
 		3A9F011028C6C146000B0299 /* ManagedFeedImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ManagedFeedImage.swift; sourceTree = "<group>"; };
 		3A9F011228C6C15C000B0299 /* ManagedCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ManagedCache.swift; sourceTree = "<group>"; };
 		3A9F011428C732FC000B0299 /* CoreDataHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreDataHelpers.swift; sourceTree = "<group>"; };
+		3AA1691D2913EAF500E8C84C /* LoadResourceViewControllerDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadResourceViewControllerDelegate.swift; sourceTree = "<group>"; };
 		3AA1C10C28E508380027CB35 /* FeedPresenterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedPresenterTests.swift; sourceTree = "<group>"; };
 		3AA1C10F28E50CF40027CB35 /* FeedPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedPresenter.swift; sourceTree = "<group>"; };
 		3AA1C11428E50EFD0027CB35 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Feed.strings; sourceTree = "<group>"; };
@@ -541,6 +543,7 @@
 			children = (
 				3A7D2B9C2911612200867205 /* Helpers */,
 				3A7D2B9B2911611B00867205 /* Views */,
+				3AA1691D2913EAF500E8C84C /* LoadResourceViewControllerDelegate.swift */,
 			);
 			path = "Shared UI";
 			sourceTree = "<group>";
@@ -1002,6 +1005,7 @@
 				3A6E99C228CAB43F00DE9562 /* FeedViewController.swift in Sources */,
 				3AB6915428F4951C00FCDD7B /* UITableView+HeaderSizing.swift in Sources */,
 				3A92328128D74EE4008C879F /* FeedImageCellController.swift in Sources */,
+				3AA1691E2913EAF500E8C84C /* LoadResourceViewControllerDelegate.swift in Sources */,
 				3A8A138A28CE1E8900F2D5DB /* FeedImageCell.swift in Sources */,
 				3A7D2B8A29114ACF00867205 /* ImageCommentsViewController.swift in Sources */,
 				3A31ED1D28DB596B004DF769 /* UITableView+dequeueReusableCell.swift in Sources */,
