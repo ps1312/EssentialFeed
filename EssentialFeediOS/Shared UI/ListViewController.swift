@@ -8,11 +8,12 @@ public protocol CellController {
 }
 
 public final class ListViewController: UITableViewController, UITableViewDataSourcePrefetching, ResourceLoadingView, ResourceErrorView {
-    @IBOutlet public var errorView: ErrorView?
-
-    public var delegate: LoadResourceViewControllerDelegate?
 
     private var loadingControllers = [IndexPath: CellController]()
+
+    @IBOutlet public var errorView: ErrorView?
+
+    public var onRefresh: (() -> Void)?
     public var cellControllers = [CellController]() {
         didSet { tableView.reloadData() }
     }
@@ -27,7 +28,7 @@ public final class ListViewController: UITableViewController, UITableViewDataSou
     }
 
     @IBAction func refresh() {
-        delegate?.didRequestLoad()
+        onRefresh?()
     }
 
     public func display(_ controllers: [CellController]) {

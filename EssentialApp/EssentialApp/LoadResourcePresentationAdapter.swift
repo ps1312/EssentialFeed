@@ -27,12 +27,6 @@ final class LoadResourcePresentationAdapter<Resource, View: ResourceView> {
     }
 }
 
-extension LoadResourcePresentationAdapter: LoadResourceViewControllerDelegate {
-    func didRequestLoad() {
-        loadResource()
-    }
-}
-
 extension LoadResourcePresentationAdapter: FeedImageCellControllerDelegate {
     func didRequestImageLoad() {
         loadResource()

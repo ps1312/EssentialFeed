@@ -7,7 +7,7 @@ public class ImageCommentsUIComposer {
     public static func composeWith(loader: @escaping () -> AnyPublisher<[ImageComment], Error>) -> ListViewController {
         let adapter = LoadResourcePresentationAdapter<[ImageComment], ImageCommentsViewAdapter>(loader: { loader().dispatchOnMainQueue() })
 
-        let viewController = ListViewController.makeWith(title: ImageCommentsPresenter.title, delegate: adapter)
+        let viewController = ListViewController.makeWith(title: ImageCommentsPresenter.title, onRefresh: adapter.loadResource)
         let view = ImageCommentsViewAdapter()
         view.controller = viewController
 
@@ -23,12 +23,12 @@ public class ImageCommentsUIComposer {
 }
 
 private extension ListViewController {
-    static func makeWith(title: String, delegate: LoadResourceViewControllerDelegate) -> ListViewController {
+    static func makeWith(title: String, onRefresh: @escaping () -> Void) -> ListViewController {
         let bundle = Bundle(for: ListViewController.self)
         let storyboard = UIStoryboard(name: "ImageComments", bundle: bundle)
         let controller = storyboard.instantiateInitialViewController() as! ListViewController
         controller.title = title
-        controller.delegate = delegate
+        controller.onRefresh = onRefresh
 
         return controller
     }
