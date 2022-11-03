@@ -2,7 +2,7 @@ import Foundation
 import EssentialFeed
 import UIKit
 
-public class ImageCommentCellController {
+public class ImageCommentCellController: CellController {
     private let viewModel: ImageCommentViewModel
     private(set) var cell: ImageCommentCell?
 
@@ -10,7 +10,7 @@ public class ImageCommentCellController {
         self.viewModel = viewModel
     }
 
-    func view(in tableView: UITableView) -> ImageCommentCell {
+    public func view(in tableView: UITableView) -> UITableViewCell {
         cell = tableView.dequeueReusableCell()
 
         cell?.usernameLabel.text = viewModel.username

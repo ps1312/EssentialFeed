@@ -31,10 +31,10 @@ class ImageCommentsSnapshotTests: XCTestCase {
         assert(snapshot: sut.snapshot(for: .iPhone8(style: .dark)), named: "IMAGE_COMMENTS_WITH_ERROR_dark")
     }
 
-    private func makeSUT() -> ImageCommentsViewController {
-        let bundle = Bundle(for: ImageCommentsViewController.self)
+    private func makeSUT() -> ListViewController {
+        let bundle = Bundle(for: ListViewController.self)
         let storyboard = UIStoryboard(name: "ImageComments", bundle: bundle)
-        let viewController = storyboard.instantiateInitialViewController() as! ImageCommentsViewController
+        let viewController = storyboard.instantiateInitialViewController() as! ListViewController
         viewController.tableView.showsVerticalScrollIndicator = false
         viewController.tableView.showsHorizontalScrollIndicator = false
         viewController.loadViewIfNeeded()

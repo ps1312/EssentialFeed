@@ -2,7 +2,7 @@ import EssentialFeediOS
 import EssentialFeed
 
 class ImageCommentsViewAdapter: ResourceView {
-    weak var controller: ImageCommentsViewController?
+    weak var controller: ListViewController?
 
     func display(_ viewModel: ImageCommentsViewModel) {
         controller?.cellControllers = viewModel.comments.map(ImageCommentCellController.init)
