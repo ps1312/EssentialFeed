@@ -113,10 +113,10 @@ class FeedUIIntegrationTests: XCTestCase {
         loader.completeFeedLoad(at: 0, with: [firstFeedImage, secondFeedImage])
         XCTAssertEqual(loader.imageLoadedURLs, [], "Expected no loaded images until a cell is displayed")
 
-        sut.simulateFeedImageCellIsDisplayed(at: 0)
+        sut.simulateItemCellIsDisplayed(at: 0)
         XCTAssertEqual(loader.imageLoadedURLs, [firstImageURL], "Expected first image to start loading after the cell is displayed")
 
-        sut.simulateFeedImageCellIsDisplayed(at: 1)
+        sut.simulateItemCellIsDisplayed(at: 1)
         XCTAssertEqual(loader.imageLoadedURLs, [firstImageURL, lastImageURL], "Expected both images to start loading after cells are displayed")
     }
 
@@ -133,10 +133,10 @@ class FeedUIIntegrationTests: XCTestCase {
         loader.completeFeedLoad(at: 0, with: [firstFeedImage, lastFeedImage])
         XCTAssertEqual(loader.canceledLoadRequests, [], "Expected no canceled downloads until a cell ends displaying")
 
-        sut.simulateFeedImageCellEndsDiplaying(at: 0)
+        sut.simulateItemCellEndsDiplaying(at: 0)
         XCTAssertEqual(loader.canceledLoadRequests, [firstImageURL], "Expected first image to cancel loading after the cell ends displaying")
 
-        sut.simulateFeedImageCellEndsDiplaying(at: 1)
+        sut.simulateItemCellEndsDiplaying(at: 1)
         XCTAssertEqual(loader.canceledLoadRequests, [firstImageURL, lastImageURL], "Expected images to cancel loading after cells ends displaying")
     }
 
@@ -145,8 +145,8 @@ class FeedUIIntegrationTests: XCTestCase {
         sut.loadViewIfNeeded()
         loader.completeFeedLoad(at: 0, with: [uniqueImage(), uniqueImage()])
 
-        let firstCell = sut.simulateFeedImageCellIsDisplayed(at: 0)
-        let lastCell = sut.simulateFeedImageCellIsDisplayed(at: 1)
+        let firstCell = sut.simulateItemCellIsDisplayed(at: 0)
+        let lastCell = sut.simulateItemCellIsDisplayed(at: 1)
 
         XCTAssertTrue(firstCell.isShowingLoadingIndicator, "Expected an indicator while waiting for image load completion")
         XCTAssertTrue(lastCell.isShowingLoadingIndicator, "Expected an indicator while waiting for image load completion")
@@ -179,8 +179,8 @@ class FeedUIIntegrationTests: XCTestCase {
         sut.loadViewIfNeeded()
         loader.completeFeedLoad(at: 0, with: [uniqueImage(), uniqueImage()])
 
-        let firstCell = sut.simulateFeedImageCellIsDisplayed(at: 0)
-        let lastCell = sut.simulateFeedImageCellIsDisplayed(at: 1)
+        let firstCell = sut.simulateItemCellIsDisplayed(at: 0)
+        let lastCell = sut.simulateItemCellIsDisplayed(at: 1)
         loader.finishImageLoadingSuccessfully(at: 0, with: firstImageData)
         loader.finishImageLoadingSuccessfully(at: 1, with: lastImageData)
 
@@ -201,8 +201,8 @@ class FeedUIIntegrationTests: XCTestCase {
         sut.loadViewIfNeeded()
         loader.completeFeedLoad(at: 0, with: [firstImage, lastImage])
 
-        let firstCell = sut.simulateFeedImageCellIsDisplayed(at: 0)
-        let lastCell = sut.simulateFeedImageCellIsDisplayed(at: 1)
+        let firstCell = sut.simulateItemCellIsDisplayed(at: 0)
+        let lastCell = sut.simulateItemCellIsDisplayed(at: 1)
 
         loader.finishImageLoadingFailing(at: 0)
         XCTAssertTrue(firstCell.isShowingRetryButton, "Expected retry button to be displayed after first cell image loading failure")
@@ -225,7 +225,7 @@ class FeedUIIntegrationTests: XCTestCase {
         sut.loadViewIfNeeded()
         loader.completeFeedLoad(at: 0, with: [uniqueImage()])
 
-        let firstCell = sut.simulateFeedImageCellIsDisplayed(at: 0)
+        let firstCell = sut.simulateItemCellIsDisplayed(at: 0)
         loader.finishImageLoadingSuccessfully(at: 0, with: invalidImageData)
 
         XCTAssertTrue(firstCell.isShowingRetryButton, "Expected retry button to be visible when loaded data is invalid")
@@ -244,8 +244,8 @@ class FeedUIIntegrationTests: XCTestCase {
         sut.loadViewIfNeeded()
         loader.completeFeedLoad(at: 0, with: [uniqueImage(url: firstImageURL), uniqueImage(url: lastImageURL)])
 
-        sut.simulateFeedImageCellPrefetch(at: 0)
-        sut.simulateFeedImageCellPrefetch(at: 1)
+        sut.simulateItemCellPrefetch(at: 0)
+        sut.simulateItemCellPrefetch(at: 1)
         XCTAssertEqual(loader.imageLoadedURLs, [firstImageURL, lastImageURL], "Expected cells to have loaded images with the correct URLs when prefetching")
     }
 
@@ -257,8 +257,8 @@ class FeedUIIntegrationTests: XCTestCase {
         sut.loadViewIfNeeded()
         loader.completeFeedLoad(at: 0, with: [uniqueImage(url: firstImageURL), uniqueImage(url: lastImageURL)])
 
-        sut.simulateFeedImageCellPrefetchingCanceling(at: 0)
-        sut.simulateFeedImageCellPrefetchingCanceling(at: 1)
+        sut.simulateItemCellPrefetchingCanceling(at: 0)
+        sut.simulateItemCellPrefetchingCanceling(at: 1)
         XCTAssertEqual(loader.canceledLoadRequests, [firstImageURL, lastImageURL], "Expected cells to cancel image loading when prefetching is canceled")
     }
 
@@ -269,7 +269,7 @@ class FeedUIIntegrationTests: XCTestCase {
         sut.loadViewIfNeeded()
         loader.completeFeedLoad(at: 0, with: [uniqueImage()])
 
-        let view = sut.simulateFeedImageCellEndsDiplaying(at: 0)
+        let view = sut.simulateItemCellEndsDiplaying(at: 0)
         loader.finishImageLoadingSuccessfully(at: 0, with: validImageData)
 
         XCTAssertNil(view.feedImageData)
@@ -292,7 +292,7 @@ class FeedUIIntegrationTests: XCTestCase {
         let (sut, loader) = makeSUT()
         sut.loadViewIfNeeded()
         loader.completeFeedLoad(at: 0, with: [uniqueImage()])
-        sut.simulateFeedImageCellIsDisplayed(at: 0)
+        sut.simulateItemCellIsDisplayed(at: 0)
 
         let exp = expectation(description: "Wait for image load to finish in background queue")
         DispatchQueue.global().async {
@@ -331,11 +331,11 @@ class FeedUIIntegrationTests: XCTestCase {
         sut.tableView.layoutIfNeeded()
         RunLoop.main.run(until: Date())
         expectedImages.enumerated().forEach { index, image in expect(sut, toLoadFeedImage: image, inPosition: index, file: file, line: line) }
-        XCTAssertEqual(sut.numberOfFeedImages, expectedImages.count)
+        XCTAssertEqual(sut.numberOfItems, expectedImages.count)
     }
 
     private func expect(_ sut: ListViewController, toLoadFeedImage image: FeedImage, inPosition index: Int, file: StaticString = #filePath, line: UInt = #line) {
-        let cell = sut.feedImage(at: index) as! FeedImageCell
+        let cell = sut.itemCell(at: index) as! FeedImageCell
         XCTAssertNotNil(cell)
 
         let shouldDescriptionBeHidden = image.description == nil

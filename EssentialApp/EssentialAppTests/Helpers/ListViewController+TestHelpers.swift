@@ -3,12 +3,12 @@ import UIKit
 import EssentialFeediOS
 
 extension ListViewController {
-    var feedImagesSection: Int {
-        return 0
+    var itemsSection: Int {
+        0
     }
 
-    var numberOfFeedImages: Int {
-        return tableView(tableView, numberOfRowsInSection: feedImagesSection)
+    var numberOfItems: Int {
+        tableView(tableView, numberOfRowsInSection: itemsSection)
     }
 
     var isShowingLoadingIndicator: Bool {
@@ -17,11 +17,11 @@ extension ListViewController {
     }
 
     var errorMessage: String? {
-        return errorView?.button?.titleLabel?.text
+        errorView?.button?.titleLabel?.text
     }
 
     var isShowingErrorMessage: Bool? {
-        return errorView?.isVisible
+        errorView?.isVisible
     }
 
     func simulatePullToRefresh() {
@@ -32,35 +32,34 @@ extension ListViewController {
         }
     }
 
-    func feedImage(at row: Int) -> UITableViewCell {
-        let indexPath = IndexPath(row: row, section: feedImagesSection)
+    func itemCell(at row: Int) -> UITableViewCell {
+        let indexPath = IndexPath(row: row, section: itemsSection)
         return tableView(tableView, cellForRowAt: indexPath)
     }
 
     @discardableResult
-    func simulateFeedImageCellIsDisplayed(at row: Int) -> FeedImageCell {
-        return feedImage(at: row) as! FeedImageCell
+    func simulateItemCellIsDisplayed(at row: Int) -> FeedImageCell {
+        itemCell(at: row) as! FeedImageCell
     }
 
     @discardableResult
-    func simulateFeedImageCellEndsDiplaying(at row: Int) -> FeedImageCell {
-        let indexPath = IndexPath(row: row, section: feedImagesSection)
-        let currentCell = simulateFeedImageCellIsDisplayed(at: row)
+    func simulateItemCellEndsDiplaying(at row: Int) -> FeedImageCell {
+        let indexPath = IndexPath(row: row, section: itemsSection)
+        let currentCell = simulateItemCellIsDisplayed(at: row)
         tableView(tableView, didEndDisplaying: currentCell, forRowAt: indexPath)
         return currentCell
     }
 
-    func simulateFeedImageCellPrefetch(at row: Int) {
-        let indexPath = IndexPath(row: row, section: feedImagesSection)
+    func simulateItemCellPrefetch(at row: Int) {
+        let indexPath = IndexPath(row: row, section: itemsSection)
         tableView(tableView, prefetchRowsAt: [indexPath])
     }
 
-    func simulateFeedImageCellPrefetchingCanceling(at row: Int) {
-        simulateFeedImageCellPrefetch(at: row)
+    func simulateItemCellPrefetchingCanceling(at row: Int) {
+        simulateItemCellPrefetch(at: row)
 
         let ds = tableView.prefetchDataSource
-        let indexPath = IndexPath(row: row, section: feedImagesSection)
+        let indexPath = IndexPath(row: row, section: itemsSection)
         ds?.tableView?(tableView, cancelPrefetchingForRowsAt: [indexPath])
-
     }
 }

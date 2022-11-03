@@ -63,10 +63,10 @@ class ImageCommentsUIIntegrationTests: XCTestCase {
         sut.loadViewIfNeeded()
 
         loader.completeCommentsLoad(at: 0, with: comments)
-        let firstCell = sut.feedImage(at: 0) as? ImageCommentCell
-        let lastCell = sut.feedImage(at: 1) as? ImageCommentCell
+        let firstCell = sut.itemCell(at: 0) as? ImageCommentCell
+        let lastCell = sut.itemCell(at: 1) as? ImageCommentCell
 
-        XCTAssertEqual(sut.numberOfFeedImages, comments.count)
+        XCTAssertEqual(sut.numberOfItems, comments.count)
 
         XCTAssertEqual(firstCell?.messageLabel.text, firstComment.message)
         XCTAssertEqual(firstCell?.usernameLabel.text, firstComment.author)
@@ -128,11 +128,11 @@ class ImageCommentsUIIntegrationTests: XCTestCase {
         sut.loadViewIfNeeded()
 
         loader.completeCommentsLoad(at: 0, with: [image1, image2])
-        XCTAssertEqual(sut.numberOfFeedImages, 2)
+        XCTAssertEqual(sut.numberOfItems, 2)
 
         sut.simulatePullToRefresh()
         loader.completeCommentsLoad(at: 1, with: [])
-        XCTAssertEqual(sut.numberOfFeedImages, 0)
+        XCTAssertEqual(sut.numberOfItems, 0)
     }
 
     private func makeSUT(file: StaticString = #filePath, line: UInt = #line) -> (sut: ListViewController, loader: ImageCommentsLoaderSpy) {
