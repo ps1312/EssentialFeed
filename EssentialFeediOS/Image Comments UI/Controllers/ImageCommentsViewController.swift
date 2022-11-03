@@ -1,11 +1,12 @@
 import UIKit
 import EssentialFeed
 
-public final class ImageCommentsViewController: UITableViewController, ResourceLoadingView, ResourceErrorView {
+public final class ImageCommentsViewController: UITableViewController, UITableViewDataSourcePrefetching, ResourceLoadingView, ResourceErrorView {
     @IBOutlet public var errorView: ErrorView?
 
     public var delegate: LoadResourceViewControllerDelegate?
 
+    private var loadingControllers = [IndexPath: ImageCommentCellController]()
     public var cellControllers = [ImageCommentCellController]() {
         didSet { tableView.reloadData() }
     }
@@ -24,6 +25,7 @@ public final class ImageCommentsViewController: UITableViewController, ResourceL
     }
 
     public func display(_ controllers: [ImageCommentCellController]) {
+        loadingControllers = [:]
         cellControllers = controllers
     }
 
@@ -51,7 +53,26 @@ public final class ImageCommentsViewController: UITableViewController, ResourceL
         cellController(at: indexPath).view(in: tableView)
     }
 
+    public override func tableView(_ tableView: UITableView, didEndDisplaying cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+        cancelTask(at: indexPath)
+    }
+
     private func cellController(at indexPath: IndexPath) -> ImageCommentCellController {
-        return cellControllers[indexPath.row]
+        let controller = cellControllers[indexPath.row]
+        loadingControllers[indexPath] = controller
+        return controller
+    }
+
+    private func cancelTask(at indexPath: IndexPath) {
+        loadingControllers[indexPath]?.cancelLoad()
+        loadingControllers[indexPath] = nil
+    }
+
+    public func tableView(_ tableView: UITableView, prefetchRowsAt indexPaths: [IndexPath]) {
+        indexPaths.forEach { cellController(at: $0).preload() }
+    }
+
+    public func tableView(_ tableView: UITableView, cancelPrefetchingForRowsAt indexPaths: [IndexPath]) {
+        indexPaths.forEach(cancelTask)
     }
 }

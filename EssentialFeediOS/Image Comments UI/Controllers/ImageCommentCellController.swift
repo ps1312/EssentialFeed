@@ -20,6 +20,8 @@ public class ImageCommentCellController {
         return cell!
     }
 
+    public func preload() {}
+
     public func cancelLoad() {
         releaseCellForReuse()
     }
