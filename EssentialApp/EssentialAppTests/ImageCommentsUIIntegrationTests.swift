@@ -18,16 +18,16 @@ class ImageCommentsUIIntegrationTests: XCTestCase {
     func test_commentsLoader_isCalledUponViewActions() {
         let (sut, loader) = makeSUT()
 
-        XCTAssertEqual(loader.loadCallsCount, 0, "Feed loader should not be called on init")
+        XCTAssertEqual(loader.loadCallsCount, 0, "Comments loader should not be called on init")
 
         sut.loadViewIfNeeded()
-        XCTAssertEqual(loader.loadCallsCount, 1, "Feed loader should be first called when view appears")
+        XCTAssertEqual(loader.loadCallsCount, 1, "Comments loader should be first called when view appears")
 
         sut.simulatePullToRefresh()
-        XCTAssertEqual(loader.loadCallsCount, 2, "Feed loader should be called again after user pulls to refresh")
+        XCTAssertEqual(loader.loadCallsCount, 2, "Comments loader should be called again after user pulls to refresh")
 
         sut.simulatePullToRefresh()
-        XCTAssertEqual(loader.loadCallsCount, 3, "Feed loader should be called again after user pulls to refresh")
+        XCTAssertEqual(loader.loadCallsCount, 3, "Comments loader should be called again after user pulls to refresh")
     }
 
     func test_refreshControl_isDisplayedWhileLoadingComments() {
@@ -46,7 +46,7 @@ class ImageCommentsUIIntegrationTests: XCTestCase {
         XCTAssertFalse(sut.isShowingLoadingIndicator, "Loading indicator should disappear after refresh completes with a success")
     }
 
-    func test_commentsLoad_displaysCommentsWhenLoadSucceeds() {
+    func test_imageCommentsView_displaysCommentsWhenLoadSucceeds() {
         let now = Date()
         let firstComment = uniqueComment(
             message: "first message",
@@ -121,7 +121,7 @@ class ImageCommentsUIIntegrationTests: XCTestCase {
         wait(for: [exp], timeout: 1.0)
     }
 
-    func test_commentsLoad_displaysEmptyListAfterRefreshDeliversNoComments() {
+    func test_imageCommentsView_displaysEmptyListAfterRefreshDeliversNoComments() {
         let image1 = uniqueComment()
         let image2 = uniqueComment()
         let (sut, loader) = makeSUT()
