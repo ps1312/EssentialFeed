@@ -38,12 +38,12 @@ extension ListViewController {
     }
 
     @discardableResult
-    func simulateItemCellIsDisplayed(at row: Int) -> FeedImageCell {
-        itemCell(at: row) as! FeedImageCell
+    func simulateItemCellIsDisplayed(at row: Int) -> UITableViewCell {
+        itemCell(at: row)
     }
 
     @discardableResult
-    func simulateItemCellEndsDiplaying(at row: Int) -> FeedImageCell {
+    func simulateItemCellEndsDiplaying(at row: Int) -> UITableViewCell {
         let indexPath = IndexPath(row: row, section: itemsSection)
         let currentCell = simulateItemCellIsDisplayed(at: row)
         tableView(tableView, didEndDisplaying: currentCell, forRowAt: indexPath)

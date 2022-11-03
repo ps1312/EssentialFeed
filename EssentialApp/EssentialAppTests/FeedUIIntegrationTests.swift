@@ -145,8 +145,8 @@ class FeedUIIntegrationTests: XCTestCase {
         sut.loadViewIfNeeded()
         loader.completeFeedLoad(at: 0, with: [uniqueImage(), uniqueImage()])
 
-        let firstCell = sut.simulateItemCellIsDisplayed(at: 0)
-        let lastCell = sut.simulateItemCellIsDisplayed(at: 1)
+        let firstCell = sut.simulateItemCellIsDisplayed(at: 0) as! FeedImageCell
+        let lastCell = sut.simulateItemCellIsDisplayed(at: 1) as! FeedImageCell
 
         XCTAssertTrue(firstCell.isShowingLoadingIndicator, "Expected an indicator while waiting for image load completion")
         XCTAssertTrue(lastCell.isShowingLoadingIndicator, "Expected an indicator while waiting for image load completion")
@@ -179,8 +179,8 @@ class FeedUIIntegrationTests: XCTestCase {
         sut.loadViewIfNeeded()
         loader.completeFeedLoad(at: 0, with: [uniqueImage(), uniqueImage()])
 
-        let firstCell = sut.simulateItemCellIsDisplayed(at: 0)
-        let lastCell = sut.simulateItemCellIsDisplayed(at: 1)
+        let firstCell = sut.simulateItemCellIsDisplayed(at: 0) as! FeedImageCell
+        let lastCell = sut.simulateItemCellIsDisplayed(at: 1) as! FeedImageCell
         loader.finishImageLoadingSuccessfully(at: 0, with: firstImageData)
         loader.finishImageLoadingSuccessfully(at: 1, with: lastImageData)
 
@@ -201,8 +201,8 @@ class FeedUIIntegrationTests: XCTestCase {
         sut.loadViewIfNeeded()
         loader.completeFeedLoad(at: 0, with: [firstImage, lastImage])
 
-        let firstCell = sut.simulateItemCellIsDisplayed(at: 0)
-        let lastCell = sut.simulateItemCellIsDisplayed(at: 1)
+        let firstCell = sut.simulateItemCellIsDisplayed(at: 0) as! FeedImageCell
+        let lastCell = sut.simulateItemCellIsDisplayed(at: 1) as! FeedImageCell
 
         loader.finishImageLoadingFailing(at: 0)
         XCTAssertTrue(firstCell.isShowingRetryButton, "Expected retry button to be displayed after first cell image loading failure")
@@ -225,7 +225,7 @@ class FeedUIIntegrationTests: XCTestCase {
         sut.loadViewIfNeeded()
         loader.completeFeedLoad(at: 0, with: [uniqueImage()])
 
-        let firstCell = sut.simulateItemCellIsDisplayed(at: 0)
+        let firstCell = sut.simulateItemCellIsDisplayed(at: 0) as! FeedImageCell
         loader.finishImageLoadingSuccessfully(at: 0, with: invalidImageData)
 
         XCTAssertTrue(firstCell.isShowingRetryButton, "Expected retry button to be visible when loaded data is invalid")
@@ -269,7 +269,7 @@ class FeedUIIntegrationTests: XCTestCase {
         sut.loadViewIfNeeded()
         loader.completeFeedLoad(at: 0, with: [uniqueImage()])
 
-        let view = sut.simulateItemCellEndsDiplaying(at: 0)
+        let view = sut.simulateItemCellEndsDiplaying(at: 0) as! FeedImageCell
         loader.finishImageLoadingSuccessfully(at: 0, with: validImageData)
 
         XCTAssertNil(view.feedImageData)
