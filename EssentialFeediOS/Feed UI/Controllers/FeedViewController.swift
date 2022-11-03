@@ -49,14 +49,6 @@ public final class FeedViewController: UITableViewController, UITableViewDataSou
         return cellControllers.count
     }
 
-    public func tableView(_ tableView: UITableView, prefetchRowsAt indexPaths: [IndexPath]) {
-        indexPaths.forEach { cellController(at: $0).preload() }
-    }
-
-    public func tableView(_ tableView: UITableView, cancelPrefetchingForRowsAt indexPaths: [IndexPath]) {
-        indexPaths.forEach(cancelTask)
-    }
-
     public override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         cellController(at: indexPath).view(in: tableView)
     }
@@ -74,5 +66,13 @@ public final class FeedViewController: UITableViewController, UITableViewDataSou
     private func cancelTask(at indexPath: IndexPath) {
         loadingControllers[indexPath]?.cancelLoad()
         loadingControllers[indexPath] = nil
+    }
+
+    public func tableView(_ tableView: UITableView, prefetchRowsAt indexPaths: [IndexPath]) {
+        indexPaths.forEach { cellController(at: $0).preload() }
+    }
+
+    public func tableView(_ tableView: UITableView, cancelPrefetchingForRowsAt indexPaths: [IndexPath]) {
+        indexPaths.forEach(cancelTask)
     }
 }

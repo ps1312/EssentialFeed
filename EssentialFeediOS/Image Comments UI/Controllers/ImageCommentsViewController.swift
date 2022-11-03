@@ -6,7 +6,6 @@ public final class ImageCommentsViewController: UITableViewController, ResourceL
 
     public var delegate: LoadResourceViewControllerDelegate?
 
-    private var loadingControllers = [IndexPath: ImageCommentCellController]()
     public var cellControllers = [ImageCommentCellController]() {
         didSet { tableView.reloadData() }
     }
@@ -25,7 +24,6 @@ public final class ImageCommentsViewController: UITableViewController, ResourceL
     }
 
     public func display(_ controllers: [ImageCommentCellController]) {
-        loadingControllers = [:]
         cellControllers = controllers
     }
 
@@ -53,18 +51,7 @@ public final class ImageCommentsViewController: UITableViewController, ResourceL
         cellController(at: indexPath).view(in: tableView)
     }
 
-    public override func tableView(_ tableView: UITableView, didEndDisplaying cell: UITableViewCell, forRowAt indexPath: IndexPath) {
-        cancelTask(at: indexPath)
-    }
-
     private func cellController(at indexPath: IndexPath) -> ImageCommentCellController {
-        let controller = cellControllers[indexPath.row]
-        loadingControllers[indexPath] = controller
-        return controller
-    }
-
-    private func cancelTask(at indexPath: IndexPath) {
-        loadingControllers[indexPath]?.cancelLoad()
-        loadingControllers[indexPath] = nil
+        return cellControllers[indexPath.row]
     }
 }
