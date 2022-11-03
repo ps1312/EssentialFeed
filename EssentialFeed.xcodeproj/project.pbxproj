@@ -552,7 +552,6 @@
 		3A7D2B9C2911612200867205 /* Helpers */ = {
 			isa = PBXGroup;
 			children = (
-				3A9D718528CD26B500F207ED /* UIView+Shimmering.swift */,
 				3AB6915328F4951C00FCDD7B /* UITableView+HeaderSizing.swift */,
 				3A31ED1C28DB596B004DF769 /* UITableView+dequeueReusableCell.swift */,
 			);
@@ -570,6 +569,7 @@
 		3A85F58B28DA2192008991B0 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				3AA16924291408D100E8C84C /* Helpers */,
 				3A8A138928CE1E8900F2D5DB /* FeedImageCell.swift */,
 				3A7FB31B28DA7EEB001DAD50 /* Feed.storyboard */,
 				3A7FB31D28DA7F13001DAD50 /* Feed.xcassets */,
@@ -679,6 +679,14 @@
 				3AA1691F2913F55F00E8C84C /* ListViewController.swift */,
 			);
 			path = Controllers;
+			sourceTree = "<group>";
+		};
+		3AA16924291408D100E8C84C /* Helpers */ = {
+			isa = PBXGroup;
+			children = (
+				3A9D718528CD26B500F207ED /* UIView+Shimmering.swift */,
+			);
+			path = Helpers;
 			sourceTree = "<group>";
 		};
 		3AA1C10E28E50CDF0027CB35 /* Feed Presentation */ = {
