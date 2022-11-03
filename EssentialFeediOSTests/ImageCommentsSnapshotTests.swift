@@ -61,10 +61,16 @@ class ImageCommentsSnapshotTests: XCTestCase {
             .
             loremipsum Letraset desktop ✅
             """,
-            username: "another username",
+            username: "really long username in order to crop this label",
             date: "2 weeks ago"
         )
-        return [cellController1, cellController2]
+
+        let cellController3 = makeImageCommentCellController(
+            message: "nice",
+            username: "J.F",
+            date: "1 second ago"
+        )
+        return [cellController1, cellController2, cellController3]
     }
 
     private func makeImageCommentCellController(message: String, username: String, date: String) -> ImageCommentCellController {
