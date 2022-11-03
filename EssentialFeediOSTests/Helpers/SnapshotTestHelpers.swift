@@ -28,6 +28,8 @@ func record(snapshot: UIImage, named: String, file: StaticString = #file, line: 
     do {
         try FileManager.default.createDirectory(at: snapshotURL.deletingLastPathComponent(), withIntermediateDirectories: true)
         try snapshotData?.write(to: snapshotURL)
+
+        XCTFail("Recorded snapshot - use `assert` now to make the images comparisson", file: file, line: line)
     } catch {
         XCTFail("Failed to record snapshot image PNG", file: file, line: line)
     }
