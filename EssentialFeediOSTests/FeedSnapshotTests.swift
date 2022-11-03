@@ -40,10 +40,10 @@ class FeedSnapshotTests: XCTestCase {
         assert(snapshot: sut.snapshot(for: .iPhone8(style: .dark)), named: "FEED_WITH_IMAGE_RETRY_dark")
     }
 
-    private func makeSUT() -> FeedViewController {
-        let bundle = Bundle(for: FeedViewController.self)
+    private func makeSUT() -> ListViewController {
+        let bundle = Bundle(for: ListViewController.self)
         let storyboard = UIStoryboard(name: "Feed", bundle: bundle)
-        let viewController = storyboard.instantiateInitialViewController() as! FeedViewController
+        let viewController = storyboard.instantiateInitialViewController() as! ListViewController
         viewController.tableView.showsVerticalScrollIndicator = false
         viewController.tableView.showsHorizontalScrollIndicator = false
         viewController.loadViewIfNeeded()

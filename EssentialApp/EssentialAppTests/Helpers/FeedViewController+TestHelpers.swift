@@ -2,7 +2,7 @@ import Foundation
 import UIKit
 import EssentialFeediOS
 
-extension FeedViewController {
+extension ListViewController {
     var feedImagesSection: Int {
         return 0
     }

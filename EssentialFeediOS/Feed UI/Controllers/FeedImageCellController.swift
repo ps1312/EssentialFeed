@@ -6,7 +6,7 @@ public protocol FeedImageCellControllerDelegate {
     func didCancelImageLoad()
 }
 
-public final class FeedImageCellController: ResourceLoadingView, ResourceErrorView, ResourceView {
+public final class FeedImageCellController: CellController, ResourceLoadingView, ResourceErrorView, ResourceView {
     public typealias ResourceViewModel = UIImage
 
     private let viewModel: FeedImageViewModel
@@ -18,11 +18,11 @@ public final class FeedImageCellController: ResourceLoadingView, ResourceErrorVi
         self.delegate = delegate
     }
 
-    func preload() {
+    public func preload() {
         delegate.didRequestImageLoad()
     }
 
-    func view(in tableView: UITableView) -> FeedImageCell {
+    public func view(in tableView: UITableView) -> UITableViewCell {
         cell = tableView.dequeueReusableCell()
         cell?.descriptionLabel.isHidden = !viewModel.hasDescription
         cell?.descriptionLabel.text = viewModel.description

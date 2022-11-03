@@ -4,7 +4,7 @@ import EssentialFeed
 import EssentialFeediOS
 
 public final class FeedUIComposer {
-    public static func composeWith(loader: @escaping () -> AnyPublisher<[FeedImage], Error>, imageLoader: @escaping (URL) -> FeedImageLoader.Publisher) -> FeedViewController {
+    public static func composeWith(loader: @escaping () -> AnyPublisher<[FeedImage], Error>, imageLoader: @escaping (URL) -> FeedImageLoader.Publisher) -> ListViewController {
         let adapter = LoadResourcePresentationAdapter<[FeedImage], FeedViewAdapter>(loader: { loader().dispatchOnMainQueue() })
         
         let viewController = FeedViewController.makeWith(title: FeedPresenter.title, delegate: adapter)
@@ -23,10 +23,10 @@ public final class FeedUIComposer {
 }
 
 private extension FeedViewController {
-    static func makeWith(title: String, delegate: LoadResourceViewControllerDelegate) -> FeedViewController {
-        let bundle = Bundle(for: FeedViewController.self)
+    static func makeWith(title: String, delegate: LoadResourceViewControllerDelegate) -> ListViewController {
+        let bundle = Bundle(for: ListViewController.self)
         let storyboard = UIStoryboard(name: "Feed", bundle: bundle)
-        let controller = storyboard.instantiateInitialViewController() as! FeedViewController
+        let controller = storyboard.instantiateInitialViewController() as! ListViewController
         controller.title = title
         controller.delegate = delegate
 

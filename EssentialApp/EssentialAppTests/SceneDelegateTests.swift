@@ -13,7 +13,7 @@ class SceneDelegateTests: XCTestCase {
 
         let root = sut.window?.rootViewController as! UINavigationController
         XCTAssertNotNil(root, "Expect root view controller attached to window to be an UINavigationController")
-        XCTAssertNotNil(root.topViewController as! FeedViewController, "Expected navigation top view controller to be a FeedViewController")
+        XCTAssertNotNil(root.topViewController as! ListViewController, "Expected navigation top view controller to be a FeedViewController")
     }
 
     func test_configureView_makesWindowAsKeyAndVisible() {

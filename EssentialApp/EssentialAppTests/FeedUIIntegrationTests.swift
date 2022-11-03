@@ -317,7 +317,7 @@ class FeedUIIntegrationTests: XCTestCase {
         expect(sut, toRender: [])
     }
 
-    private func makeSUT(file: StaticString = #filePath, line: UInt = #line) -> (sut: FeedViewController, loader: FeedLoaderSpy) {
+    private func makeSUT(file: StaticString = #filePath, line: UInt = #line) -> (sut: ListViewController, loader: FeedLoaderSpy) {
         let loader = FeedLoaderSpy()
         let sut = FeedUIComposer.composeWith(loader: loader.loadPublisher, imageLoader: loader.loadImagePublisher)
 
@@ -327,14 +327,14 @@ class FeedUIIntegrationTests: XCTestCase {
         return (sut, loader)
     }
 
-    private func expect(_ sut: FeedViewController, toRender expectedImages: [FeedImage], file: StaticString = #filePath, line: UInt = #line) {
+    private func expect(_ sut: ListViewController, toRender expectedImages: [FeedImage], file: StaticString = #filePath, line: UInt = #line) {
         sut.tableView.layoutIfNeeded()
         RunLoop.main.run(until: Date())
         expectedImages.enumerated().forEach { index, image in expect(sut, toLoadFeedImage: image, inPosition: index, file: file, line: line) }
         XCTAssertEqual(sut.numberOfFeedImages, expectedImages.count)
     }
 
-    private func expect(_ sut: FeedViewController, toLoadFeedImage image: FeedImage, inPosition index: Int, file: StaticString = #filePath, line: UInt = #line) {
+    private func expect(_ sut: ListViewController, toLoadFeedImage image: FeedImage, inPosition index: Int, file: StaticString = #filePath, line: UInt = #line) {
         let cell = sut.feedImage(at: index) as! FeedImageCell
         XCTAssertNotNil(cell)
 

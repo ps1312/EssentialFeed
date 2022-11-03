@@ -4,7 +4,7 @@ import EssentialFeediOS
 
 final class FeedViewAdapter: ResourceView {
     private let imageLoader: (URL) -> FeedImageLoader.Publisher
-    weak var controller: FeedViewController?
+    weak var controller: ListViewController?
 
     init(imageLoader: @escaping (URL) -> FeedImageLoader.Publisher) {
         self.imageLoader = imageLoader
