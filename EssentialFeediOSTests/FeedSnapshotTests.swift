@@ -55,7 +55,7 @@ class FeedSnapshotTests: XCTestCase {
     }
 
     private func nonEmptyFeed() -> [CellController] {
-        nonEmptyFeedControllers().map { CellController($0, $0, $0) }
+        nonEmptyFeedControllers().map { CellController($0) }
     }
 
     private func nonEmptyFeedControllers() -> [FeedImageCellController] {
@@ -75,7 +75,7 @@ class FeedSnapshotTests: XCTestCase {
 
     private func failedImageLoadFeed() -> [CellController] {
         let controller = makeImageCellController(image: nil, description: nil, location: "Na Chom Thian, Thailand")
-        return [CellController(controller, controller, controller)]
+        return [CellController(controller)]
     }
 
     private func makeImageCellController(image: UIImage?, description: String?, location: String?) -> FeedImageCellController {
