@@ -135,6 +135,16 @@ class ImageCommentsUIIntegrationTests: XCTestCase {
         XCTAssertEqual(sut.numberOfItems, 0)
     }
 
+    func test_tapOnErrorView_hidesErrorMessage() {
+        let (sut, loader) = makeSUT()
+        sut.loadViewIfNeeded()
+
+        loader.completeCommentsLoad(with: makeNSError())
+        sut.simulateTapOnError()
+
+        XCTAssertEqual(sut.isShowingErrorMessage, false)
+    }
+
     private func makeSUT(file: StaticString = #filePath, line: UInt = #line) -> (sut: ListViewController, loader: ImageCommentsLoaderSpy) {
         let loader = ImageCommentsLoaderSpy()
         let sut = ImageCommentsUIComposer.composeWith(loader: loader.loadPublisher)

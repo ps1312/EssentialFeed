@@ -2,7 +2,7 @@ import UIKit
 
 public class ErrorButton: UIButton {
     public var isVisible: Bool {
-        return alpha > 0
+        alpha > 0
     }
 
     required init?(coder: NSCoder) {
@@ -13,6 +13,7 @@ public class ErrorButton: UIButton {
         super.init(frame: frame)
 
         backgroundColor = .errorBackgroundColor
+        addTarget(self, action: #selector(hideMessage), for: .touchUpInside)
         configureLabel()
         hideMessage()
     }
@@ -22,7 +23,7 @@ public class ErrorButton: UIButton {
         alpha = 1
     }
 
-    func hideMessage() {
+    @objc func hideMessage() {
         setTitle(nil, for: .normal)
         alpha = 0
     }

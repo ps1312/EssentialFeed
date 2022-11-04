@@ -25,11 +25,11 @@ extension ListViewController {
     }
 
     func simulatePullToRefresh() {
-        refreshControl?.allTargets.forEach { target in
-            refreshControl?.actions(forTarget: target, forControlEvent: .valueChanged)?.forEach {
-                (target as NSObject).perform(Selector($0))
-            }
-        }
+        refreshControl?.simulate(.valueChanged)
+    }
+
+    func simulateTapOnError() {
+        errorView.simulate(.touchUpInside)
     }
 
     func itemCell(at row: Int) -> UITableViewCell {
