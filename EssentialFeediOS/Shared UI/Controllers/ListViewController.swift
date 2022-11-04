@@ -21,9 +21,8 @@ public struct CellController {
 
 public final class ListViewController: UITableViewController, UITableViewDataSourcePrefetching, ResourceLoadingView, ResourceErrorView {
 
+    public lazy var errorView: ErrorButton = ErrorButton()
     private var loadingControllers = [IndexPath: CellController]()
-
-    @IBOutlet public var errorView: ErrorView?
 
     public var onRefresh: (() -> Void)?
     public var cellControllers = [CellController]() {
@@ -31,7 +30,25 @@ public final class ListViewController: UITableViewController, UITableViewDataSou
     }
 
     public override func viewDidLoad() {
+        configureErrorButton()
         refresh()
+    }
+
+    private func configureErrorButton() {
+        let container = UIView()
+        container.backgroundColor = .clear
+        container.addSubview(errorView)
+
+        errorView.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            errorView.leadingAnchor.constraint(equalTo: container.leadingAnchor),
+            container.trailingAnchor.constraint(equalTo: errorView.trailingAnchor),
+            errorView.topAnchor.constraint(equalTo: container.topAnchor),
+            container.bottomAnchor.constraint(equalTo: errorView.bottomAnchor),
+        ])
+
+
+        tableView.tableHeaderView = container
     }
 
     public override func viewDidLayoutSubviews() {
@@ -58,9 +75,9 @@ public final class ListViewController: UITableViewController, UITableViewDataSou
 
     public func display(_ viewModel: ResourceErrorViewModel) {
         if let message = viewModel.message {
-            errorView?.display(message: message)
+            errorView.display(message: message)
         } else {
-            errorView?.hideMessage()
+            errorView.hideMessage()
         }
     }
 

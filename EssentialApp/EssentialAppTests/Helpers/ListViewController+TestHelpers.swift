@@ -17,11 +17,11 @@ extension ListViewController {
     }
 
     var errorMessage: String? {
-        errorView?.button?.titleLabel?.text
+        errorView.titleLabel?.text
     }
 
     var isShowingErrorMessage: Bool? {
-        errorView?.isVisible
+        errorView.isVisible
     }
 
     func simulatePullToRefresh() {
