@@ -50,11 +50,15 @@ class FeedSnapshotTests: XCTestCase {
         return viewController
     }
 
-    private func emptyFeed() -> [FeedImageCellController] {
+    private func emptyFeed() -> [CellController] {
         return []
     }
 
-    private func nonEmptyFeed() -> [FeedImageCellController] {
+    private func nonEmptyFeed() -> [CellController] {
+        nonEmptyFeedControllers().map { CellController($0, $0, $0) }
+    }
+
+    private func nonEmptyFeedControllers() -> [FeedImageCellController] {
         let cellController1 = makeImageCellController(
             image: UIImage.make(withColor: .orange),
             description: "Mount Everest 🏔 is Earth's highest mountain above sea level, located in the Mahalangur Himal sub-range of the Himalayas. The China–Nepal border runs across its summit point. Its elevation of 8,848.86 m was most recently established in 2020 by the Chinese and Nepali authorities.",
@@ -69,8 +73,9 @@ class FeedSnapshotTests: XCTestCase {
         return [cellController1, cellController2]
     }
 
-    private func failedImageLoadFeed() -> [FeedImageCellController] {
-        return [makeImageCellController(image: nil, description: nil, location: "Na Chom Thian, Thailand")]
+    private func failedImageLoadFeed() -> [CellController] {
+        let controller = makeImageCellController(image: nil, description: nil, location: "Na Chom Thian, Thailand")
+        return [CellController(controller, controller, controller)]
     }
 
     private func makeImageCellController(image: UIImage?, description: String?, location: String?) -> FeedImageCellController {

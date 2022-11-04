@@ -2,7 +2,7 @@ import Foundation
 import EssentialFeed
 import UIKit
 
-public class ImageCommentCellController: NSObject, CellController {
+public class ImageCommentCellController: NSObject, UITableViewDataSource {
     private let viewModel: ImageCommentViewModel
     private(set) var cell: ImageCommentCell?
 

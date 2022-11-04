@@ -41,11 +41,15 @@ class ImageCommentsSnapshotTests: XCTestCase {
         return viewController
     }
 
-    private func emptyComments() -> [ImageCommentCellController] {
+    private func emptyComments() -> [CellController] {
         return []
     }
 
-    private func nonEmptyComments() -> [ImageCommentCellController] {
+    private func nonEmptyComments() -> [CellController] {
+        nonEmptyCommentsControllers().map { CellController($0) }
+    }
+
+    private func nonEmptyCommentsControllers() -> [ImageCommentCellController] {
         let cellController1 = makeImageCommentCellController(
             message: "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s. 🔥",
             username: "a username",
