@@ -1,6 +1,8 @@
 import UIKit
 
 public class ErrorButton: UIButton {
+    public var onHide: (() -> Void)?
+
     public var isVisible: Bool {
         titleLabel?.text != nil
     }
@@ -33,6 +35,8 @@ public class ErrorButton: UIButton {
 
     @objc func hideMessage() {
         setTitle(nil, for: .normal)
+
+        onHide?()
 
         UIView.animate(withDuration: 0.25, animations: {
             self.alpha = 0

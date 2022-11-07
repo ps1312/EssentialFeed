@@ -47,6 +47,9 @@ public final class ListViewController: UITableViewController, UITableViewDataSou
             container.bottomAnchor.constraint(equalTo: errorView.bottomAnchor),
         ])
 
+        errorView.onHide = { [weak self] in
+            self?.sizeTableHeaderToFit()
+        }
 
         tableView.tableHeaderView = container
     }
