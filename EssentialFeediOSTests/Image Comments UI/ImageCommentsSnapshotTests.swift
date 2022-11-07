@@ -26,27 +26,10 @@ class ImageCommentsSnapshotTests: XCTestCase {
     private func nonEmptyComments() -> [CellController] {
         [
             makeImageCommentCellController(
-                message: "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s. 🔥",
+                message: "Lorem",
                 username: "a username",
                 date: "1 day ago"
             ),
-            makeImageCommentCellController(
-                 message: """
-                 It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum. 🗿
-                 .
-                 .
-                 .
-                 .
-                 loremipsum Laset desktop ✅
-                 """,
-                 username: "really long username in order to crop this label",
-                 date: "2 weeks ago"
-            ),
-            makeImageCommentCellController(
-                 message: "nice",
-                 username: "J.F",
-                 date: "1 second ago"
-            )
         ].map { CellController($0) }
     }
 
