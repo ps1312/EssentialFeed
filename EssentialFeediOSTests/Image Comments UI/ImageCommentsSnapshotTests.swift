@@ -37,7 +37,7 @@ class ImageCommentsSnapshotTests: XCTestCase {
                  .
                  .
                  .
-                 loremipsum Letraset desktop ✅
+                 loremipsum Laset desktop ✅
                  """,
                  username: "really long username in order to crop this label",
                  date: "2 weeks ago"
