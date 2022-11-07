@@ -2,7 +2,7 @@ import UIKit
 
 public class ErrorButton: UIButton {
     public var isVisible: Bool {
-        alpha > 0
+        titleLabel?.text != nil
     }
 
     required init?(coder: NSCoder) {
@@ -20,12 +20,18 @@ public class ErrorButton: UIButton {
 
     func display(message: String) {
         setTitle(message, for: .normal)
-        alpha = 1
+
+        UIView.animate(withDuration: 0.25, animations: {
+            self.alpha = 1
+        })
     }
 
     @objc func hideMessage() {
         setTitle(nil, for: .normal)
-        alpha = 0
+
+        UIView.animate(withDuration: 0.25, animations: {
+            self.alpha = 0
+        })
     }
 
     private func configureLabel() {
