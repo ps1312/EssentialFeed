@@ -15,7 +15,12 @@ public class ErrorButton: UIButton {
         backgroundColor = .errorBackgroundColor
         addTarget(self, action: #selector(hideMessage), for: .touchUpInside)
         configureLabel()
-        hideMessage()
+        instantHideMessage()
+    }
+
+    func instantHideMessage() {
+        setTitle(nil, for: .normal)
+        alpha = 0
     }
 
     func display(message: String) {
