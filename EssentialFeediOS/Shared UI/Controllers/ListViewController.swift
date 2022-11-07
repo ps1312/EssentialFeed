@@ -66,11 +66,7 @@ public final class ListViewController: UITableViewController, UITableViewDataSou
     }
 
     public func display(_ viewModel: ResourceLoadingViewModel) {
-        if viewModel.isLoading {
-            refreshControl?.beginRefreshing()
-        } else {
-            refreshControl?.endRefreshing()
-        }
+        viewModel.isLoading ? refreshControl?.beginRefreshing() : refreshControl?.endRefreshing()
     }
 
     public func display(_ viewModel: ResourceErrorViewModel) {
