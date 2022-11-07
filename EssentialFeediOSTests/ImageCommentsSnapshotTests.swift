@@ -7,7 +7,7 @@ class ImageCommentsSnapshotTests: XCTestCase {
     func test_emptyComments() {
         let sut = makeSUT()
 
-        sut.display(emptyComments())
+        sut.cellControllers = emptyComments()
 
         assert(snapshot: sut.snapshot(for: .iPhone8(style: .light)), named: "EMPTY_IMAGE_COMMENTS_light")
         assert(snapshot: sut.snapshot(for: .iPhone8(style: .dark)), named: "EMPTY_IMAGE_COMMENTS_dark")
@@ -16,7 +16,7 @@ class ImageCommentsSnapshotTests: XCTestCase {
     func test_nonEmptyComments() {
         let sut = makeSUT()
 
-        sut.display(nonEmptyComments())
+        sut.cellControllers = nonEmptyComments()
 
         assert(snapshot: sut.snapshot(for: .iPhone8(style: .light)), named: "IMAGE_COMMENTS_WITH_CONTENT_light")
         assert(snapshot: sut.snapshot(for: .iPhone8(style: .dark)), named: "IMAGE_COMMENTS_WITH_CONTENT_dark")

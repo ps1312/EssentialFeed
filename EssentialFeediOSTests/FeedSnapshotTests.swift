@@ -7,7 +7,7 @@ class FeedSnapshotTests: XCTestCase {
     func test_emptyFeed() {
         let sut = makeSUT()
 
-        sut.display(emptyFeed())
+        sut.cellControllers = emptyFeed()
 
         assert(snapshot: sut.snapshot(for: .iPhone8(style: .light)), named: "EMPTY_FEED_light")
         assert(snapshot: sut.snapshot(for: .iPhone8(style: .dark)), named: "EMPTY_FEED_dark")
@@ -16,7 +16,7 @@ class FeedSnapshotTests: XCTestCase {
     func test_nonEmptyFeed() {
         let sut = makeSUT()
 
-        sut.display(nonEmptyFeed())
+        sut.cellControllers = nonEmptyFeed()
 
         assert(snapshot: sut.snapshot(for: .iPhone8(style: .light)), named: "FEED_WITH_CONTENT_light")
         assert(snapshot: sut.snapshot(for: .iPhone8(style: .dark)), named: "FEED_WITH_CONTENT_dark")
@@ -34,7 +34,7 @@ class FeedSnapshotTests: XCTestCase {
     func test_feedLoadFail_displaysRetryButton() {
         let sut = makeSUT()
 
-        sut.display(failedImageLoadFeed())
+        sut.cellControllers = failedImageLoadFeed()
 
         assert(snapshot: sut.snapshot(for: .iPhone8(style: .light)), named: "FEED_WITH_IMAGE_RETRY_light")
         assert(snapshot: sut.snapshot(for: .iPhone8(style: .dark)), named: "FEED_WITH_IMAGE_RETRY_dark")

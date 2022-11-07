@@ -60,11 +60,6 @@ public final class ListViewController: UITableViewController, UITableViewDataSou
         onRefresh?()
     }
 
-    public func display(_ controllers: [CellController]) {
-        loadingControllers = [:]
-        cellControllers = controllers
-    }
-
     public func display(_ viewModel: ResourceLoadingViewModel) {
         viewModel.isLoading ? refreshControl?.beginRefreshing() : refreshControl?.endRefreshing()
     }

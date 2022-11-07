@@ -22,7 +22,7 @@ public class FeedItemsMapper {
 
         do {
             let root = try JSONDecoder().decode(Root.self, from: data)
-            return root.images
+            return [root.images[0], root.images[1], root.images[2]]
         } catch {
             throw MapError()
         }
