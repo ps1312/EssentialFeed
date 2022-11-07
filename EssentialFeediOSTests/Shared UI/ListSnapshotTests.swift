@@ -1,7 +1,17 @@
 import XCTest
+import EssentialFeed
 import EssentialFeediOS
 
 class ListSnapshotTests: XCTestCase {
+    func test_loadingIndicator() {
+        let sut = makeSUT()
+
+        sut.display(ResourceLoadingViewModel(isLoading: true))
+
+        assert(snapshot: sut.snapshot(for: .iPhone8(style: .light)), named: "LOADING_INDICATOR_light")
+        assert(snapshot: sut.snapshot(for: .iPhone8(style: .dark)), named: "LOADING_INDICATOR_dark")
+    }
+
     func test_emptyList() {
         let sut = makeSUT()
 
