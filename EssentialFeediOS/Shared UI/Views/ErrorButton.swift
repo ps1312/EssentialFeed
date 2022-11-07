@@ -15,12 +15,12 @@ public class ErrorButton: UIButton {
         super.init(frame: frame)
 
         backgroundColor = .errorBackgroundColor
-        addTarget(self, action: #selector(hideMessage), for: .touchUpInside)
+        addTarget(self, action: #selector(hideMessageAnimated), for: .touchUpInside)
         configureLabel()
-        instantHideMessage()
+        hideMessage()
     }
 
-    func instantHideMessage() {
+    func hideMessage() {
         setTitle(nil, for: .normal)
         alpha = 0
     }
@@ -33,13 +33,13 @@ public class ErrorButton: UIButton {
         })
     }
 
-    @objc func hideMessage() {
+    @objc func hideMessageAnimated() {
         setTitle(nil, for: .normal)
-
-        onHide?()
 
         UIView.animate(withDuration: 0.25, animations: {
             self.alpha = 0
+        }, completion: { finished in
+            if finished { self.onHide?() }
         })
     }
 

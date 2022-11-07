@@ -39,7 +39,7 @@ class ImageCommentsSnapshotTests: XCTestCase {
                  .
                  loremipsum Laset desktop
                  """,
-                 username: "really long username in order to crop this label",
+                 username: "really long long username",
                  date: "2 weeks ago"
             ),
             makeImageCommentCellController(
