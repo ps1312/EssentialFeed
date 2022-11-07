@@ -44,5 +44,5 @@ func makeSnapshotData(snapshot: UIImage, file: StaticString = #file, line: UInt 
 }
 
 func makeSnapshotURL(file: String, name: String) -> URL {
-    return URL(filePath: "\(file)").deletingLastPathComponent().appending(component: "snapshots").appending(component: "\(name).png")
+    URL(fileURLWithPath: file).deletingLastPathComponent().appendingPathComponent("snapshots").appendingPathComponent("\(name).png")
 }
