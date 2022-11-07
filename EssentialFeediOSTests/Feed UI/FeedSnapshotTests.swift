@@ -3,16 +3,6 @@ import EssentialFeed
 import EssentialFeediOS
 
 class FeedSnapshotTests: XCTestCase {
-
-    func test_emptyFeed() {
-        let sut = makeSUT()
-
-        sut.cellControllers = emptyFeed()
-
-        assert(snapshot: sut.snapshot(for: .iPhone8(style: .light)), named: "EMPTY_FEED_light")
-        assert(snapshot: sut.snapshot(for: .iPhone8(style: .dark)), named: "EMPTY_FEED_dark")
-    }
-
     func test_nonEmptyFeed() {
         let sut = makeSUT()
 
@@ -20,15 +10,6 @@ class FeedSnapshotTests: XCTestCase {
 
         assert(snapshot: sut.snapshot(for: .iPhone8(style: .light)), named: "FEED_WITH_CONTENT_light")
         assert(snapshot: sut.snapshot(for: .iPhone8(style: .dark)), named: "FEED_WITH_CONTENT_dark")
-    }
-
-    func test_feedWithError() {
-        let sut = makeSUT()
-
-        sut.display(.error(message: "An error message\nmultiline\ntriple line"))
-
-        assert(snapshot: sut.snapshot(for: .iPhone8(style: .light)), named: "FEED_WITH_ERROR_light")
-        assert(snapshot: sut.snapshot(for: .iPhone8(style: .dark)), named: "FEED_WITH_ERROR_dark")
     }
 
     func test_feedLoadFail_displaysRetryButton() {
@@ -50,27 +31,19 @@ class FeedSnapshotTests: XCTestCase {
         return viewController
     }
 
-    private func emptyFeed() -> [CellController] {
-        return []
-    }
-
     private func nonEmptyFeed() -> [CellController] {
-        nonEmptyFeedControllers().map { CellController($0) }
-    }
-
-    private func nonEmptyFeedControllers() -> [FeedImageCellController] {
-        let cellController1 = makeImageCellController(
-            image: UIImage.make(withColor: .orange),
-            description: "Mount Everest 🏔 is Earth's highest mountain above sea level, located in the Mahalangur Himal sub-range of the Himalayas. The China–Nepal border runs across its summit point. Its elevation of 8,848.86 m was most recently established in 2020 by the Chinese and Nepali authorities.",
-            location: "Solukhumbu District, Province No. 1\nNepal"
-        )
-
-        let cellController2 = makeImageCellController(
-            image: UIImage.make(withColor: .magenta),
-            description: nil,
-            location: nil
-        )
-        return [cellController1, cellController2]
+        [
+            makeImageCellController(
+                image: UIImage.make(withColor: .orange),
+                description: "Mount Everest 🏔 is Earth's highest mountain above sea level, located in the Mahalangur Himal sub-range of the Himalayas. The China–Nepal border runs across its summit point. Its elevation of 8,848.86 m was most recently established in 2020 by the Chinese and Nepali authorities.",
+                location: "Solukhumbu District, Province No. 1\nNepal"
+            ),
+            makeImageCellController(
+                image: UIImage.make(withColor: .magenta),
+                description: nil,
+                location: nil
+            )
+        ].map { CellController($0) }
     }
 
     private func failedImageLoadFeed() -> [CellController] {

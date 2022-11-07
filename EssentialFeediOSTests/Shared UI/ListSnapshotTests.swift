@@ -1,12 +1,11 @@
 import XCTest
 import EssentialFeediOS
 
-class ListViewControllerSnapshotTests: XCTestCase {
-
+class ListSnapshotTests: XCTestCase {
     func test_emptyList() {
         let sut = makeSUT()
 
-        sut.cellControllers = emptyList()
+        sut.cellControllers = []
 
         assert(snapshot: sut.snapshot(for: .iPhone8(style: .light)), named: "EMPTY_LIST_light")
         assert(snapshot: sut.snapshot(for: .iPhone8(style: .dark)), named: "EMPTY_LIST_dark")
@@ -30,9 +29,4 @@ class ListViewControllerSnapshotTests: XCTestCase {
         viewController.loadViewIfNeeded()
         return viewController
     }
-
-    private func emptyList() -> [CellController] {
-        return []
-    }
-
 }
