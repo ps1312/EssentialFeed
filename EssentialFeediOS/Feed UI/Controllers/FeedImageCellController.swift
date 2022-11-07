@@ -24,9 +24,9 @@ extension FeedImageCellController: UITableViewDelegate, UITableViewDataSource, U
 
     public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         cell = tableView.dequeueReusableCell()
+        cell?.feedImageView.image = nil
         cell?.descriptionLabel.isHidden = !viewModel.hasDescription
         cell?.descriptionLabel.text = viewModel.description
-
         cell?.locationContainer.isHidden = !viewModel.hasLocation
         cell?.locationLabel.text = viewModel.location
         cell?.onRetry = delegate.didRequestImageLoad
