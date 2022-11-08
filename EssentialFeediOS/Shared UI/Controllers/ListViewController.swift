@@ -30,8 +30,14 @@ public final class ListViewController: UITableViewController, UITableViewDataSou
     }
 
     public override func viewDidLoad() {
+        configureLoadingIndicator()
         configureErrorButton()
         refresh()
+    }
+
+    private func configureLoadingIndicator() {
+        refreshControl = UIRefreshControl()
+        refreshControl?.addTarget(self, action: #selector(refresh), for: .valueChanged)
     }
 
     private func configureErrorButton() {
@@ -61,7 +67,7 @@ public final class ListViewController: UITableViewController, UITableViewDataSou
         sizeTableHeaderToFit()
     }
 
-    @IBAction func refresh() {
+    @objc func refresh() {
         onRefresh?()
     }
 
