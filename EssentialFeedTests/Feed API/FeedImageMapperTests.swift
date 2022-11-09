@@ -1,13 +1,5 @@
 import XCTest
-
-final class FeedImageMapper {
-    struct EmptyDataError: Error {}
-
-    static func map(_ data: Data, from response: HTTPURLResponse) throws -> Data {
-        guard !data.isEmpty else { throw EmptyDataError() }
-        return data
-    }
-}
+import EssentialFeed
 
 class FeedImageMapperTests: XCTestCase {
     func test_map_throwsWithEmptyImage() {
