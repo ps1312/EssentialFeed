@@ -1,6 +1,6 @@
 import Foundation
 import UIKit
-import EssentialFeediOS
+@testable import EssentialFeediOS
 
 extension ListViewController {
     var itemsSection: Int {
@@ -8,7 +8,7 @@ extension ListViewController {
     }
 
     var numberOfItems: Int {
-        tableView(tableView, numberOfRowsInSection: itemsSection)
+        tableView.numberOfRows(inSection: itemsSection)
     }
 
     var isShowingLoadingIndicator: Bool {
@@ -34,7 +34,7 @@ extension ListViewController {
 
     func itemCell(at row: Int) -> UITableViewCell {
         let indexPath = IndexPath(row: row, section: itemsSection)
-        return tableView(tableView, cellForRowAt: indexPath)
+        return tableView.dataSource!.tableView(tableView, cellForRowAt: indexPath)
     }
 
     @discardableResult

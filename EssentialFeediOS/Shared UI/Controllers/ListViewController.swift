@@ -1,35 +1,58 @@
 import UIKit
 import EssentialFeed
 
-public struct CellController {
+public struct CellController: Equatable, Hashable {
+    public let id: UUID
     public let dataSource: UITableViewDataSource
     public let delegate: UITableViewDelegate?
     public let prefetch: UITableViewDataSourcePrefetching?
 
-    public init(_ source: UITableViewDataSource & UITableViewDelegate & UITableViewDataSourcePrefetching) {
+    public init(id: UUID = UUID(), _ source: UITableViewDataSource & UITableViewDelegate & UITableViewDataSourcePrefetching) {
+        self.id = id
         self.dataSource = source
         self.delegate = source
         self.prefetch = source
     }
 
-    public init(_ dataSource: UITableViewDataSource) {
+    public init(id: UUID = UUID(), _ dataSource: UITableViewDataSource) {
+        self.id = id
         self.dataSource = dataSource
         self.delegate = nil
         self.prefetch = nil
     }
+
+    public static func == (lhs: CellController, rhs: CellController) -> Bool {
+        lhs.id == rhs.id
+    }
+
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
+    }
 }
 
 public final class ListViewController: UITableViewController, UITableViewDataSourcePrefetching, ResourceLoadingView, ResourceErrorView {
-
     public lazy var errorView: ErrorButton = ErrorButton()
+    private lazy var dataSource: UITableViewDiffableDataSource<Int, CellController> = {
+        .init(tableView: tableView) { [weak self] tableView, indexPath, controller in
+            self?.cellController(at: indexPath).dataSource.tableView(tableView, cellForRowAt: indexPath)
+        }
+    }()
+
     private var loadingControllers = [IndexPath: CellController]()
 
     public var onRefresh: (() -> Void)?
     public var cellControllers = [CellController]() {
-        didSet { tableView.reloadData() }
+        didSet {
+            var snapshot = NSDiffableDataSourceSnapshot<Int, CellController>()
+            snapshot.appendSections([0])
+            snapshot.appendItems(cellControllers)
+            dataSource.apply(snapshot)
+        }
     }
 
     public override func viewDidLoad() {
+        tableView.dataSource = dataSource
+
         configureLoadingIndicator()
         configureErrorButton()
         refresh()
@@ -81,15 +104,6 @@ public final class ListViewController: UITableViewController, UITableViewDataSou
         } else {
             errorView.hideMessage()
         }
-    }
-
-    public override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return cellControllers.count
-    }
-
-    public override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let ds = cellController(at: indexPath).dataSource
-        return ds.tableView(tableView, cellForRowAt: indexPath)
     }
 
     public override func tableView(_ tableView: UITableView, didEndDisplaying cell: UITableViewCell, forRowAt indexPath: IndexPath) {

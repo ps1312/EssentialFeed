@@ -29,7 +29,9 @@ extension FeedImageCellController: UITableViewDelegate, UITableViewDataSource, U
         cell?.descriptionLabel.text = viewModel.description
         cell?.locationContainer.isHidden = !viewModel.hasLocation
         cell?.locationLabel.text = viewModel.location
-        cell?.onRetry = delegate.didRequestImageLoad
+        cell?.onRetry = { [weak self] in
+            self?.delegate.didRequestImageLoad()
+        }
 
         delegate.didRequestImageLoad()
         return cell!

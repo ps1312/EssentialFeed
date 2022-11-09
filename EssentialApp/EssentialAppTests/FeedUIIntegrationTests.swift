@@ -145,29 +145,29 @@ class FeedUIIntegrationTests: XCTestCase {
         sut.loadViewIfNeeded()
         loader.completeFeedLoad(at: 0, with: [uniqueImage(), uniqueImage()])
 
-        let firstCell = sut.simulateItemCellIsDisplayed(at: 0) as! FeedImageCell
-        let lastCell = sut.simulateItemCellIsDisplayed(at: 1) as! FeedImageCell
+        let firstCell = sut.simulateItemCellIsDisplayed(at: 0) as? FeedImageCell
+        let lastCell = sut.simulateItemCellIsDisplayed(at: 1) as? FeedImageCell
 
-        XCTAssertTrue(firstCell.isShowingLoadingIndicator, "Expected an indicator while waiting for image load completion")
-        XCTAssertTrue(lastCell.isShowingLoadingIndicator, "Expected an indicator while waiting for image load completion")
+        XCTAssertEqual(firstCell?.isShowingLoadingIndicator, true, "Expected an indicator while waiting for image load completion")
+        XCTAssertEqual(lastCell?.isShowingLoadingIndicator, true, "Expected an indicator while waiting for image load completion")
 
         loader.finishImageLoadingFailing(at: 0)
-        XCTAssertFalse(firstCell.isShowingLoadingIndicator, "Expected no indicators after first image load completes")
-        XCTAssertTrue(lastCell.isShowingLoadingIndicator, "Expected an indicator while waiting for image load completion even after first image loads")
+        XCTAssertEqual(firstCell?.isShowingLoadingIndicator, false, "Expected no indicators after first image load completes")
+        XCTAssertEqual(lastCell?.isShowingLoadingIndicator, true, "Expected an indicator while waiting for image load completion even after first image loads")
 
         loader.finishImageLoadingFailing(at: 1)
-        XCTAssertFalse(firstCell.isShowingLoadingIndicator, "Expected no indicators because image is already loaded")
-        XCTAssertFalse(lastCell.isShowingLoadingIndicator, "Expected no indicators after second image load completes")
+        XCTAssertEqual(firstCell?.isShowingLoadingIndicator, false, "Expected no indicators because image is already loaded")
+        XCTAssertEqual(lastCell?.isShowingLoadingIndicator, false, "Expected no indicators after second image load completes")
 
-        firstCell.simulateImageLoadRetry()
-        lastCell.simulateImageLoadRetry()
-        XCTAssertTrue(firstCell.isShowingLoadingIndicator, "Expected a indicator when image is retrying to load")
-        XCTAssertTrue(lastCell.isShowingLoadingIndicator, "Expected a indicator when image is retrying to load")
+        firstCell?.simulateImageLoadRetry()
+        lastCell?.simulateImageLoadRetry()
+        XCTAssertEqual(firstCell?.isShowingLoadingIndicator, true, "Expected a indicator when image is retrying to load")
+        XCTAssertEqual(lastCell?.isShowingLoadingIndicator, true, "Expected a indicator when image is retrying to load")
 
         loader.finishImageLoadingSuccessfully(at: 2)
         loader.finishImageLoadingSuccessfully(at: 3)
-        XCTAssertFalse(firstCell.isShowingLoadingIndicator, "Expected no indicators because image loaded successfully")
-        XCTAssertFalse(lastCell.isShowingLoadingIndicator, "Expected no indicators because image loaded successfully")
+        XCTAssertEqual(firstCell?.isShowingLoadingIndicator, false, "Expected no indicators because image loaded successfully")
+        XCTAssertEqual(lastCell?.isShowingLoadingIndicator, false, "Expected no indicators because image loaded successfully")
     }
 
     func test_feedImageCell_feedImageView_displaysImageDataWhenLoadSucceeds() {
@@ -341,20 +341,20 @@ class FeedUIIntegrationTests: XCTestCase {
         sut.tableView.layoutIfNeeded()
         RunLoop.main.run(until: Date())
         expectedImages.enumerated().forEach { index, image in expect(sut, toLoadFeedImage: image, inPosition: index, file: file, line: line) }
-        XCTAssertEqual(sut.numberOfItems, expectedImages.count)
+        XCTAssertEqual(sut.numberOfItems, expectedImages.count, file: file, line: line)
     }
 
     private func expect(_ sut: ListViewController, toLoadFeedImage image: FeedImage, inPosition index: Int, file: StaticString = #filePath, line: UInt = #line) {
-        let cell = sut.itemCell(at: index) as! FeedImageCell
+        let cell = sut.itemCell(at: index) as? FeedImageCell
         XCTAssertNotNil(cell)
 
         let shouldDescriptionBeHidden = image.description == nil
-        XCTAssertEqual(cell.isDescriptionHidden, shouldDescriptionBeHidden, "Expected cell to have a description when model has one", file: file, line: line)
-        XCTAssertEqual(cell.descriptionText, image.description, "Expected cell description to match model", file: file, line: line)
+        XCTAssertEqual(cell?.isDescriptionHidden, shouldDescriptionBeHidden, "Expected cell to have a description when model has one", file: file, line: line)
+        XCTAssertEqual(cell?.descriptionText, image.description, "Expected cell description to match model", file: file, line: line)
 
         let shouldLocationBeHidden = image.location == nil
-        XCTAssertEqual(cell.isLocationHidden, shouldLocationBeHidden, "Expected cell to have a location when model has one")
-        XCTAssertEqual(cell.locationText, image.location, "Expected cell location to match model")
+        XCTAssertEqual(cell?.isLocationHidden, shouldLocationBeHidden, "Expected cell to have a location when model has one")
+        XCTAssertEqual(cell?.locationText, image.location, "Expected cell location to match model")
     }
 
     private func uniqueImage(description: String? = nil, location: String? = nil, url: URL = makeURL()) -> FeedImage {
