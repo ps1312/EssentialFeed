@@ -2,23 +2,17 @@ import UIKit
 import EssentialFeed
 
 public final class ListViewController: UITableViewController, UITableViewDataSourcePrefetching, ResourceLoadingView, ResourceErrorView {
-    public lazy var errorView: ErrorButton = ErrorButton()
     private lazy var dataSource: UITableViewDiffableDataSource<Int, CellController> = {
         .init(tableView: tableView) { [weak self] tableView, indexPath, controller in
             self?.cellController(at: indexPath).dataSource.tableView(tableView, cellForRowAt: indexPath)
         }
     }()
-
     private var loadingControllers = [IndexPath: CellController]()
 
+    public lazy var errorView: ErrorButton = ErrorButton()
     public var onRefresh: (() -> Void)?
     public var cellControllers = [CellController]() {
-        didSet {
-            var snapshot = NSDiffableDataSourceSnapshot<Int, CellController>()
-            snapshot.appendSections([0])
-            snapshot.appendItems(cellControllers)
-            dataSource.apply(snapshot)
-        }
+        didSet { handleCellControllersUpdate() }
     }
 
     public override func viewDidLoad() {
@@ -54,6 +48,13 @@ public final class ListViewController: UITableViewController, UITableViewDataSou
         }
 
         tableView.tableHeaderView = container
+    }
+
+    private func handleCellControllersUpdate() {
+        var snapshot = NSDiffableDataSourceSnapshot<Int, CellController>()
+        snapshot.appendSections([0])
+        snapshot.appendItems(cellControllers)
+        dataSource.apply(snapshot)
     }
 
     public override func viewDidLayoutSubviews() {
