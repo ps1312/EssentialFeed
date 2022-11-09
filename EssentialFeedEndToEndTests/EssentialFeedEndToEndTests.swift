@@ -3,8 +3,8 @@ import EssentialFeed
 
 class EssentialFeedEndToEndTests: XCTestCase {
 
-    func testRemoteFeedLoaderAndURLSessionHTTPClientReturnsCorrectFeedImages() {
-        let exp = expectation(description: "waiting for real request to complete")
+    func test_RemoteFeedLoader_and_URLSessionHTTPClient_deliversFeedImages() {
+        let exp = expectation(description: "Waiting to finish a request to a real API")
 
         let url = URL(string: "https://essentialdeveloper.com/feed-case-study/test-api/feed")!
         let httpClient = URLSessionHTTPClient()
@@ -33,7 +33,7 @@ class EssentialFeedEndToEndTests: XCTestCase {
         }
     }
 
-    func test_remoteImageLoader_and_URLSessionHTTPClient_deliversImageDataFromAPI() {
+    func test_RemoteImageLoader_and_URLSessionHTTPClient_deliversImageData() {
         let exp = expectation(description: "Wait for request to complete")
         let testServerURL = URL(string: "https://essentialdeveloper.com/feed-case-study/test-api/feed/73A7F70C-75DA-4C2E-B5A3-EED40DC53AA6/image")!
 
