@@ -2,7 +2,7 @@ import XCTest
 import EssentialFeed
 
 class EssentialFeedEndToEndTests: XCTestCase {
-    func test_RemoteFeedLoader_and_URLSessionHTTPClient_deliversFeedImages() {
+    func test_FeedItemsMapper_and_URLSessionHTTPClient_deliversFeedImages() {
         let testServerURL = URL(string: "https://essentialdeveloper.com/feed-case-study/test-api/feed")!
 
         makeRequest(with: testServerURL, mapper: { data, response in
@@ -13,7 +13,7 @@ class EssentialFeedEndToEndTests: XCTestCase {
         })
     }
 
-    func test_RemoteImageLoader_and_URLSessionHTTPClient_deliversImageData() {
+    func test_FeedImageMapper_URLSessionHTTPClient_deliversImageData() {
         let testServerURL = URL(string: "https://essentialdeveloper.com/feed-case-study/test-api/feed/73A7F70C-75DA-4C2E-B5A3-EED40DC53AA6/image")!
 
         makeRequest(with: testServerURL, mapper: { data, response in
