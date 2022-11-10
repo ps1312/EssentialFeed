@@ -43,12 +43,12 @@ class FeedSnapshotTests: XCTestCase {
                 description: nil,
                 location: nil
             )
-        ].map { CellController($0) }
+        ].map { CellController(id: UUID(), $0) }
     }
 
     private func failedImageLoadFeed() -> [CellController] {
         let controller = makeImageCellController(image: nil, description: nil, location: "Na Chom Thian, Thailand")
-        return [CellController(controller)]
+        return [CellController(id: UUID(), controller)]
     }
 
     private func makeImageCellController(image: UIImage?, description: String?, location: String?) -> FeedImageCellController {

@@ -40,7 +40,7 @@ class ImageCommentsSnapshotTests: XCTestCase {
                  username: "J.F",
                  date: "1 second ago"
             )
-        ].map { CellController($0) }
+        ].map { CellController(id: UUID(), $0) }
     }
 
     private func makeImageCommentCellController(message: String, username: String, date: String) -> ImageCommentCellController {
