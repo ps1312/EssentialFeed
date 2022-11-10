@@ -21,6 +21,17 @@ class EssentialFeedEndToEndTests: XCTestCase {
         })
     }
 
+    func test_ImageCommentsMapper_URLSessionHTTPClient_deliversComments() {
+        let testServerURL = URL(string: "https://ile-api.essentialdeveloper.com/essential-feed/v1/image/11E123D5-1272-4F17-9B91-F3D0FFEC895A/comments")!
+
+        makeRequest(with: testServerURL) { data, response in
+            let capturedComments = try ImageCommentsMapper.map(data, response)
+            for index in 0...2 {
+                XCTAssertEqual(capturedComments[index], self.imageComment(at: index))
+            }
+        }
+    }
+
     private func makeRequest(with url: URL, mapper: @escaping (Data, HTTPURLResponse) throws -> Void, file: StaticString = #filePath, line: UInt = #line) {
         let exp = expectation(description: "Wait for request to complete")
 
@@ -44,11 +55,13 @@ class EssentialFeedEndToEndTests: XCTestCase {
         wait(for: [exp], timeout: 30.0)
     }
 
+    // MARK: - Feed Image helpers
+
     private func feedImage(at index: Int) -> FeedImage {
-        return FeedImage(id: UUID(uuidString: ids[index])!, description: descriptions[index], location: locations[index], url: imageURL(at: index))
+        return FeedImage(id: UUID(uuidString: feedImageids[index])!, description: descriptions[index], location: locations[index], url: imageURL(at: index))
     }
 
-    private var ids = [
+    private var feedImageids = [
         "73A7F70C-75DA-4C2E-B5A3-EED40DC53AA6",
         "BA298A85-6275-48D3-8315-9C8F7C1CD109",
         "5A0D45B3-8E26-4385-8C5D-213E160A5E3C",
@@ -85,4 +98,33 @@ class EssentialFeedEndToEndTests: XCTestCase {
         return URL(string: "https://url-\(index + 1).com")!
     }
 
+    // MARK: - Image Comment helpers
+
+    private func imageComment(at index: Int) -> ImageComment {
+        return ImageComment(id: UUID(uuidString: imageCommentsIds[index])!, message: messages[index], createdAt: createdAt[index], author: author[index])
+    }
+
+    private var imageCommentsIds = [
+        "7019D8A7-0B35-4057-B7F9-8C5471961ED0",
+        "1F4A3B22-9E6E-46FC-BB6C-48B33269951B",
+        "00D0CD9A-452C-4812-B264-1B73823C94CA"
+    ]
+
+    private var messages = [
+        "The gallery was seen in Wolfgang Becker's movie Goodbye, Lenin!",
+        "It was also featured in English indie/rock band Bloc Party's single Kreuzberg taken from the album A Weekend in the City.",
+        "The restoration process has been marked by major conflict. Eight of the artists of 1990 refused to paint their own images again after they were completely destroyed by the renovation. In order to defend the copyright, they founded Founder Initiative East Side with other artists whose images were copied without permission."
+    ]
+
+    private var createdAt = [
+        ISO8601DateFormatter().date(from: "2022-01-09T11:24:59+0000")!,
+        ISO8601DateFormatter().date(from: "2021-01-01T04:23:53+0000")!,
+        ISO8601DateFormatter().date(from: "2020-01-26T11:22:59+0000")!
+    ]
+
+    private var author = [
+        "Joe",
+        "Megan",
+        "Dwight"
+    ]
 }
