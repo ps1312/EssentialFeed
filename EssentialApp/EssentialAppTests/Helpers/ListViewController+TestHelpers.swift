@@ -62,4 +62,12 @@ extension ListViewController {
         let indexPath = IndexPath(row: row, section: itemsSection)
         ds?.tableView?(tableView, cancelPrefetchingForRowsAt: [indexPath])
     }
+
+    @discardableResult
+    func simulateItemCellWillBecomeVisible(at row: Int) -> UITableViewCell {
+        let indexPath = IndexPath(row: row, section: itemsSection)
+        let currentCell = simulateItemCellEndsDiplaying(at: row)
+        tableView.delegate?.tableView?(tableView, willDisplay: currentCell, forRowAt: indexPath)
+        return currentCell
+    }
 }

@@ -327,6 +327,17 @@ class FeedUIIntegrationTests: XCTestCase {
         XCTAssertEqual(sut.isShowingErrorMessage, false)
     }
 
+    func test_feedImageWillDisplay_requestsImageLoad() {
+        let image = uniqueImage()
+        let (sut, loader) = makeSUT()
+        sut.loadViewIfNeeded()
+
+        loader.completeFeedLoad(at: 0, with: [image])
+        sut.simulateItemCellWillBecomeVisible(at: 0)
+
+        XCTAssertEqual(loader.imageLoadedURLs, [image.url, image.url], "Expected image to load again after becoming visible")
+    }
+
     private func makeSUT(file: StaticString = #filePath, line: UInt = #line) -> (sut: ListViewController, loader: FeedLoaderSpy) {
         let loader = FeedLoaderSpy()
         let sut = FeedUIComposer.composeWith(loader: loader.loadPublisher, imageLoader: loader.loadImagePublisher)
