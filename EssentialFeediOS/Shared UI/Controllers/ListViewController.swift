@@ -16,11 +16,14 @@ public final class ListViewController: UITableViewController, UITableViewDataSou
     }
 
     public override func viewDidLoad() {
-        tableView.dataSource = dataSource
-
         configureLoadingIndicator()
         configureErrorButton()
         refresh()
+    }
+
+    private func configureDataSource() {
+        dataSource.defaultRowAnimation = .fade
+        tableView.dataSource = dataSource
     }
 
     private func configureLoadingIndicator() {
