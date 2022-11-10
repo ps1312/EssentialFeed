@@ -39,13 +39,15 @@ class ImageCommentsPresenterTests: XCTestCase {
 
         XCTAssertEqual(viewModel, ImageCommentsViewModel(comments: [
             ImageCommentViewModel(
-                message: "a message",
-                username: "an author",
+                id: models[0].id,
+                message: models[0].message,
+                username: models[0].author,
                 date: "5 minutes ago"
             ),
             ImageCommentViewModel(
-                message: "another message",
-                username: "another author",
+                id: models[1].id,
+                message: models[1].message,
+                username: models[1].author,
                 date: "1 day ago"
             )
         ]))

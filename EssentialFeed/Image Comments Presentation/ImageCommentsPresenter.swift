@@ -29,6 +29,7 @@ public final class ImageCommentsPresenter {
 
         return ImageCommentsViewModel(comments: models.map { comment in
             ImageCommentViewModel(
+                id: comment.id,
                 message: comment.message,
                 username: comment.author,
                 date: formatter.localizedString(for: comment.createdAt, relativeTo: Date())
