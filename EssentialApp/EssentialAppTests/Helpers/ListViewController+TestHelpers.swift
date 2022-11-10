@@ -50,13 +50,39 @@ extension ListViewController {
         return currentCell
     }
 
-    func simulateItemCellPrefetch(at row: Int) {
+    @discardableResult
+    func simulateItemCellWillBecomeVisible(at row: Int) -> UITableViewCell {
+        let indexPath = IndexPath(row: row, section: itemsSection)
+        let currentCell = simulateItemCellEndsDiplaying(at: row)
+        tableView.delegate?.tableView?(tableView, willDisplay: currentCell, forRowAt: indexPath)
+        return currentCell
+    }
+}
+
+// MARK: - FeedViewController helpers
+
+extension ListViewController {
+    var numberOfFeedImages: Int {
+        tableView.numberOfRows(inSection: itemsSection)
+    }
+
+    func feedImageCell(at row: Int) -> UITableViewCell {
+        let indexPath = IndexPath(row: row, section: itemsSection)
+        return tableView.dataSource!.tableView(tableView, cellForRowAt: indexPath)
+    }
+
+    @discardableResult
+    func simulateFeedImageCellIsVisible(at row: Int) -> UITableViewCell {
+        feedImageCell(at: row)
+    }
+
+    func simulateFeedImageCellNearVisible(at row: Int) {
         let indexPath = IndexPath(row: row, section: itemsSection)
         tableView(tableView, prefetchRowsAt: [indexPath])
     }
 
-    func simulateItemCellPrefetchingCanceling(at row: Int) {
-        simulateItemCellPrefetch(at: row)
+    func simulateFeedImageCellPrefetchCancel(at row: Int) {
+        simulateFeedImageCellNearVisible(at: row)
 
         let ds = tableView.prefetchDataSource
         let indexPath = IndexPath(row: row, section: itemsSection)
@@ -64,10 +90,10 @@ extension ListViewController {
     }
 
     @discardableResult
-    func simulateItemCellWillBecomeVisible(at row: Int) -> UITableViewCell {
+    func simulateFeedImageCellNotVisible(at row: Int) -> UITableViewCell {
         let indexPath = IndexPath(row: row, section: itemsSection)
-        let currentCell = simulateItemCellEndsDiplaying(at: row)
-        tableView.delegate?.tableView?(tableView, willDisplay: currentCell, forRowAt: indexPath)
+        let currentCell = simulateItemCellIsDisplayed(at: row)
+        tableView(tableView, didEndDisplaying: currentCell, forRowAt: indexPath)
         return currentCell
     }
 }
