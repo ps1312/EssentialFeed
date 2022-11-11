@@ -5,7 +5,6 @@ import EssentialFeed
 import EssentialFeediOS
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
-
     var window: UIWindow?
 
     private lazy var client: HTTPClient = {
@@ -25,6 +24,12 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     private lazy var localImageLoader = {
         LocalFeedImageLoader(store: store)
     }()
+
+    convenience init(client: HTTPClient, store: FeedStore & FeedImageStore) {
+        self.init()
+        self.client = client
+        self.store = store
+    }
     
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
         guard let scene = (scene as? UIWindowScene) else { return }
