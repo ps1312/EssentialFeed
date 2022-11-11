@@ -3,10 +3,12 @@ import EssentialFeed
 import EssentialFeediOS
 
 final class FeedViewAdapter: ResourceView {
+    private let onFeedImageTap: (FeedImage) -> Void
     private let imageLoader: (URL) -> FeedImageLoader.Publisher
     weak var controller: ListViewController?
 
-    init(imageLoader: @escaping (URL) -> FeedImageLoader.Publisher) {
+    init(onFeedImageTap: @escaping (FeedImage) -> Void, imageLoader: @escaping (URL) -> FeedImageLoader.Publisher) {
+        self.onFeedImageTap = onFeedImageTap
         self.imageLoader = imageLoader
     }
 
@@ -17,6 +19,7 @@ final class FeedViewAdapter: ResourceView {
             )
 
             let view = FeedImageCellController(
+                selected: { self.onFeedImageTap(model) },
                 viewModel: FeedImagePresenter.map(model),
                 delegate: adapter
             )

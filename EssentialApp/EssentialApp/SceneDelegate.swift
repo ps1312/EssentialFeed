@@ -35,6 +35,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     func configureView() {
         window?.rootViewController = UINavigationController(rootViewController: FeedUIComposer.composeWith(
+            onFeedImageTap: { _ in },
             loader: makeRemoteFeedLoaderWithLocalFallback,
             imageLoader: makeLocalFeedImageLoaderWithRemoteFallback
         ))

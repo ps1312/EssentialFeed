@@ -74,6 +74,10 @@ extension ListViewController {
         tableView.delegate?.tableView?(tableView, willDisplay: currentCell, forRowAt: indexPath)
         return currentCell
     }
+
+    func simulateTapOnFeedImage(at row: Int) {
+        tableView(tableView, didSelectRowAt: IndexPath(row: row, section: feedSection))
+    }
 }
 
 // MARK: - ImageCommentsViewController helpers

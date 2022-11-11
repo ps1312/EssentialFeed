@@ -46,6 +46,22 @@ class FeedUIIntegrationTests: XCTestCase {
         XCTAssertFalse(sut.isShowingLoadingIndicator, "Loading indicator should disappear after refresh completes with a success")
     }
 
+    func test_tapOnFeedImage_notifiesHandler() {
+        let image0 = uniqueImage()
+        let image1 = uniqueImage()
+        var selectedImages = [FeedImage]()
+        let (sut, loader) = makeSUT(onFeedImageTap: { selectedImages.append($0) })
+        sut.loadViewIfNeeded()
+
+        loader.completeFeedLoad(at: 0, with: [image0, image1])
+
+        sut.simulateTapOnFeedImage(at: 0)
+        XCTAssertEqual(selectedImages, [image0])
+
+        sut.simulateTapOnFeedImage(at: 1)
+        XCTAssertEqual(selectedImages, [image0, image1])
+    }
+
     func test_feedLoad_displaysFeedImageCellsWhenFeedLoadsWithImages() {
         let firstImage = uniqueImage(description: nil, location: nil)
         let secondImage = uniqueImage(description: "a description", location: nil)
@@ -364,6 +380,7 @@ class FeedUIIntegrationTests: XCTestCase {
 
         autoreleasepool {
             sut = FeedUIComposer.composeWith(
+                onFeedImageTap: { _ in },
                 loader: {
                     PassthroughSubject<[FeedImage], Error>()
                         .handleEvents(receiveCancel: { cancelCallsCount += 1 })
@@ -379,9 +396,13 @@ class FeedUIIntegrationTests: XCTestCase {
         XCTAssertEqual(cancelCallsCount, 1)
     }
 
-    private func makeSUT(file: StaticString = #filePath, line: UInt = #line) -> (sut: ListViewController, loader: FeedLoaderSpy) {
+    private func makeSUT(
+        onFeedImageTap: @escaping (FeedImage) -> Void = { _ in },
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) -> (sut: ListViewController, loader: FeedLoaderSpy) {
         let loader = FeedLoaderSpy()
-        let sut = FeedUIComposer.composeWith(loader: loader.loadPublisher, imageLoader: loader.loadImagePublisher)
+        let sut = FeedUIComposer.composeWith(onFeedImageTap: onFeedImageTap, loader: loader.loadPublisher, imageLoader: loader.loadImagePublisher)
 
         testMemoryLeak(loader, file: file, line: line)
         testMemoryLeak(sut, file: file, line: line)

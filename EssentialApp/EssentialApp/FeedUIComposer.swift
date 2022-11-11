@@ -4,15 +4,18 @@ import EssentialFeed
 import EssentialFeediOS
 
 public final class FeedUIComposer {
-    public static func composeWith(loader: @escaping () -> AnyPublisher<[FeedImage], Error>, imageLoader: @escaping (URL) -> FeedImageLoader.Publisher) -> ListViewController {
+    public static func composeWith(
+        onFeedImageTap: @escaping (FeedImage) -> Void,
+        loader: @escaping () -> AnyPublisher<[FeedImage], Error>,
+        imageLoader: @escaping (URL) -> FeedImageLoader.Publisher
+    ) -> ListViewController {
         let adapter = LoadResourcePresentationAdapter<[FeedImage], FeedViewAdapter>(loader: { loader().dispatchOnMainQueue() })
-        
         let viewController = ListViewController.makeWith(
             title: FeedPresenter.title,
             onRefresh: adapter.loadResource,
             storyboardName: "Feed"
         )
-        let view = FeedViewAdapter(imageLoader: { imageLoader($0).dispatchOnMainQueue() })
+        let view = FeedViewAdapter(onFeedImageTap: onFeedImageTap, imageLoader: { imageLoader($0).dispatchOnMainQueue() })
         view.controller = viewController
 
         adapter.presenter = LoadResourcePresenter<[FeedImage], FeedViewAdapter>(
@@ -25,4 +28,3 @@ public final class FeedUIComposer {
         return viewController
     }
 }
-

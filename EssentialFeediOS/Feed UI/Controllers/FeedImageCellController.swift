@@ -9,11 +9,13 @@ public protocol FeedImageCellControllerDelegate {
 public final class FeedImageCellController: NSObject {
     public typealias ResourceViewModel = UIImage
 
+    private let selected: () -> Void
     private let viewModel: FeedImageViewModel
     private let delegate: FeedImageCellControllerDelegate
     private(set) var cell: FeedImageCell?
 
-    public init(viewModel: FeedImageViewModel, delegate: FeedImageCellControllerDelegate) {
+    public init(selected: @escaping () -> Void, viewModel: FeedImageViewModel, delegate: FeedImageCellControllerDelegate) {
+        self.selected = selected
         self.viewModel = viewModel
         self.delegate = delegate
     }
@@ -44,6 +46,10 @@ extension FeedImageCellController: UITableViewDelegate, UITableViewDataSource, U
 
     public func tableView(_ tableView: UITableView, didEndDisplaying cell: UITableViewCell, forRowAt indexPath: IndexPath) {
         cancelLoad()
+    }
+
+    public func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        selected()
     }
 
     public func tableView(_ tableView: UITableView, prefetchRowsAt indexPaths: [IndexPath]) {
