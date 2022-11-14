@@ -1,16 +1,8 @@
 import Foundation
 import UIKit
-import EssentialFeediOS
+@testable import EssentialFeediOS
 
 extension ListViewController {
-    var itemsSection: Int {
-        0
-    }
-
-    var numberOfItems: Int {
-        tableView(tableView, numberOfRowsInSection: itemsSection)
-    }
-
     var isShowingLoadingIndicator: Bool {
         guard let refreshControl = refreshControl else { return false }
         return refreshControl.isRefreshing
@@ -31,35 +23,77 @@ extension ListViewController {
     func simulateTapOnError() {
         errorView.simulate(.touchUpInside)
     }
+}
 
-    func itemCell(at row: Int) -> UITableViewCell {
-        let indexPath = IndexPath(row: row, section: itemsSection)
-        return tableView(tableView, cellForRowAt: indexPath)
+// MARK: - FeedViewController helpers
+
+extension ListViewController {
+    var feedSection: Int {
+        0
+    }
+
+    var numberOfFeedImages: Int {
+        tableView.numberOfRows(inSection: feedSection)
+    }
+
+    func feedImageCell(at row: Int) -> UITableViewCell {
+        let indexPath = IndexPath(row: row, section: feedSection)
+        return tableView.dataSource!.tableView(tableView, cellForRowAt: indexPath)
     }
 
     @discardableResult
-    func simulateItemCellIsDisplayed(at row: Int) -> UITableViewCell {
-        itemCell(at: row)
+    func simulateFeedImageCellIsVisible(at row: Int) -> UITableViewCell {
+        feedImageCell(at: row)
+    }
+
+    func simulateFeedImageCellNearVisible(at row: Int) {
+        let indexPath = IndexPath(row: row, section: feedSection)
+        tableView(tableView, prefetchRowsAt: [indexPath])
+    }
+
+    func simulateFeedImageCellPrefetchCancel(at row: Int) {
+        simulateFeedImageCellNearVisible(at: row)
+
+        let ds = tableView.prefetchDataSource
+        let indexPath = IndexPath(row: row, section: feedSection)
+        ds?.tableView?(tableView, cancelPrefetchingForRowsAt: [indexPath])
     }
 
     @discardableResult
-    func simulateItemCellEndsDiplaying(at row: Int) -> UITableViewCell {
-        let indexPath = IndexPath(row: row, section: itemsSection)
-        let currentCell = simulateItemCellIsDisplayed(at: row)
+    func simulateFeedImageCellNotVisible(at row: Int) -> UITableViewCell {
+        let indexPath = IndexPath(row: row, section: feedSection)
+        let currentCell = simulateFeedImageCellIsVisible(at: row)
         tableView(tableView, didEndDisplaying: currentCell, forRowAt: indexPath)
         return currentCell
     }
 
-    func simulateItemCellPrefetch(at row: Int) {
-        let indexPath = IndexPath(row: row, section: itemsSection)
-        tableView(tableView, prefetchRowsAt: [indexPath])
+    @discardableResult
+    func simulateItemCellWillBecomeVisible(at row: Int) -> UITableViewCell {
+        let indexPath = IndexPath(row: row, section: feedSection)
+        let currentCell = simulateFeedImageCellNotVisible(at: row)
+        tableView.delegate?.tableView?(tableView, willDisplay: currentCell, forRowAt: indexPath)
+        return currentCell
     }
 
-    func simulateItemCellPrefetchingCanceling(at row: Int) {
-        simulateItemCellPrefetch(at: row)
+    func simulateTapOnFeedImage(at row: Int) {
+        simulateFeedImageCellIsVisible(at: row)
+        tableView(tableView, didSelectRowAt: IndexPath(row: row, section: feedSection))
+    }
+}
 
-        let ds = tableView.prefetchDataSource
-        let indexPath = IndexPath(row: row, section: itemsSection)
-        ds?.tableView?(tableView, cancelPrefetchingForRowsAt: [indexPath])
+// MARK: - ImageCommentsViewController helpers
+
+extension ListViewController {
+    var commentsSection: Int {
+        0
+    }
+
+    var numberOfImageComments: Int {
+        tableView.numberOfRows(inSection: commentsSection)
+    }
+
+    func imageCommentCell(at row: Int) -> UITableViewCell {
+        let indexPath = IndexPath(row: row, section: commentsSection)
+        return tableView.dataSource!.tableView(tableView, cellForRowAt: indexPath)
     }
 }

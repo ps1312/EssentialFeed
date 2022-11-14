@@ -5,9 +5,8 @@ class ImageCommentsViewAdapter: ResourceView {
     weak var controller: ListViewController?
 
     func display(_ viewModel: ImageCommentsViewModel) {
-        controller?.cellControllers = viewModel.comments.map { viewModel in
-            let controller = ImageCommentCellController(viewModel: viewModel)
-            return CellController(controller)
+        controller?.cellControllers = viewModel.comments.map { model in
+            CellController(id: model, ImageCommentCellController(viewModel: model))
         }
     }
 

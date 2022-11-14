@@ -63,10 +63,10 @@ class ImageCommentsUIIntegrationTests: XCTestCase {
         sut.loadViewIfNeeded()
 
         loader.completeCommentsLoad(at: 0, with: comments)
-        let firstCell = sut.itemCell(at: 0) as? ImageCommentCell
-        let lastCell = sut.itemCell(at: 1) as? ImageCommentCell
+        let firstCell = sut.imageCommentCell(at: 0) as? ImageCommentCell
+        let lastCell = sut.imageCommentCell(at: 1) as? ImageCommentCell
 
-        XCTAssertEqual(sut.numberOfItems, comments.count)
+        XCTAssertEqual(sut.numberOfImageComments, comments.count)
 
         XCTAssertEqual(firstCell?.messageLabel.text, firstComment.message)
         XCTAssertEqual(firstCell?.usernameLabel.text, firstComment.author)
@@ -128,11 +128,11 @@ class ImageCommentsUIIntegrationTests: XCTestCase {
         sut.loadViewIfNeeded()
 
         loader.completeCommentsLoad(at: 0, with: [image1, image2])
-        XCTAssertEqual(sut.numberOfItems, 2)
+        XCTAssertEqual(sut.numberOfImageComments, 2)
 
         sut.simulatePullToRefresh()
         loader.completeCommentsLoad(at: 1, with: [])
-        XCTAssertEqual(sut.numberOfItems, 0)
+        XCTAssertEqual(sut.numberOfImageComments, 0)
     }
 
     func test_tapOnErrorView_hidesErrorMessage() {
@@ -144,6 +144,27 @@ class ImageCommentsUIIntegrationTests: XCTestCase {
 
         XCTAssertEqual(sut.isShowingErrorMessage, false)
     }
+
+    func test_deinit_cancelsRequest() {
+        var cancelCallsCount = 0
+        var sut: ListViewController?
+
+        autoreleasepool {
+            sut = ImageCommentsUIComposer.composeWith(
+                loader: {
+                    PassthroughSubject<[ImageComment], Error>()
+                        .handleEvents(receiveCancel: { cancelCallsCount += 1 })
+                        .eraseToAnyPublisher()
+                })
+
+            sut?.loadViewIfNeeded()
+        }
+
+        XCTAssertEqual(cancelCallsCount, 0)
+        sut = nil
+        XCTAssertEqual(cancelCallsCount, 1)
+    }
+
 
     private func makeSUT(file: StaticString = #filePath, line: UInt = #line) -> (sut: ListViewController, loader: ImageCommentsLoaderSpy) {
         let loader = ImageCommentsLoaderSpy()
