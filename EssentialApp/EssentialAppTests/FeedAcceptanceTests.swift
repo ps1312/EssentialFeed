@@ -5,26 +5,19 @@ import EssentialFeed
 
 class FeedAcceptanceTests: XCTestCase {
     func test_feed_displaysNoFeedImagesWhenOfflineWithEmptyCache() {
-        let sut = makeSUT(client: .offline, store: FeedStoreStub(feed: [.empty], images: [.empty]))
+        let sut = makeSUT(client: .offline, store: .empty(numOfImages: 1))
 
         XCTAssertFalse(sut.isShowingLoadingIndicator)
         XCTAssertEqual(sut.numberOfFeedImages, 0)
     }
 
     func test_feed_displaysFeedCellsWhenOnlineAndLoadsImages() {
-        let data = try! JSONSerialization.data(withJSONObject: [ "items": [
-            ["id": "2AB2AE66-A4B7-4A16-B374-51BBAC8DB086", "image": "http://feed.com/image-0"],
-            ["id": "A28F5FE3-27A7-44E9-8DF5-53742D0E4A5A", "image": "http://feed.com/image-1"]
-        ]])
+        let data = makeFeedData(images: [makeFeedImageData(), makeFeedImageData()])
         let image1 = UIImage.make(withColor: .gray).pngData()!
         let image2 = UIImage.make(withColor: .blue).pngData()!
-
         let sut = makeSUT(
-            client: .online([
-                .success((data, makeHTTPURLResponse())),
-                .success((image1, makeHTTPURLResponse())), .success((image2, makeHTTPURLResponse()))]
-            ),
-            store: FeedStoreStub(feed: [.empty], images: [.empty, .empty])
+            client: .online([response(data), response(image1), response(image2)]),
+            store: .empty(numOfImages: 2)
         )
 
         XCTAssertFalse(sut.isShowingLoadingIndicator)
@@ -47,10 +40,7 @@ class FeedAcceptanceTests: XCTestCase {
         let image = UIImage.make(withColor: .green).pngData()!
         let sut = makeSUT(
             client: .offline,
-            store: FeedStoreStub(
-                feed: [.found(feed: [local], timestamp: Date())],
-                images: [.found(image)]
-            )
+            store: FeedStoreStub(feed: [.found(feed: [local], timestamp: Date())], images: [.found(image)])
         )
 
         let cell = sut.simulateFeedImageCellIsVisible(at: 0) as? FeedImageCell
@@ -60,26 +50,13 @@ class FeedAcceptanceTests: XCTestCase {
     }
 
     func test_tapOnFeedImage_navigatesToComments() {
-        let feedData = try! JSONSerialization.data(withJSONObject: [ "items": [
-            ["id": "2AB2AE66-A4B7-4A16-B374-51BBAC8DB086", "image": "http://feed.com/image-0"],
-        ]])
+        let feedData = makeFeedData(images: [makeFeedImageData()])
         let image1 = UIImage.make(withColor: .gray).pngData()!
-
-        let commentsData = try! JSONSerialization.data(withJSONObject: [ "items": [
-            ["id": "2AB2AE66-A4B7-4A16-B374-51BBAC8DB086",
-             "message": "a message",
-             "created_at": "2022-01-09T11:24:59+0000",
-             "author": ["username": "a username"]
-            ],
-        ]])
+        let commentsData = makeCommentsData()
 
         let sut = makeSUT(
-            client: .online([
-                .success((feedData, makeHTTPURLResponse())),
-                .success((image1, makeHTTPURLResponse())),
-                .success((commentsData, makeHTTPURLResponse()))
-            ]),
-            store: FeedStoreStub(feed: [.empty], images: [.empty])
+            client: .online([response(feedData), response(image1), response(commentsData)]),
+            store: .empty(numOfImages: 1)
         )
 
         sut.simulateTapOnFeedImage(at: 0)
@@ -99,6 +76,28 @@ class FeedAcceptanceTests: XCTestCase {
         let controller = nav.topViewController as! ListViewController
 
         return controller
+    }
+
+    private func makeFeedData(images: Any) -> Data {
+        try! JSONSerialization.data(withJSONObject: ["items": images])
+    }
+
+    private func makeFeedImageData() -> [String: Any] {
+        ["id": UUID().uuidString, "image": "http://image1.com"]
+    }
+
+    private func makeCommentsData() -> Data {
+        try! JSONSerialization.data(withJSONObject: [ "items": [
+            ["id": "2AB2AE66-A4B7-4A16-B374-51BBAC8DB086",
+             "message": "a message",
+             "created_at": "2022-01-09T11:24:59+0000",
+             "author": ["username": "a username"]
+            ],
+        ]])
+    }
+
+    private func response(_ data: Data) -> HTTPClientResult {
+        .success((data, makeHTTPURLResponse()))
     }
 
     private final class HTTPClientStub: HTTPClient {
@@ -127,6 +126,11 @@ class FeedAcceptanceTests: XCTestCase {
     }
 
     private final class FeedStoreStub: FeedStore, FeedImageStore {
+        static func empty(numOfImages: Int) -> FeedStoreStub {
+            let images = Array(repeating: 0, count: numOfImages).map { _ in CacheImageRetrieveResult.empty }
+            return FeedStoreStub(feed: [.empty], images: images)
+        }
+
         private var feed = [CacheRetrieveResult]()
         private var images = [CacheImageRetrieveResult]()
 
