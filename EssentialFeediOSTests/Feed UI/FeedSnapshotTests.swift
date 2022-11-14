@@ -54,6 +54,7 @@ class FeedSnapshotTests: XCTestCase {
     private func makeImageCellController(image: UIImage?, description: String?, location: String?) -> FeedImageCellController {
         let delegate = FeedImageCellControllerDelegateStub(image: image)
         let controller = FeedImageCellController(
+            selected: {},
             viewModel: FeedImageViewModel(description: description, location: location),
             delegate: delegate
         )

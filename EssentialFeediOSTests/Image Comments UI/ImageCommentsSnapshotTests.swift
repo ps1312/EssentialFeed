@@ -44,7 +44,7 @@ class ImageCommentsSnapshotTests: XCTestCase {
     }
 
     private func makeImageCommentCellController(message: String, username: String, date: String) -> ImageCommentCellController {
-        let viewModel = ImageCommentViewModel(message: message, username: username, date: date)
+        let viewModel = ImageCommentViewModel(id: UUID(), message: message, username: username, date: date)
         return ImageCommentCellController(viewModel: viewModel)
     }
 }
