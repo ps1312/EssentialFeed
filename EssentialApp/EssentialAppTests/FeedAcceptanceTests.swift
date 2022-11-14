@@ -6,7 +6,7 @@ import EssentialFeed
 class FeedAcceptanceTests: XCTestCase {
     func test_feed_displaysNoFeedImagesWhenOfflineWithEmptyCache() {
         let offline = HTTPClientStub(results: [.failure(makeNSError())])
-        let sut = makeSUT(client: offline, store: FeedStoreStub())
+        let sut = makeSUT(client: offline, store: FeedStoreStub(feed: [.empty], images: [.empty]))
 
         XCTAssertFalse(sut.isShowingLoadingIndicator)
         XCTAssertEqual(sut.numberOfFeedImages, 0)
@@ -26,7 +26,7 @@ class FeedAcceptanceTests: XCTestCase {
             .success((image1, makeHTTPURLResponse())),
             .success((image2, makeHTTPURLResponse()))
         ])
-        let sut = makeSUT(client: online, store: FeedStoreStub())
+        let sut = makeSUT(client: online, store: FeedStoreStub(feed: [.empty], images: [.empty, .empty]))
 
         XCTAssertFalse(sut.isShowingLoadingIndicator)
         XCTAssertEqual(sut.numberOfFeedImages, 2)
@@ -41,6 +41,20 @@ class FeedAcceptanceTests: XCTestCase {
         XCTAssertEqual(cell2?.feedImageData, image2)
         XCTAssertEqual(cell2?.isShowingLoadingIndicator, false)
         XCTAssertEqual(cell2?.isShowingRetryButton, false)
+    }
+
+    func test_feed_displaysCachedFeedWhenOffline() {
+        let local = LocalFeedImage(id: UUID(), description: "a description", location: "a location", url: makeURL())
+        let image = UIImage.make(withColor: .green).pngData()!
+
+        let offline = HTTPClientStub(results: [.failure(makeNSError())])
+        let store = FeedStoreStub(feed: [.found(feed: [local], timestamp: Date())], images: [.found(image)])
+        let sut = makeSUT(client: offline, store: store)
+
+        let cell = sut.simulateFeedImageCellIsVisible(at: 0) as? FeedImageCell
+        XCTAssertEqual(cell?.feedImageData, image)
+        XCTAssertEqual(cell?.descriptionText, local.description)
+        XCTAssertEqual(cell?.locationText, local.location)
     }
 
     private func makeSUT(client: HTTPClientStub, store: FeedStoreStub) -> ListViewController {
@@ -72,16 +86,24 @@ class FeedAcceptanceTests: XCTestCase {
     }
 
     private final class FeedStoreStub: FeedStore, FeedImageStore {
+        private var feed = [CacheRetrieveResult]()
+        private var images = [CacheImageRetrieveResult]()
+
+        init(feed: [CacheRetrieveResult], images: [CacheImageRetrieveResult]) {
+            self.feed = feed
+            self.images = images
+        }
+
         func delete(completion: @escaping DeletionCompletion) {}
 
         func persist(images: [LocalFeedImage], timestamp: Date, completion: @escaping PersistCompletion) {}
 
         func retrieve(completion: @escaping RetrieveCompletion) {
-            completion(.empty)
+            completion(feed.remove(at: 0))
         }
 
         func retrieve(from url: URL, completion: @escaping RetrievalCompletion) {
-            completion(.empty)
+            completion(images.remove(at: 0))
         }
 
         func insert(url: URL, with data: Data, completion: @escaping InsertCompletion) {}
