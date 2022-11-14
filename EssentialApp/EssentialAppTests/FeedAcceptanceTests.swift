@@ -5,8 +5,7 @@ import EssentialFeed
 
 class FeedAcceptanceTests: XCTestCase {
     func test_feed_displaysNoFeedImagesWhenOfflineWithEmptyCache() {
-        let offline = HTTPClientStub(results: [.failure(makeNSError())])
-        let sut = makeSUT(client: offline, store: FeedStoreStub(feed: [.empty], images: [.empty]))
+        let sut = makeSUT(client: .offline, store: FeedStoreStub(feed: [.empty], images: [.empty]))
 
         XCTAssertFalse(sut.isShowingLoadingIndicator)
         XCTAssertEqual(sut.numberOfFeedImages, 0)
@@ -17,16 +16,16 @@ class FeedAcceptanceTests: XCTestCase {
             ["id": "2AB2AE66-A4B7-4A16-B374-51BBAC8DB086", "image": "http://feed.com/image-0"],
             ["id": "A28F5FE3-27A7-44E9-8DF5-53742D0E4A5A", "image": "http://feed.com/image-1"]
         ]])
-
         let image1 = UIImage.make(withColor: .gray).pngData()!
         let image2 = UIImage.make(withColor: .blue).pngData()!
 
-        let online = HTTPClientStub(results: [
-            .success((data, makeHTTPURLResponse())),
-            .success((image1, makeHTTPURLResponse())),
-            .success((image2, makeHTTPURLResponse()))
-        ])
-        let sut = makeSUT(client: online, store: FeedStoreStub(feed: [.empty], images: [.empty, .empty]))
+        let sut = makeSUT(
+            client: .online([
+                .success((data, makeHTTPURLResponse())),
+                .success((image1, makeHTTPURLResponse())), .success((image2, makeHTTPURLResponse()))]
+            ),
+            store: FeedStoreStub(feed: [.empty], images: [.empty, .empty])
+        )
 
         XCTAssertFalse(sut.isShowingLoadingIndicator)
         XCTAssertEqual(sut.numberOfFeedImages, 2)
@@ -46,10 +45,13 @@ class FeedAcceptanceTests: XCTestCase {
     func test_feed_displaysCachedFeedWhenOffline() {
         let local = LocalFeedImage(id: UUID(), description: "a description", location: "a location", url: makeURL())
         let image = UIImage.make(withColor: .green).pngData()!
-
-        let offline = HTTPClientStub(results: [.failure(makeNSError())])
-        let store = FeedStoreStub(feed: [.found(feed: [local], timestamp: Date())], images: [.found(image)])
-        let sut = makeSUT(client: offline, store: store)
+        let sut = makeSUT(
+            client: .offline,
+            store: FeedStoreStub(
+                feed: [.found(feed: [local], timestamp: Date())],
+                images: [.found(image)]
+            )
+        )
 
         let cell = sut.simulateFeedImageCellIsVisible(at: 0) as? FeedImageCell
         XCTAssertEqual(cell?.feedImageData, image)
@@ -69,6 +71,14 @@ class FeedAcceptanceTests: XCTestCase {
     }
 
     private final class HTTPClientStub: HTTPClient {
+        static var offline: HTTPClientStub {
+            HTTPClientStub(results: [.failure(makeNSError())])
+        }
+
+        static func online(_ results: [HTTPClientResult]) -> HTTPClientStub {
+            HTTPClientStub(results: results)
+        }
+
         private var results = [HTTPClientResult]()
 
         init(results: [HTTPClientResult]) {
