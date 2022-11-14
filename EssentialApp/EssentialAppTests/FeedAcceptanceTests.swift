@@ -59,6 +59,37 @@ class FeedAcceptanceTests: XCTestCase {
         XCTAssertEqual(cell?.locationText, local.location)
     }
 
+    func test_tapOnFeedImage_navigatesToComments() {
+        let feedData = try! JSONSerialization.data(withJSONObject: [ "items": [
+            ["id": "2AB2AE66-A4B7-4A16-B374-51BBAC8DB086", "image": "http://feed.com/image-0"],
+        ]])
+        let image1 = UIImage.make(withColor: .gray).pngData()!
+
+        let commentsData = try! JSONSerialization.data(withJSONObject: [ "items": [
+            ["id": "2AB2AE66-A4B7-4A16-B374-51BBAC8DB086",
+             "message": "a message",
+             "created_at": "2022-01-09T11:24:59+0000",
+             "author": ["username": "a username"]
+            ],
+        ]])
+
+        let sut = makeSUT(
+            client: .online([
+                .success((feedData, makeHTTPURLResponse())),
+                .success((image1, makeHTTPURLResponse())),
+                .success((commentsData, makeHTTPURLResponse()))
+            ]),
+            store: FeedStoreStub(feed: [.empty], images: [.empty])
+        )
+
+        sut.simulateTapOnFeedImage(at: 0)
+        RunLoop.current.run(until: Date())
+
+        let currentView = sut.navigationController?.topViewController as? ListViewController
+        XCTAssertEqual(currentView?.title, ImageCommentsPresenter.title)
+        XCTAssertEqual(currentView?.numberOfImageComments, 1)
+    }
+
     private func makeSUT(client: HTTPClientStub, store: FeedStoreStub) -> ListViewController {
         let sut = SceneDelegate(client: client, store: store)
         sut.window = UIWindow(frame: CGRect(x: 0, y: 0, width: 1, height: 1))
