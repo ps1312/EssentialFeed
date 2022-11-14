@@ -374,28 +374,6 @@ class FeedUIIntegrationTests: XCTestCase {
         XCTAssertEqual(cell?.feedImageData, imageData)
     }
 
-    func test_deinit_cancelsRequest() {
-        var cancelCallsCount = 0
-        var sut: ListViewController?
-
-        autoreleasepool {
-            sut = FeedUIComposer.composeWith(
-                onFeedImageTap: { _ in },
-                loader: {
-                    PassthroughSubject<[FeedImage], Error>()
-                        .handleEvents(receiveCancel: { cancelCallsCount += 1 })
-                        .eraseToAnyPublisher()
-                },
-                imageLoader: { _ in Empty<Data, Error>() .eraseToAnyPublisher() })
-
-            sut?.loadViewIfNeeded()
-        }
-
-        XCTAssertEqual(cancelCallsCount, 0)
-        sut = nil
-        XCTAssertEqual(cancelCallsCount, 1)
-    }
-
     private func makeSUT(
         onFeedImageTap: @escaping (FeedImage) -> Void = { _ in },
         file: StaticString = #filePath,
