@@ -21,6 +21,15 @@ class FeedSnapshotTests: XCTestCase {
         assert(snapshot: sut.snapshot(for: .iPhone13(style: .dark)), named: "FEED_WITH_IMAGE_RETRY_dark")
     }
 
+    func test_loadMore_displaysLoadingIndicator() {
+        let sut = makeSUT()
+
+        sut.cellControllers = loadMoreFeed()
+
+        assert(snapshot: sut.snapshot(for: .iPhone13(style: .light)), named: "FEED_WITH_LOAD_MORE_light")
+        assert(snapshot: sut.snapshot(for: .iPhone13(style: .dark)), named: "FEED_WITH_LOAD_MORE_dark")
+    }
+
     private func makeSUT() -> ListViewController {
         let bundle = Bundle(for: ListViewController.self)
         let storyboard = UIStoryboard(name: "Feed", bundle: bundle)
@@ -49,6 +58,13 @@ class FeedSnapshotTests: XCTestCase {
     private func failedImageLoadFeed() -> [CellController] {
         let controller = makeImageCellController(image: nil, description: nil, location: "Na Chom Thian, Thailand")
         return [CellController(id: UUID(), controller)]
+    }
+
+    private func loadMoreFeed() -> [CellController] {
+        let imageCell = makeImageCellController(image: .make(withColor: .magenta), description: "description", location: "location")
+        let loadMoreCell = LoadMoreCellController()
+        loadMoreCell.display(ResourceLoadingViewModel(isLoading: true))
+        return [CellController(id: UUID(), imageCell), CellController(id: UUID(), loadMoreCell)]
     }
 
     private func makeImageCellController(image: UIImage?, description: String?, location: String?) -> FeedImageCellController {
