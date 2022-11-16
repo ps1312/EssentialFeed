@@ -8,8 +8,8 @@ class FeedSnapshotTests: XCTestCase {
 
         sut.cellControllers = nonEmptyFeed()
 
-        assert(snapshot: sut.snapshot(for: .iPhone8(style: .light)), named: "FEED_WITH_CONTENT_light")
-        assert(snapshot: sut.snapshot(for: .iPhone8(style: .dark)), named: "FEED_WITH_CONTENT_dark")
+        assert(snapshot: sut.snapshot(for: .iPhone13(style: .light)), named: "FEED_WITH_CONTENT_light")
+        assert(snapshot: sut.snapshot(for: .iPhone13(style: .dark)), named: "FEED_WITH_CONTENT_dark")
     }
 
     func test_feedLoadFail_displaysRetryButton() {
@@ -17,8 +17,8 @@ class FeedSnapshotTests: XCTestCase {
 
         sut.cellControllers = failedImageLoadFeed()
 
-        assert(snapshot: sut.snapshot(for: .iPhone8(style: .light)), named: "FEED_WITH_IMAGE_RETRY_light")
-        assert(snapshot: sut.snapshot(for: .iPhone8(style: .dark)), named: "FEED_WITH_IMAGE_RETRY_dark")
+        assert(snapshot: sut.snapshot(for: .iPhone13(style: .light)), named: "FEED_WITH_IMAGE_RETRY_light")
+        assert(snapshot: sut.snapshot(for: .iPhone13(style: .dark)), named: "FEED_WITH_IMAGE_RETRY_dark")
     }
 
     private func makeSUT() -> ListViewController {
