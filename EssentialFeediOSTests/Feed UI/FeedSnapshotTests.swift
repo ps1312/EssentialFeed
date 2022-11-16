@@ -30,6 +30,15 @@ class FeedSnapshotTests: XCTestCase {
         assert(snapshot: sut.snapshot(for: .iPhone13(style: .dark)), named: "FEED_WITH_LOAD_MORE_dark")
     }
 
+    func test_loadMoreFailure_displaysAnErrorMessage() {
+        let sut = makeSUT()
+
+        sut.cellControllers = loadMoreFeedError()
+
+        assert(snapshot: sut.snapshot(for: .iPhone13(style: .light)), named: "FEED_WITH_LOAD_MORE_ERROR_light")
+        assert(snapshot: sut.snapshot(for: .iPhone13(style: .dark)), named: "FEED_WITH_LOAD_MORE_ERROR_dark")
+    }
+
     private func makeSUT() -> ListViewController {
         let bundle = Bundle(for: ListViewController.self)
         let storyboard = UIStoryboard(name: "Feed", bundle: bundle)
@@ -64,6 +73,13 @@ class FeedSnapshotTests: XCTestCase {
         let imageCell = makeImageCellController(image: .make(withColor: .magenta), description: "description", location: "location")
         let loadMoreCell = LoadMoreCellController()
         loadMoreCell.display(ResourceLoadingViewModel(isLoading: true))
+        return [CellController(id: UUID(), imageCell), CellController(id: UUID(), loadMoreCell)]
+    }
+
+    private func loadMoreFeedError() -> [CellController] {
+        let imageCell = makeImageCellController(image: .make(withColor: .magenta), description: "description", location: "location")
+        let loadMoreCell = LoadMoreCellController()
+        loadMoreCell.display(ResourceErrorViewModel(message: "A multiline error\nmessage"))
         return [CellController(id: UUID(), imageCell), CellController(id: UUID(), loadMoreCell)]
     }
 

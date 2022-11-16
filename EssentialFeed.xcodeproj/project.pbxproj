@@ -105,6 +105,8 @@
 		3ACDF53D29256B120064370E /* LoadMoreCellController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3ACDF53C29256B120064370E /* LoadMoreCellController.swift */; };
 		3ACDF54029256BE80064370E /* FEED_WITH_LOAD_MORE_dark.png in Resources */ = {isa = PBXBuildFile; fileRef = 3ACDF53E29256BE80064370E /* FEED_WITH_LOAD_MORE_dark.png */; };
 		3ACDF54129256BE80064370E /* FEED_WITH_LOAD_MORE_light.png in Resources */ = {isa = PBXBuildFile; fileRef = 3ACDF53F29256BE80064370E /* FEED_WITH_LOAD_MORE_light.png */; };
+		3ACDF544292573010064370E /* FEED_WITH_LOAD_MORE_ERROR_dark.png in Resources */ = {isa = PBXBuildFile; fileRef = 3ACDF542292573010064370E /* FEED_WITH_LOAD_MORE_ERROR_dark.png */; };
+		3ACDF545292573010064370E /* FEED_WITH_LOAD_MORE_ERROR_light.png in Resources */ = {isa = PBXBuildFile; fileRef = 3ACDF543292573010064370E /* FEED_WITH_LOAD_MORE_ERROR_light.png */; };
 		3ACE9F5428B4460D00C7A772 /* URLSessionHTTPClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3ACE9F5328B4460D00C7A772 /* URLSessionHTTPClient.swift */; };
 		3AD44305291BD91E00B74085 /* FeedImageMapperTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AD44304291BD91E00B74085 /* FeedImageMapperTests.swift */; };
 		3AD6E18228C29D1200D5D0FB /* CoreDataFeedStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AD6E18128C29D1200D5D0FB /* CoreDataFeedStore.swift */; };
@@ -272,6 +274,8 @@
 		3ACDF53C29256B120064370E /* LoadMoreCellController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadMoreCellController.swift; sourceTree = "<group>"; };
 		3ACDF53E29256BE80064370E /* FEED_WITH_LOAD_MORE_dark.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = FEED_WITH_LOAD_MORE_dark.png; sourceTree = "<group>"; };
 		3ACDF53F29256BE80064370E /* FEED_WITH_LOAD_MORE_light.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = FEED_WITH_LOAD_MORE_light.png; sourceTree = "<group>"; };
+		3ACDF542292573010064370E /* FEED_WITH_LOAD_MORE_ERROR_dark.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = FEED_WITH_LOAD_MORE_ERROR_dark.png; sourceTree = "<group>"; };
+		3ACDF543292573010064370E /* FEED_WITH_LOAD_MORE_ERROR_light.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = FEED_WITH_LOAD_MORE_ERROR_light.png; sourceTree = "<group>"; };
 		3ACE9F5328B4460D00C7A772 /* URLSessionHTTPClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = URLSessionHTTPClient.swift; sourceTree = "<group>"; };
 		3AD44304291BD91E00B74085 /* FeedImageMapperTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedImageMapperTests.swift; sourceTree = "<group>"; };
 		3AD6E18128C29D1200D5D0FB /* CoreDataFeedStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreDataFeedStore.swift; sourceTree = "<group>"; };
@@ -783,6 +787,8 @@
 				3ACDF525292569190064370E /* FEED_WITH_IMAGE_RETRY_dark.png */,
 				3ACDF53E29256BE80064370E /* FEED_WITH_LOAD_MORE_dark.png */,
 				3ACDF53F29256BE80064370E /* FEED_WITH_LOAD_MORE_light.png */,
+				3ACDF542292573010064370E /* FEED_WITH_LOAD_MORE_ERROR_dark.png */,
+				3ACDF543292573010064370E /* FEED_WITH_LOAD_MORE_ERROR_light.png */,
 			);
 			path = snapshots;
 			sourceTree = "<group>";
@@ -1071,11 +1077,13 @@
 				3ACDF54129256BE80064370E /* FEED_WITH_LOAD_MORE_light.png in Resources */,
 				3ACDF528292569190064370E /* FEED_WITH_CONTENT_light.png in Resources */,
 				3ACDF53B292569540064370E /* IMAGE_COMMENTS_WITH_CONTENT_light.png in Resources */,
+				3ACDF545292573010064370E /* FEED_WITH_LOAD_MORE_ERROR_light.png in Resources */,
 				3ACDF53A292569540064370E /* IMAGE_COMMENTS_WITH_CONTENT_dark.png in Resources */,
 				3ACDF536292569220064370E /* EMPTY_LIST_light.png in Resources */,
 				3ACDF533292569220064370E /* LOADING_INDICATOR_dark.png in Resources */,
 				3ACDF54029256BE80064370E /* FEED_WITH_LOAD_MORE_dark.png in Resources */,
 				3ACDF534292569220064370E /* LIST_WITH_ERROR_dark.png in Resources */,
+				3ACDF544292573010064370E /* FEED_WITH_LOAD_MORE_ERROR_dark.png in Resources */,
 				3ACDF532292569220064370E /* LIST_WITH_ERROR_light.png in Resources */,
 				3ACDF527292569190064370E /* FEED_WITH_CONTENT_dark.png in Resources */,
 				3ACDF531292569220064370E /* EMPTY_LIST_dark.png in Resources */,

@@ -16,6 +16,25 @@ public class LoadMoreCell: UITableViewCell {
         return spinner
     }()
 
+    private lazy var errorLabel: UILabel = {
+        let label = UILabel()
+        label.font = .preferredFont(forTextStyle: .footnote)
+        label.adjustsFontForContentSizeCategory = true
+        label.numberOfLines = 0
+        label.textColor = .tertiaryLabel
+        label.textAlignment = .center
+
+        contentView.addSubview(label)
+        label.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            label.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
+            label.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
+            contentView.heightAnchor.constraint(lessThanOrEqualToConstant: 40)
+        ])
+
+        return label
+    }()
+
     public var isLoading: Bool {
         get { spinner.isAnimating }
         set {
@@ -25,6 +44,11 @@ public class LoadMoreCell: UITableViewCell {
                 spinner.stopAnimating()
             }
         }
+    }
+
+    public var errorMessage: String? {
+        get { errorLabel.text }
+        set { errorLabel.text = newValue }
     }
 }
 
@@ -40,8 +64,12 @@ public class LoadMoreCellController: NSObject, UITableViewDataSource {
     }
 }
 
-extension LoadMoreCellController: ResourceLoadingView {
+extension LoadMoreCellController: ResourceLoadingView, ResourceErrorView {
     public func display(_ viewModel: ResourceLoadingViewModel) {
         cell.isLoading = viewModel.isLoading
+    }
+
+    public func display(_ viewModel: ResourceErrorViewModel) {
+        cell.errorMessage = viewModel.message
     }
 }
