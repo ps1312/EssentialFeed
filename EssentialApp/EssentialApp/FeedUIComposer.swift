@@ -6,10 +6,10 @@ import EssentialFeediOS
 public final class FeedUIComposer {
     public static func composeWith(
         onFeedImageTap: @escaping (FeedImage) -> Void,
-        loader: @escaping () -> AnyPublisher<[FeedImage], Error>,
+        loader: @escaping () -> AnyPublisher<Paginated<FeedImage>, Error>,
         imageLoader: @escaping (URL) -> FeedImageLoader.Publisher
     ) -> ListViewController {
-        let adapter = LoadResourcePresentationAdapter<[FeedImage], FeedViewAdapter>(loader: { loader().dispatchOnMainQueue() })
+        let adapter = LoadResourcePresentationAdapter<Paginated<FeedImage>, FeedViewAdapter>(loader: { loader().dispatchOnMainQueue() })
         let viewController = ListViewController.makeWith(
             title: FeedPresenter.title,
             onRefresh: adapter.loadResource,
@@ -18,11 +18,11 @@ public final class FeedUIComposer {
         let view = FeedViewAdapter(onFeedImageTap: onFeedImageTap, imageLoader: { imageLoader($0).dispatchOnMainQueue() })
         view.controller = viewController
 
-        adapter.presenter = LoadResourcePresenter<[FeedImage], FeedViewAdapter>(
+        adapter.presenter = LoadResourcePresenter<Paginated<FeedImage>, FeedViewAdapter>(
             loadingView: WeakRefVirtualProxy(viewController),
             errorView: WeakRefVirtualProxy(viewController),
             resourceView: view,
-            mapper: FeedPresenter.map
+            mapper: { $0 }
         )
 
         return viewController

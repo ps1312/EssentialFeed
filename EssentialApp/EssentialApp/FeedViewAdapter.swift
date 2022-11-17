@@ -12,7 +12,7 @@ final class FeedViewAdapter: ResourceView {
         self.imageLoader = imageLoader
     }
 
-    func display(_ viewModel: FeedViewModel) {
+    func display(_ viewModel: Paginated<FeedImage>) {
         controller?.cellControllers = viewModel.feed.map { model in
             let adapter = LoadResourcePresentationAdapter<Data, WeakRefVirtualProxy<FeedImageCellController>>(
                 loader: { [imageLoader] in imageLoader(model.url) }
