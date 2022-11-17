@@ -6,7 +6,7 @@ class FeedSnapshotTests: XCTestCase {
     func test_nonEmptyFeed() {
         let sut = makeSUT()
 
-        sut.cellControllers = nonEmptyFeed()
+        sut.display(nonEmptyFeed())
 
         assert(snapshot: sut.snapshot(for: .iPhone13(style: .light)), named: "FEED_WITH_CONTENT_light")
         assert(snapshot: sut.snapshot(for: .iPhone13(style: .dark)), named: "FEED_WITH_CONTENT_dark")
@@ -15,7 +15,7 @@ class FeedSnapshotTests: XCTestCase {
     func test_feedLoadFail_displaysRetryButton() {
         let sut = makeSUT()
 
-        sut.cellControllers = failedImageLoadFeed()
+        sut.display(failedImageLoadFeed())
 
         assert(snapshot: sut.snapshot(for: .iPhone13(style: .light)), named: "FEED_WITH_IMAGE_RETRY_light")
         assert(snapshot: sut.snapshot(for: .iPhone13(style: .dark)), named: "FEED_WITH_IMAGE_RETRY_dark")
@@ -24,7 +24,7 @@ class FeedSnapshotTests: XCTestCase {
     func test_loadMore_displaysLoadingIndicator() {
         let sut = makeSUT()
 
-        sut.cellControllers = loadMoreFeed()
+        sut.display(loadMoreFeed())
 
         assert(snapshot: sut.snapshot(for: .iPhone13(style: .light)), named: "FEED_WITH_LOAD_MORE_light")
         assert(snapshot: sut.snapshot(for: .iPhone13(style: .dark)), named: "FEED_WITH_LOAD_MORE_dark")
@@ -33,7 +33,7 @@ class FeedSnapshotTests: XCTestCase {
     func test_loadMoreFailure_displaysAnErrorMessage() {
         let sut = makeSUT()
 
-        sut.cellControllers = loadMoreFeedError()
+        sut.display(loadMoreFeedError())
 
         assert(snapshot: sut.snapshot(for: .iPhone13(style: .light)), named: "FEED_WITH_LOAD_MORE_ERROR_light")
         assert(snapshot: sut.snapshot(for: .iPhone13(style: .dark)), named: "FEED_WITH_LOAD_MORE_ERROR_dark")

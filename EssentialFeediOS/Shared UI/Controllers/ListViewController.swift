@@ -10,9 +10,7 @@ public final class ListViewController: UITableViewController, UITableViewDataSou
 
     public lazy var errorView: ErrorButton = ErrorButton()
     public var onRefresh: (() -> Void)?
-    public var cellControllers = [CellController]() {
-        didSet { onCellControllersUpdate() }
-    }
+    private var cellControllers = [CellController]()
 
     public override func viewDidLoad() {
         configureLoadingIndicator()
@@ -52,13 +50,6 @@ public final class ListViewController: UITableViewController, UITableViewDataSou
         tableView.tableHeaderView = container
     }
 
-    private func onCellControllersUpdate() {
-        var snapshot = NSDiffableDataSourceSnapshot<Int, CellController>()
-        snapshot.appendSections([0])
-        snapshot.appendItems(cellControllers)
-        dataSource.apply(snapshot)
-    }
-
     public override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         sizeTableHeaderToFit()
@@ -66,6 +57,14 @@ public final class ListViewController: UITableViewController, UITableViewDataSou
 
     @objc func refresh() {
         onRefresh?()
+    }
+
+    public func display(_ cellControllers: [CellController]) {
+        self.cellControllers = cellControllers
+        var snapshot = NSDiffableDataSourceSnapshot<Int, CellController>()
+        snapshot.appendSections([0])
+        snapshot.appendItems(cellControllers)
+        dataSource.apply(snapshot)
     }
 
     public func display(_ viewModel: ResourceLoadingViewModel) {
