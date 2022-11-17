@@ -10,7 +10,6 @@ public final class ListViewController: UITableViewController, UITableViewDataSou
 
     public lazy var errorView: ErrorButton = ErrorButton()
     public var onRefresh: (() -> Void)?
-    private var cellControllers = [CellController]()
 
     public override func viewDidLoad() {
         configureLoadingIndicator()
@@ -60,7 +59,6 @@ public final class ListViewController: UITableViewController, UITableViewDataSou
     }
 
     public func display(_ cellControllers: [CellController]) {
-        self.cellControllers = cellControllers
         var snapshot = NSDiffableDataSourceSnapshot<Int, CellController>()
         snapshot.appendSections([0])
         snapshot.appendItems(cellControllers)
@@ -80,30 +78,30 @@ public final class ListViewController: UITableViewController, UITableViewDataSou
     }
 
     public override func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
-        let dl = cellControllers[indexPath.row].delegate
+        let dl = dataSource.itemIdentifier(for: indexPath)?.delegate
         dl?.tableView?(tableView, willDisplay: cell, forRowAt: indexPath)
     }
 
     public override func tableView(_ tableView: UITableView, didEndDisplaying cell: UITableViewCell, forRowAt indexPath: IndexPath) {
-        let dl = cellControllers[indexPath.row].delegate
+        let dl = dataSource.itemIdentifier(for: indexPath)?.delegate
         dl?.tableView?(tableView, didEndDisplaying: cell, forRowAt: indexPath)
     }
 
     public override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let dl = cellControllers[indexPath.row].delegate
+        let dl = dataSource.itemIdentifier(for: indexPath)?.delegate
         dl?.tableView?(tableView, didSelectRowAt: indexPath)
     }
 
     public func tableView(_ tableView: UITableView, prefetchRowsAt indexPaths: [IndexPath]) {
         indexPaths.forEach { indexPath in
-            let pf = cellControllers[indexPath.row].prefetch
+            let pf = dataSource.itemIdentifier(for: indexPath)?.prefetch
             pf?.tableView(tableView, prefetchRowsAt: indexPaths)
         }
     }
 
     public func tableView(_ tableView: UITableView, cancelPrefetchingForRowsAt indexPaths: [IndexPath]) {
         indexPaths.forEach { indexPath in
-            let pf = cellControllers[indexPath.row].prefetch
+            let pf = dataSource.itemIdentifier(for: indexPath)?.prefetch
             pf?.tableView?(tableView, cancelPrefetchingForRowsAt: indexPaths)
         }
     }
