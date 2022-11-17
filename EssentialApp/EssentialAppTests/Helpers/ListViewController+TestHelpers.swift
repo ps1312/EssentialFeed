@@ -79,6 +79,19 @@ extension ListViewController {
         simulateFeedImageCellIsVisible(at: row)
         tableView(tableView, didSelectRowAt: IndexPath(row: row, section: feedSection))
     }
+
+    func simulateLoadMoreFeedImages() {
+        let loadMoreIndexPath = IndexPath(row: 0, section: loadMoreSection)
+        let dataSource = tableView.dataSource
+        guard let cell = dataSource?.tableView(tableView, cellForRowAt: loadMoreIndexPath) else { return }
+
+        let delegate = tableView.delegate
+        delegate?.tableView?(tableView, willDisplay: cell, forRowAt: loadMoreIndexPath)
+    }
+
+    private var loadMoreSection: Int {
+        1
+    }
 }
 
 // MARK: - ImageCommentsViewController helpers

@@ -30,6 +30,18 @@ class FeedUIIntegrationTests: XCTestCase {
         XCTAssertEqual(loader.loadCallsCount, 3, "Feed loader should be called again after user pulls to refresh")
     }
 
+    func test_loadMore_isCalledUponLoadMoreAction() {
+        let (sut, loader) = makeSUT()
+        sut.loadViewIfNeeded()
+        loader.completeFeedLoad(at: 0)
+
+        XCTAssertEqual(loader.loadMoreCallCount, 0, "Expected no load more after view appears")
+
+        sut.simulateLoadMoreFeedImages()
+
+        XCTAssertEqual(loader.loadMoreCallCount, 1, "Expected load more after user requests to load more")
+    }
+
     func test_loadingIndicator_isDisplayedWhileLoadingFeed() {
         let (sut, loader) = makeSUT()
 

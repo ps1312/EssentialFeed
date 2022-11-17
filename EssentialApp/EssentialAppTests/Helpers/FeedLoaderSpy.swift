@@ -9,6 +9,8 @@ class FeedLoaderSpy: FeedImageLoader {
         return publishers.count
     }
 
+    var loadMoreCallCount = 0
+
     var publishers = [PassthroughSubject<Paginated<FeedImage>, Error>]()
 
     func loadPublisher() -> AnyPublisher<Paginated<FeedImage>, Swift.Error> {
@@ -18,7 +20,9 @@ class FeedLoaderSpy: FeedImageLoader {
     }
 
     func completeFeedLoad(at index: Int, with images: [FeedImage] = []) {
-        publishers[index].send(Paginated<FeedImage>(feed: images, loadMore: nil))
+        publishers[index].send(Paginated<FeedImage>(feed: images, loadMore: { [weak self] _ in
+            self?.loadMoreCallCount += 1
+        }))
     }
 
     func completeFeedLoad(at index: Int, with error: Error) {
