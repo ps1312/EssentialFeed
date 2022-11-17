@@ -2,6 +2,16 @@ import Foundation
 import Combine
 import EssentialFeed
 
+extension Paginated {
+    func loadMorePublisher() -> AnyPublisher<Self, Error>? {
+        guard let loadMore = loadMore else { return nil }
+
+        return Deferred {
+            Future(loadMore)
+        }.eraseToAnyPublisher()
+    }
+}
+
 extension LocalFeedLoader {
     public func loadPublisher() -> AnyPublisher<[FeedImage], Swift.Error> {
         return Deferred {

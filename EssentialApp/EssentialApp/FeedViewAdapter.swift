@@ -39,11 +39,22 @@ final class FeedViewAdapter: ResourceView {
             return CellController(id: model, view)
         }
 
-        let loadMoreCellController = [
-            CellController(id: UUID(), LoadMoreCellController { viewModel.loadMore? { _ in } })
-        ]
+        guard let loadMorePublisher = viewModel.loadMorePublisher() else {
+            controller?.display(feedImageCellControllers)
+            return
+        }
 
-        controller?.display(feedImageCellControllers, loadMoreCellController)
+        let adapter = LoadResourcePresentationAdapter<Paginated<FeedImage>, FeedViewAdapter>(loader: { loadMorePublisher })
+
+        let loadMoreCellController = LoadMoreCellController { adapter.loadResource() }
+
+        adapter.presenter = LoadResourcePresenter(
+            loadingView: WeakRefVirtualProxy(loadMoreCellController),
+            errorView: WeakRefVirtualProxy(loadMoreCellController),
+            resourceView: self,
+            mapper: { $0 })
+
+        controller?.display(feedImageCellControllers, [CellController(id: UUID(), loadMoreCellController)])
     }
 }
 
