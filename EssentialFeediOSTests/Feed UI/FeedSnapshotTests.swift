@@ -71,14 +71,14 @@ class FeedSnapshotTests: XCTestCase {
 
     private func loadMoreFeed() -> [CellController] {
         let imageCell = makeImageCellController(image: .make(withColor: .magenta), description: "description", location: "location")
-        let loadMoreCell = LoadMoreCellController()
+        let loadMoreCell = LoadMoreCellController { }
         loadMoreCell.display(ResourceLoadingViewModel(isLoading: true))
         return [CellController(id: UUID(), imageCell), CellController(id: UUID(), loadMoreCell)]
     }
 
     private func loadMoreFeedError() -> [CellController] {
         let imageCell = makeImageCellController(image: .make(withColor: .magenta), description: "description", location: "location")
-        let loadMoreCell = LoadMoreCellController()
+        let loadMoreCell = LoadMoreCellController { }
         loadMoreCell.display(ResourceErrorViewModel(message: "A multiline error\nmessage"))
         return [CellController(id: UUID(), imageCell), CellController(id: UUID(), loadMoreCell)]
     }
