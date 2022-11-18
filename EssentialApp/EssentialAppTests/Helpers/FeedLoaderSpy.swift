@@ -23,7 +23,7 @@ class FeedLoaderSpy: FeedImageLoader {
     }
 
     func completeFeedLoad(at index: Int, with images: [FeedImage] = []) {
-        publishers[index].send(Paginated<FeedImage>(feed: images, loadMore: { [weak self] completion in
+        publishers[index].send(Paginated<FeedImage>(items: images, loadMore: { [weak self] completion in
             let publisher = PassthroughSubject<Paginated<FeedImage>, Error>()
 
             publisher.subscribe(Subscribers.Sink(receiveCompletion: { result in
