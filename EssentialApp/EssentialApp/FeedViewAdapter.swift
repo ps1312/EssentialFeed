@@ -1,4 +1,5 @@
 import UIKit
+import Combine
 import EssentialFeed
 import EssentialFeediOS
 
@@ -39,12 +40,14 @@ final class FeedViewAdapter: ResourceView {
             return CellController(id: model, view)
         }
 
-        guard let loadMorePublisher = viewModel.loadMorePublisher() else {
+        guard let loadMore = viewModel.loadMore else {
             controller?.display(feedImageCellControllers)
             return
         }
 
-        let adapter = LoadResourcePresentationAdapter<Paginated<FeedImage>, FeedViewAdapter>(loader: { loadMorePublisher })
+        let adapter = LoadResourcePresentationAdapter<Paginated<FeedImage>, FeedViewAdapter>(
+            loader: { Deferred { Future(loadMore) }.eraseToAnyPublisher() }
+        )
 
         let loadMoreCellController = LoadMoreCellController { adapter.loadResource() }
 

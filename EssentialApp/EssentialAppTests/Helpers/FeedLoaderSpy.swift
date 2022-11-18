@@ -5,13 +5,16 @@ import EssentialApp
 
 class FeedLoaderSpy: FeedImageLoader {
     var completions = [(AnyPublisher<Paginated<FeedImage>, Error>) -> Void]()
+    var loadMorePublishers = [PassthroughSubject<Paginated<FeedImage>, Error>]()
+    var publishers = [PassthroughSubject<Paginated<FeedImage>, Error>]()
+
     var loadCallsCount: Int {
         return publishers.count
     }
 
-    var loadMoreCallCount = 0
-
-    var publishers = [PassthroughSubject<Paginated<FeedImage>, Error>]()
+    var loadMoreCallCount: Int {
+        loadMorePublishers.count
+    }
 
     func loadPublisher() -> AnyPublisher<Paginated<FeedImage>, Swift.Error> {
         let publisher = PassthroughSubject<Paginated<FeedImage>, Swift.Error>()
@@ -20,13 +23,32 @@ class FeedLoaderSpy: FeedImageLoader {
     }
 
     func completeFeedLoad(at index: Int, with images: [FeedImage] = []) {
-        publishers[index].send(Paginated<FeedImage>(feed: images, loadMore: { [weak self] _ in
-            self?.loadMoreCallCount += 1
+        publishers[index].send(Paginated<FeedImage>(feed: images, loadMore: { [weak self] completion in
+            let publisher = PassthroughSubject<Paginated<FeedImage>, Error>()
+
+            publisher.subscribe(Subscribers.Sink(receiveCompletion: { result in
+                switch (result) {
+                case .finished: break
+
+                case let .failure(error):
+                    completion(.failure(error))
+
+                }
+            }, receiveValue: { paginated in
+                completion(.success(paginated))
+            }))
+
+            self?.loadMorePublishers.append(publisher)
         }))
     }
 
     func completeFeedLoad(at index: Int, with error: Error) {
         publishers[index].send(completion: .failure(error))
+    }
+
+    func completeLoadMoreWithFail(at index: Int = 0) {
+        loadMorePublishers[index].send(completion: .failure(makeNSError()))
+        loadMorePublishers[index].send(completion: .finished)
     }
 
     // MARK: - FeedImageLoaderSpy

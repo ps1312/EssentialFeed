@@ -32,18 +32,20 @@ class FeedUIIntegrationTests: XCTestCase {
 
     func test_loadMore_isCalledUponLoadMoreAction() {
         let (sut, loader) = makeSUT()
+
         sut.loadViewIfNeeded()
         loader.completeFeedLoad(at: 0)
-
         XCTAssertEqual(loader.loadMoreCallCount, 0, "Expected no load more after view appears")
 
         sut.simulateLoadMoreFeedImages()
-
         XCTAssertEqual(loader.loadMoreCallCount, 1, "Expected load more after user requests to load more")
 
         sut.simulateLoadMoreFeedImages()
-
         XCTAssertEqual(loader.loadMoreCallCount, 1, "Expected still only one load more call until current request is finished")
+
+        loader.completeLoadMoreWithFail()
+        sut.simulateLoadMoreFeedImages()
+        XCTAssertEqual(loader.loadMoreCallCount, 2, "Expected another load more request after previous completes")
     }
 
     func test_loadingIndicator_isDisplayedWhileLoadingFeed() {
