@@ -34,7 +34,7 @@ class FeedUIIntegrationTests: XCTestCase {
         let (sut, loader) = makeSUT()
 
         sut.loadViewIfNeeded()
-        loader.completeFeedLoad(at: 0)
+        loader.completeFeedLoad(lastPage: false)
         XCTAssertEqual(loader.loadMoreCallCount, 0, "Expected no load more after view appears")
 
         sut.simulateLoadMoreFeedImages()
@@ -43,9 +43,17 @@ class FeedUIIntegrationTests: XCTestCase {
         sut.simulateLoadMoreFeedImages()
         XCTAssertEqual(loader.loadMoreCallCount, 1, "Expected still only one load more call until current request is finished")
 
-        loader.completeLoadMoreWithFail()
+        loader.completeLoadMore(at: 0, lastPage: false)
         sut.simulateLoadMoreFeedImages()
-        XCTAssertEqual(loader.loadMoreCallCount, 2, "Expected another load more request after previous completes")
+        XCTAssertEqual(loader.loadMoreCallCount, 2, "Expected another load more request after previous one completes and is not last page")
+
+        loader.completeLoadMoreWithError(at: 1, lastPage: false)
+        sut.simulateLoadMoreFeedImages()
+        XCTAssertEqual(loader.loadMoreCallCount, 3, "Expected another load more request after previous completes with error and is not last page")
+
+        loader.completeLoadMore(at: 2, lastPage: true)
+        sut.simulateLoadMoreFeedImages()
+        XCTAssertEqual(loader.loadMoreCallCount, 3, "Expected no more load more requests because it is last page")
     }
 
     func test_loadingIndicator_isDisplayedWhileLoadingFeed() {

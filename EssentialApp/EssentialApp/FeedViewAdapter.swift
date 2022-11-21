@@ -40,13 +40,13 @@ final class FeedViewAdapter: ResourceView {
             return CellController(id: model, view)
         }
 
-        guard let loadMore = viewModel.loadMore else {
+        guard let loadMorePublisher = viewModel.loadMorePublisher() else {
             controller?.display(feedImageCellControllers)
             return
         }
 
         let adapter = LoadResourcePresentationAdapter<Paginated<FeedImage>, FeedViewAdapter>(
-            loader: { Deferred { Future(loadMore) }.eraseToAnyPublisher() }
+            loader: { loadMorePublisher }
         )
 
         let loadMoreCellController = LoadMoreCellController { adapter.loadResource() }

@@ -22,8 +22,26 @@ class FeedLoaderSpy: FeedImageLoader {
         return publisher.eraseToAnyPublisher()
     }
 
-    func completeFeedLoad(at index: Int, with images: [FeedImage] = []) {
-        publishers[index].send(Paginated<FeedImage>(items: images, loadMore: { [weak self] completion in
+    func completeFeedLoad(at index: Int = 0, with images: [FeedImage] = [], lastPage: Bool = false) {
+        let result = Paginated<FeedImage>(items: images, loadMore: lastPage ? nil : makeLoadMoreAdapter())
+        publishers[index].send(result)
+    }
+
+    func completeFeedLoad(at index: Int, with error: Error) {
+        publishers[index].send(completion: .failure(error))
+    }
+
+    func completeLoadMore(at index: Int = 0, lastPage: Bool) {
+        let result = Paginated(items: [], loadMore: lastPage ? nil : makeLoadMoreAdapter())
+        loadMorePublishers[index].send(result)
+    }
+
+    func completeLoadMoreWithError(at index: Int = 0, lastPage: Bool) {
+        loadMorePublishers[index].send(completion: .failure(makeNSError()))
+    }
+
+    private func makeLoadMoreAdapter() -> (@escaping Paginated<FeedImage>.LoadMoreCompletion) -> Void {
+        { [weak self] completion in
             let publisher = PassthroughSubject<Paginated<FeedImage>, Error>()
 
             publisher.subscribe(Subscribers.Sink(receiveCompletion: { result in
@@ -39,16 +57,7 @@ class FeedLoaderSpy: FeedImageLoader {
             }))
 
             self?.loadMorePublishers.append(publisher)
-        }))
-    }
-
-    func completeFeedLoad(at index: Int, with error: Error) {
-        publishers[index].send(completion: .failure(error))
-    }
-
-    func completeLoadMoreWithFail(at index: Int = 0) {
-        loadMorePublishers[index].send(completion: .failure(makeNSError()))
-        loadMorePublishers[index].send(completion: .finished)
+        }
     }
 
     // MARK: - FeedImageLoaderSpy

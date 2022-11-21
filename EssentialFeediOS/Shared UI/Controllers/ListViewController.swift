@@ -62,7 +62,7 @@ public final class ListViewController: UITableViewController, UITableViewDataSou
         var snapshot = NSDiffableDataSourceSnapshot<Int, CellController>()
         sections.enumerated().forEach { section, cellControllers in
             snapshot.appendSections([section])
-            snapshot.appendItems(cellControllers)
+            snapshot.appendItems(cellControllers, toSection: section)
         }
         dataSource.apply(snapshot)
     }
