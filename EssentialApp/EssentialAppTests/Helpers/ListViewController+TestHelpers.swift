@@ -80,6 +80,18 @@ extension ListViewController {
         tableView(tableView, didSelectRowAt: IndexPath(row: row, section: feedSection))
     }
 
+    var isShowingLoadingMoreIndicator: Bool {
+        let loadMoreIndexPath = IndexPath(row: 0, section: loadMoreSection)
+        let dataSource = tableView.dataSource
+
+        let numberOfSections = dataSource?.numberOfSections?(in: tableView)
+        guard let numberOfSections = numberOfSections, numberOfSections > loadMoreSection else { return false }
+
+        guard let cell = dataSource?.tableView(tableView, cellForRowAt: loadMoreIndexPath) as? LoadMoreCell else { return false }
+
+        return cell.isLoading
+    }
+
     func simulateLoadMoreFeedImages() {
         let loadMoreIndexPath = IndexPath(row: 0, section: loadMoreSection)
         let dataSource = tableView.dataSource
@@ -87,7 +99,7 @@ extension ListViewController {
         let numberOfSections = dataSource?.numberOfSections?(in: tableView)
         guard let numberOfSections = numberOfSections, numberOfSections > loadMoreSection else { return }
 
-        guard let cell = dataSource?.tableView(tableView, cellForRowAt: loadMoreIndexPath) else { return }
+        guard let cell = dataSource?.tableView(tableView, cellForRowAt: loadMoreIndexPath) as? LoadMoreCell else { return }
 
         let delegate = tableView.delegate
         delegate?.tableView?(tableView, willDisplay: cell, forRowAt: loadMoreIndexPath)

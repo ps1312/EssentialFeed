@@ -34,7 +34,7 @@ class FeedUIIntegrationTests: XCTestCase {
         let (sut, loader) = makeSUT()
 
         sut.loadViewIfNeeded()
-        loader.completeFeedLoad(lastPage: false)
+        loader.completeFeedLoad()
         XCTAssertEqual(loader.loadMoreCallCount, 0, "Expected no load more after view appears")
 
         sut.simulateLoadMoreFeedImages()
@@ -54,6 +54,32 @@ class FeedUIIntegrationTests: XCTestCase {
         loader.completeLoadMore(at: 2, lastPage: true)
         sut.simulateLoadMoreFeedImages()
         XCTAssertEqual(loader.loadMoreCallCount, 3, "Expected no more load more requests because it is last page")
+    }
+
+    func test_loadingMoreIndicator_isDisplayedWhileLoadingMoreFeed() {
+        let (sut, loader) = makeSUT()
+
+        sut.loadViewIfNeeded()
+        loader.completeFeedLoad()
+        XCTAssertFalse(sut.isShowingLoadingMoreIndicator, "Expected no loading more indicator until user requests load more")
+
+        sut.simulateLoadMoreFeedImages()
+        XCTAssertTrue(sut.isShowingLoadingMoreIndicator, "Expected loading more indicator after user requests for more feed images")
+
+        loader.completeLoadMore(at: 0, lastPage: false)
+        XCTAssertFalse(sut.isShowingLoadingMoreIndicator, "Expected no loading more indicator after request completes with success")
+
+        sut.simulateLoadMoreFeedImages()
+        XCTAssertTrue(sut.isShowingLoadingMoreIndicator, "Expected loading more indicator after user requests for more feed images")
+
+        loader.completeLoadMoreWithError(at: 1, lastPage: false)
+        XCTAssertFalse(sut.isShowingLoadingMoreIndicator, "Expected no loading more indicator after request completes with error")
+
+        sut.simulateLoadMoreFeedImages()
+        XCTAssertTrue(sut.isShowingLoadingMoreIndicator, "Expected indicator to appear after requesting more feed images after load more failure")
+
+        loader.completeLoadMore(at: 2, lastPage: true)
+        XCTAssertFalse(sut.isShowingLoadingMoreIndicator, "Expected no loading more indicator on last page")
     }
 
     func test_loadingIndicator_isDisplayedWhileLoadingFeed() {
