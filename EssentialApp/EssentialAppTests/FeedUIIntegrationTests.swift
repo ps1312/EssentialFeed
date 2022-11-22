@@ -82,6 +82,20 @@ class FeedUIIntegrationTests: XCTestCase {
         XCTAssertFalse(sut.isShowingLoadingMoreIndicator, "Expected no loading more indicator on last page")
     }
 
+    func test_loadMoreError_isDisplayedCorrectly() {
+        let (sut, loader) = makeSUT()
+        sut.loadViewIfNeeded()
+        loader.completeFeedLoad()
+
+        sut.simulateLoadMoreFeedImages()
+        loader.completeLoadMoreWithError(at: 0, lastPage: false)
+        XCTAssertTrue(sut.isDisplayingLoadMoreError, "Expected load more error message to appears after load more fails")
+
+        sut.simulateLoadMoreFeedImages()
+        loader.completeLoadMore(at: 1, lastPage: false)
+        XCTAssertFalse(sut.isDisplayingLoadMoreError, "Expected no load more error after user requests for more images")
+    }
+
     func test_loadingIndicator_isDisplayedWhileLoadingFeed() {
         let (sut, loader) = makeSUT()
 
