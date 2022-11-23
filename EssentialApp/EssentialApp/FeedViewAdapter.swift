@@ -3,17 +3,17 @@ import Combine
 import EssentialFeed
 import EssentialFeediOS
 
-final class FeedViewAdapter: ResourceView {
+public final class FeedViewAdapter: ResourceView {
     private let onFeedImageTap: (FeedImage) -> Void
     private let imageLoader: (URL) -> FeedImageLoader.Publisher
     weak var controller: ListViewController?
 
-    init(onFeedImageTap: @escaping (FeedImage) -> Void, imageLoader: @escaping (URL) -> FeedImageLoader.Publisher) {
+    public init(onFeedImageTap: @escaping (FeedImage) -> Void, imageLoader: @escaping (URL) -> FeedImageLoader.Publisher) {
         self.onFeedImageTap = onFeedImageTap
         self.imageLoader = imageLoader
     }
 
-    func display(_ viewModel: Paginated<FeedImage>) {
+    public func display(_ viewModel: Paginated<FeedImage>) {
         let feedImageCellControllers = viewModel.items.map { model in
             let adapter = LoadResourcePresentationAdapter<Data, WeakRefVirtualProxy<FeedImageCellController>>(
                 loader: { [imageLoader] in imageLoader(model.url) }

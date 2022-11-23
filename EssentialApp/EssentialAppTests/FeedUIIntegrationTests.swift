@@ -457,11 +457,11 @@ class FeedUIIntegrationTests: XCTestCase {
 
         sut.simulateLoadMoreFeedImages()
         loader.completeLoadMoreWithError(at: 0, lastPage: false)
-        XCTAssertTrue(sut.isDisplayingLoadMoreError, "Expected load more error message to appears after load more fails")
+        XCTAssertEqual(sut.loadMoreErrorMessage, LoadResourcePresenter<Paginated<FeedImage>, FeedViewAdapter>.loadError, "Expected load more error message to appears after load more fails")
 
         sut.simulateLoadMoreFeedImages()
         loader.completeLoadMore(at: 1, lastPage: false)
-        XCTAssertFalse(sut.isDisplayingLoadMoreError, "Expected no load more error after user requests for more images")
+        XCTAssertEqual(sut.loadMoreErrorMessage, nil, "Expected no load more error after user requests for more images")
     }
 
     func test_loadMore_completesLoadingInMainQueue() {
