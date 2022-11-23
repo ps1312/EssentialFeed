@@ -479,6 +479,24 @@ class FeedUIIntegrationTests: XCTestCase {
         wait(for: [exp], timeout: 1.0)
     }
 
+    func test_tapOnLoadMoreError_retriesLoadMore() {
+        let (sut, loader) = makeSUT()
+        sut.loadViewIfNeeded()
+        loader.completeFeedLoad()
+
+        sut.simulateLoadMoreFeedImages()
+        loader.completeLoadMoreWithError(lastPage: true)
+        sut.tapOnLoadMoreError()
+        XCTAssertEqual(loader.loadMoreCallCount, 2, "Expected tap on error to retry to load more")
+
+        sut.tapOnLoadMoreError()
+        XCTAssertEqual(loader.loadMoreCallCount, 2, "Expected no further load more calls until current load more completes")
+
+        loader.completeLoadMoreWithError(at: 1, lastPage: true)
+        sut.tapOnLoadMoreError()
+        XCTAssertEqual(loader.loadMoreCallCount, 3, "Expected another load more call after previous one completes")
+    }
+
     private func makeSUT(
         onFeedImageTap: @escaping (FeedImage) -> Void = { _ in },
         file: StaticString = #filePath,

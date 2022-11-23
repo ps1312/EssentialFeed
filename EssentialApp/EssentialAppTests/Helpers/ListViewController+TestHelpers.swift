@@ -118,6 +118,11 @@ extension ListViewController {
         delegate?.tableView?(tableView, willDisplay: cell, forRowAt: loadMoreIndexPath)
     }
 
+    func tapOnLoadMoreError() {
+        let loadMoreIndexPath = IndexPath(row: 0, section: loadMoreSection)
+        tableView(tableView, didSelectRowAt: loadMoreIndexPath)
+    }
+
     private var loadMoreSection: Int {
         1
     }
