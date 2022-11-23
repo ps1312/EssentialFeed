@@ -72,18 +72,27 @@ class FeedUIIntegrationTests: XCTestCase {
 
         sut.loadViewIfNeeded()
         loader.completeFeedLoad(at: 0, with: [])
-
         expect(sut, toRender: [])
 
         sut.simulatePullToRefresh()
-        loader.completeFeedLoad(at: 1, with: [firstImage, secondImage, thirdImage, lastImage])
+        loader.completeFeedLoad(at: 1, with: [firstImage, secondImage])
+        expect(sut, toRender: [firstImage, secondImage])
 
+        sut.simulateLoadMoreFeedImages()
+        loader.completeLoadMore(with: [firstImage, secondImage, thirdImage, lastImage], lastPage: false)
+        expect(sut, toRender: [firstImage, secondImage, thirdImage, lastImage])
+
+        sut.simulateLoadMoreFeedImages()
+        loader.completeLoadMoreWithError(at: 1, lastPage: true)
         expect(sut, toRender: [firstImage, secondImage, thirdImage, lastImage])
 
         sut.simulatePullToRefresh()
-        loader.completeFeedLoad(at: 1, with: makeNSError())
+        loader.completeFeedLoad(at: 2, with: [firstImage, secondImage])
+        expect(sut, toRender: [firstImage, secondImage])
 
-        expect(sut, toRender: [firstImage, secondImage, thirdImage, lastImage])
+        sut.simulatePullToRefresh()
+        loader.completeFeedLoad(at: 3, with: makeNSError())
+        expect(sut, toRender: [firstImage, secondImage])
     }
 
     func test_feedLoadFailure_stopsLoadingAnimation() {
@@ -427,6 +436,20 @@ class FeedUIIntegrationTests: XCTestCase {
         XCTAssertFalse(sut.isShowingLoadingMoreIndicator, "Expected no loading more indicator on last page")
     }
 
+    func test_loadMore_displaysAdditionalLoadedFeed() {
+        let image1 = uniqueImage()
+        let image2 = uniqueImage()
+        let (sut, loader) = makeSUT()
+
+        sut.loadViewIfNeeded()
+        loader.completeFeedLoad(with: [image1])
+        expect(sut, toRender: [image1])
+
+        sut.simulateLoadMoreFeedImages()
+        loader.completeLoadMore(with: [image1, image2], lastPage: false)
+        expect(sut, toRender: [image1, image2])
+    }
+
     func test_loadMoreError_isDisplayedCorrectly() {
         let (sut, loader) = makeSUT()
         sut.loadViewIfNeeded()
@@ -456,9 +479,11 @@ class FeedUIIntegrationTests: XCTestCase {
     }
 
     private func expect(_ sut: ListViewController, toRender expectedImages: [FeedImage], file: StaticString = #filePath, line: UInt = #line) {
-        sut.tableView.layoutIfNeeded()
+//        sut.tableView.layoutIfNeeded()
         RunLoop.main.run(until: Date())
-        expectedImages.enumerated().forEach { index, image in expect(sut, toLoadFeedImage: image, inPosition: index, file: file, line: line) }
+        expectedImages.enumerated().forEach { index, image in
+            expect(sut, toLoadFeedImage: image, inPosition: index, file: file, line: line)
+        }
         XCTAssertEqual(sut.numberOfFeedImages, expectedImages.count, file: file, line: line)
     }
 

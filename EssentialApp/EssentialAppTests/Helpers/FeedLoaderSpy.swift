@@ -31,8 +31,8 @@ class FeedLoaderSpy: FeedImageLoader {
         publishers[index].send(completion: .failure(error))
     }
 
-    func completeLoadMore(at index: Int = 0, lastPage: Bool) {
-        let result = Paginated(items: [], loadMore: lastPage ? nil : makeLoadMoreAdapter())
+    func completeLoadMore(at index: Int = 0, with images: [FeedImage] = [], lastPage: Bool) {
+        let result = Paginated(items: images, loadMore: lastPage ? nil : makeLoadMoreAdapter())
         loadMorePublishers[index].send(result)
     }
 
