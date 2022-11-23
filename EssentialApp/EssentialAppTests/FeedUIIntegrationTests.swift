@@ -464,6 +464,21 @@ class FeedUIIntegrationTests: XCTestCase {
         XCTAssertFalse(sut.isDisplayingLoadMoreError, "Expected no load more error after user requests for more images")
     }
 
+    func test_loadMore_completesLoadingInMainQueue() {
+        let (sut, loader) = makeSUT()
+        sut.loadViewIfNeeded()
+        loader.completeFeedLoad()
+        sut.simulateLoadMoreFeedImages()
+
+        let exp = expectation(description: "wait for load more to finish in main queue")
+        DispatchQueue.global().async {
+            loader.completeLoadMore(lastPage: true)
+            exp.fulfill()
+        }
+
+        wait(for: [exp], timeout: 1.0)
+    }
+
     private func makeSUT(
         onFeedImageTap: @escaping (FeedImage) -> Void = { _ in },
         file: StaticString = #filePath,

@@ -9,13 +9,13 @@ public final class FeedUIComposer {
         loader: @escaping () -> AnyPublisher<Paginated<FeedImage>, Error>,
         imageLoader: @escaping (URL) -> FeedImageLoader.Publisher
     ) -> ListViewController {
-        let adapter = LoadResourcePresentationAdapter<Paginated<FeedImage>, FeedViewAdapter>(loader: { loader().dispatchOnMainQueue() })
+        let adapter = LoadResourcePresentationAdapter<Paginated<FeedImage>, FeedViewAdapter>(loader: loader)
         let viewController = ListViewController.makeWith(
             title: FeedPresenter.title,
             onRefresh: adapter.loadResource,
             storyboardName: "Feed"
         )
-        let view = FeedViewAdapter(onFeedImageTap: onFeedImageTap, imageLoader: { imageLoader($0).dispatchOnMainQueue() })
+        let view = FeedViewAdapter(onFeedImageTap: onFeedImageTap, imageLoader: { imageLoader($0) })
         view.controller = viewController
 
         adapter.presenter = LoadResourcePresenter<Paginated<FeedImage>, FeedViewAdapter>(
