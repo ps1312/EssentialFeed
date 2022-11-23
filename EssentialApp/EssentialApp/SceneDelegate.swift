@@ -7,6 +7,8 @@ import EssentialFeediOS
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     var window: UIWindow?
 
+    private let baseURL = URL(string: "https://ile-api.essentialdeveloper.com/essential-feed")!
+
     private lazy var client: HTTPClient = {
         URLSessionHTTPClient(session: URLSession(configuration: .ephemeral))
     }()
@@ -53,7 +55,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     private func makeRemoteFeedLoaderWithLocalFallback() -> AnyPublisher<Paginated<FeedImage>, Error> {
         client
-            .getPublisher(url: URL(string: "https://ile-api.essentialdeveloper.com/essential-feed/v1/feed")!)
+            .getPublisher(url: FeedEndpoint.get(after: nil).url(baseURL: baseURL))
             .tryMap(FeedItemsMapper.map)
             .caching(to: localFeedLoader)
             .fallback(to: localFeedLoader.loadPublisher)
