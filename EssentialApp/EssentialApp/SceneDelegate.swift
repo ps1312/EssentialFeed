@@ -53,28 +53,31 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         window?.makeKeyAndVisible()
     }
 
+    private func makePage(feed: [FeedImage], lastImage: FeedImage?) -> Paginated<FeedImage> {
+        Paginated(items: feed, loadMore: lastImage == nil ? nil : { [client] completion in
+            guard let lastImage = lastImage else { return }
+
+            client
+                .getPublisher(url: FeedEndpoint.get(after: lastImage).url(baseURL: Self.baseURL))
+                .tryMap(FeedItemsMapper.map)
+                .subscribe(Subscribers.Sink(receiveCompletion: { result in
+                    if case let .failure(error) = result {
+                        completion(.failure(error))
+                    }
+                }, receiveValue: { newPageFeed in
+                    let newPage = self.makePage(feed: newPageFeed, lastImage: newPageFeed.last)
+                    completion(.success(newPage))
+                }))
+        })
+    }
+
     private func makeRemoteFeedLoaderWithLocalFallback() -> AnyPublisher<Paginated<FeedImage>, Error> {
         client
             .getPublisher(url: FeedEndpoint.get(after: nil).url(baseURL: Self.baseURL))
             .tryMap(FeedItemsMapper.map)
             .caching(to: localFeedLoader)
             .fallback(to: localFeedLoader.loadPublisher)
-            .map { [client] feed in
-                Paginated(items: feed, loadMore: feed.last == nil ? nil : { [client] completion in
-                    client
-                        .getPublisher(url: FeedEndpoint.get(after: feed.last!).url(baseURL: Self.baseURL))
-                        .tryMap(FeedItemsMapper.map)
-                        .eraseToAnyPublisher()
-                        .subscribe(Subscribers.Sink(receiveCompletion: { result in
-                            if case let .failure(error) = result {
-                                completion(.failure(error))
-                            }
-                        }, receiveValue: { value in
-                            let paginated = Paginated(items: value, loadMore: nil)
-                            completion(.success(paginated))
-                        }))
-                })
-            }
+            .map { self.makePage(feed: $0, lastImage: $0.last)}
             .eraseToAnyPublisher()
     }
 

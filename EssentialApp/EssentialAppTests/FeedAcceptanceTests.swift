@@ -12,40 +12,49 @@ class FeedAcceptanceTests: XCTestCase {
     }
 
     func test_feed_displaysFeedCellsWhenOnlineAndLoadsImages() {
-        let image1 = UIImage.make(withColor: .gray).pngData()!
-        let image2 = UIImage.make(withColor: .blue).pngData()!
-
+        let image1Data = UIImage.make(withColor: .gray).pngData()!
         let image1JSON = makeFeedImageData(index: 1)
+
+        let image2Data = UIImage.make(withColor: .blue).pngData()!
         let image2JSON = makeFeedImageData(index: 2)
 
-        let firstResultJSON = makeFeedData(images: [image1JSON, image2JSON])
-
-        let image3 = UIImage.make(withColor: .purple).pngData()!
-        let image4 = UIImage.make(withColor: .cyan).pngData()!
-
+        let image3Data = UIImage.make(withColor: .purple).pngData()!
         let image3JSON = makeFeedImageData(index: 3)
+
+        let image4Data = UIImage.make(withColor: .cyan).pngData()!
         let image4JSON = makeFeedImageData(index: 4)
 
-        let loadMoreResultJSON = makeFeedData(images: [image1JSON, image2JSON, image3JSON, image4JSON])
+        let firstResultJSON = makeFeedData(images: [image1JSON])
+        let secondResultJSON = makeFeedData(images: [image1JSON, image2JSON])
+        let lastResultJSON = makeFeedData(images: [image1JSON, image2JSON, image3JSON, image4JSON])
 
         let sut = makeSUT(
             client: .online([
-                response(firstResultJSON), response(image1), response(image2),
-                response(loadMoreResultJSON), response(image1), response(image2), response(image3), response(image4)
+                response(firstResultJSON), response(image1Data),
+                response(secondResultJSON), response(image1Data), response(image2Data),
+                response(lastResultJSON), response(image1Data), response(image2Data), response(image3Data), response(image4Data)
             ]),
-            store: .empty(numOfImages: 6)
+            store: .empty(numOfImages: 7)
         )
 
         XCTAssertFalse(sut.isShowingLoadingIndicator)
-        XCTAssertEqual(sut.numberOfFeedImages, 2)
+        XCTAssertEqual(sut.numberOfFeedImages, 1)
 
         var cell1 = sut.simulateFeedImageCellIsVisible(at: 0) as? FeedImageCell
-        XCTAssertEqual(cell1?.feedImageData, image1)
+        XCTAssertEqual(cell1?.feedImageData, image1Data)
+        XCTAssertEqual(cell1?.isShowingLoadingIndicator, false)
+        XCTAssertEqual(cell1?.isShowingRetryButton, false)
+
+        sut.simulateLoadMoreFeedImages()
+        XCTAssertEqual(sut.numberOfFeedImages, 2)
+
+        cell1 = sut.simulateFeedImageCellIsVisible(at: 0) as? FeedImageCell
+        XCTAssertEqual(cell1?.feedImageData, image1Data)
         XCTAssertEqual(cell1?.isShowingLoadingIndicator, false)
         XCTAssertEqual(cell1?.isShowingRetryButton, false)
 
         var cell2 = sut.simulateFeedImageCellIsVisible(at: 1) as? FeedImageCell
-        XCTAssertEqual(cell2?.feedImageData, image2)
+        XCTAssertEqual(cell2?.feedImageData, image2Data)
         XCTAssertEqual(cell2?.isShowingLoadingIndicator, false)
         XCTAssertEqual(cell2?.isShowingRetryButton, false)
 
@@ -53,22 +62,22 @@ class FeedAcceptanceTests: XCTestCase {
         XCTAssertEqual(sut.numberOfFeedImages, 4)
 
         cell1 = sut.simulateFeedImageCellIsVisible(at: 0) as? FeedImageCell
-        XCTAssertEqual(cell1?.feedImageData, image1)
+        XCTAssertEqual(cell1?.feedImageData, image1Data)
         XCTAssertEqual(cell1?.isShowingLoadingIndicator, false)
         XCTAssertEqual(cell1?.isShowingRetryButton, false)
 
         cell2 = sut.simulateFeedImageCellIsVisible(at: 1) as? FeedImageCell
-        XCTAssertEqual(cell2?.feedImageData, image2)
+        XCTAssertEqual(cell2?.feedImageData, image2Data)
         XCTAssertEqual(cell2?.isShowingLoadingIndicator, false)
         XCTAssertEqual(cell2?.isShowingRetryButton, false)
 
         let cell3 = sut.simulateFeedImageCellIsVisible(at: 2) as? FeedImageCell
-        XCTAssertEqual(cell3?.feedImageData, image3)
+        XCTAssertEqual(cell3?.feedImageData, image3Data)
         XCTAssertEqual(cell3?.isShowingLoadingIndicator, false)
         XCTAssertEqual(cell3?.isShowingRetryButton, false)
 
         let cell4 = sut.simulateFeedImageCellIsVisible(at: 3) as? FeedImageCell
-        XCTAssertEqual(cell4?.feedImageData, image4)
+        XCTAssertEqual(cell4?.feedImageData, image4Data)
         XCTAssertEqual(cell4?.isShowingLoadingIndicator, false)
         XCTAssertEqual(cell4?.isShowingRetryButton, false)
     }
