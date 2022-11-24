@@ -7,7 +7,7 @@ import EssentialFeediOS
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     var window: UIWindow?
 
-    private let baseURL = URL(string: "https://ile-api.essentialdeveloper.com/essential-feed")!
+    private static let baseURL = URL(string: "https://ile-api.essentialdeveloper.com/essential-feed")!
 
     private lazy var client: HTTPClient = {
         URLSessionHTTPClient(session: URLSession(configuration: .ephemeral))
@@ -55,11 +55,26 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     private func makeRemoteFeedLoaderWithLocalFallback() -> AnyPublisher<Paginated<FeedImage>, Error> {
         client
-            .getPublisher(url: FeedEndpoint.get(after: nil).url(baseURL: baseURL))
+            .getPublisher(url: FeedEndpoint.get(after: nil).url(baseURL: Self.baseURL))
             .tryMap(FeedItemsMapper.map)
             .caching(to: localFeedLoader)
             .fallback(to: localFeedLoader.loadPublisher)
-            .map { Paginated(items: $0, loadMore: nil) }
+            .map { [client] feed in
+                Paginated(items: feed, loadMore: feed.last == nil ? nil : { [client] completion in
+                    client
+                        .getPublisher(url: FeedEndpoint.get(after: feed.last!).url(baseURL: Self.baseURL))
+                        .tryMap(FeedItemsMapper.map)
+                        .eraseToAnyPublisher()
+                        .subscribe(Subscribers.Sink(receiveCompletion: { result in
+                            if case let .failure(error) = result {
+                                completion(.failure(error))
+                            }
+                        }, receiveValue: { value in
+                            let paginated = Paginated(items: value, loadMore: nil)
+                            completion(.success(paginated))
+                        }))
+                })
+            }
             .eraseToAnyPublisher()
     }
 

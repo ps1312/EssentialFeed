@@ -12,27 +12,65 @@ class FeedAcceptanceTests: XCTestCase {
     }
 
     func test_feed_displaysFeedCellsWhenOnlineAndLoadsImages() {
-        let data = makeFeedData(images: [makeFeedImageData(), makeFeedImageData()])
         let image1 = UIImage.make(withColor: .gray).pngData()!
         let image2 = UIImage.make(withColor: .blue).pngData()!
+
+        let image1JSON = makeFeedImageData(index: 1)
+        let image2JSON = makeFeedImageData(index: 2)
+
+        let firstResultJSON = makeFeedData(images: [image1JSON, image2JSON])
+
+        let image3 = UIImage.make(withColor: .purple).pngData()!
+        let image4 = UIImage.make(withColor: .cyan).pngData()!
+
+        let image3JSON = makeFeedImageData(index: 3)
+        let image4JSON = makeFeedImageData(index: 4)
+
+        let loadMoreResultJSON = makeFeedData(images: [image1JSON, image2JSON, image3JSON, image4JSON])
+
         let sut = makeSUT(
-            client: .online([response(data), response(image1), response(image2)]),
-            store: .empty(numOfImages: 2)
+            client: .online([
+                response(firstResultJSON), response(image1), response(image2),
+                response(loadMoreResultJSON), response(image1), response(image2), response(image3), response(image4)
+            ]),
+            store: .empty(numOfImages: 6)
         )
 
         XCTAssertFalse(sut.isShowingLoadingIndicator)
         XCTAssertEqual(sut.numberOfFeedImages, 2)
 
-        let cell1 = sut.simulateFeedImageCellIsVisible(at: 0) as? FeedImageCell
-
+        var cell1 = sut.simulateFeedImageCellIsVisible(at: 0) as? FeedImageCell
         XCTAssertEqual(cell1?.feedImageData, image1)
         XCTAssertEqual(cell1?.isShowingLoadingIndicator, false)
         XCTAssertEqual(cell1?.isShowingRetryButton, false)
 
-        let cell2 = sut.simulateFeedImageCellIsVisible(at: 1) as? FeedImageCell
+        var cell2 = sut.simulateFeedImageCellIsVisible(at: 1) as? FeedImageCell
         XCTAssertEqual(cell2?.feedImageData, image2)
         XCTAssertEqual(cell2?.isShowingLoadingIndicator, false)
         XCTAssertEqual(cell2?.isShowingRetryButton, false)
+
+        sut.simulateLoadMoreFeedImages()
+        XCTAssertEqual(sut.numberOfFeedImages, 4)
+
+        cell1 = sut.simulateFeedImageCellIsVisible(at: 0) as? FeedImageCell
+        XCTAssertEqual(cell1?.feedImageData, image1)
+        XCTAssertEqual(cell1?.isShowingLoadingIndicator, false)
+        XCTAssertEqual(cell1?.isShowingRetryButton, false)
+
+        cell2 = sut.simulateFeedImageCellIsVisible(at: 1) as? FeedImageCell
+        XCTAssertEqual(cell2?.feedImageData, image2)
+        XCTAssertEqual(cell2?.isShowingLoadingIndicator, false)
+        XCTAssertEqual(cell2?.isShowingRetryButton, false)
+
+        let cell3 = sut.simulateFeedImageCellIsVisible(at: 2) as? FeedImageCell
+        XCTAssertEqual(cell3?.feedImageData, image3)
+        XCTAssertEqual(cell3?.isShowingLoadingIndicator, false)
+        XCTAssertEqual(cell3?.isShowingRetryButton, false)
+
+        let cell4 = sut.simulateFeedImageCellIsVisible(at: 3) as? FeedImageCell
+        XCTAssertEqual(cell4?.feedImageData, image4)
+        XCTAssertEqual(cell4?.isShowingLoadingIndicator, false)
+        XCTAssertEqual(cell4?.isShowingRetryButton, false)
     }
 
     func test_feed_displaysCachedFeedWhenOffline() {
@@ -82,8 +120,8 @@ class FeedAcceptanceTests: XCTestCase {
         try! JSONSerialization.data(withJSONObject: ["items": images])
     }
 
-    private func makeFeedImageData() -> [String: Any] {
-        ["id": UUID().uuidString, "image": "http://image1.com"]
+    private func makeFeedImageData(index: Int = 1) -> [String: Any] {
+        ["id": UUID().uuidString, "image": "http://image\(index).com"]
     }
 
     private func makeCommentsData() -> Data {
