@@ -54,18 +54,19 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     }
 
     private func makePage(feed: [FeedImage], lastImage: FeedImage?) -> Paginated<FeedImage> {
-        Paginated(items: feed, loadMore: lastImage == nil ? nil : { [client] completion in
+        Paginated(items: feed, loadMore: lastImage == nil ? nil : { [client, localFeedLoader] completion in
             guard let lastImage = lastImage else { return }
 
             client
                 .getPublisher(url: FeedEndpoint.get(after: lastImage).url(baseURL: Self.baseURL))
                 .tryMap(FeedItemsMapper.map)
+                .caching(to: localFeedLoader, with: feed)
                 .subscribe(Subscribers.Sink(receiveCompletion: { result in
                     if case let .failure(error) = result {
                         completion(.failure(error))
                     }
-                }, receiveValue: { newPageFeed in
-                    let newPage = self.makePage(feed: newPageFeed, lastImage: newPageFeed.last)
+                }, receiveValue: { newFeed in
+                    let newPage = self.makePage(feed: feed + newFeed, lastImage: newFeed.last)
                     completion(.success(newPage))
                 }))
         })

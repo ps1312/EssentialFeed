@@ -30,6 +30,10 @@ extension Publisher where Output == [FeedImage] {
     func caching(to cache: FeedCache) -> AnyPublisher<Output, Failure> {
         handleEvents(receiveOutput: cache.saveIgnoringResult).eraseToAnyPublisher()
     }
+
+    func caching(to cache: FeedCache, with existingImages: [FeedImage]) -> AnyPublisher<Output, Failure> {
+        handleEvents(receiveOutput: { cache.saveIgnoringResult(existingImages + $0) }).eraseToAnyPublisher()
+    }
 }
 
 extension FeedImageLoader {
