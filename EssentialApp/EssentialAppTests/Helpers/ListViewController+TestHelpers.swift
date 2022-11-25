@@ -106,7 +106,10 @@ extension ListViewController {
 
     var loadMoreErrorMessage: String? {
         loadMoreCell()?.errorMessage
+    }
 
+    var canLoadMore: Bool {
+        loadMoreCell() != nil
     }
 
     func simulateLoadMoreFeedImages() {

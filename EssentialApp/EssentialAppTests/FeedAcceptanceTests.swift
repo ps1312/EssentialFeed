@@ -26,13 +26,15 @@ class FeedAcceptanceTests: XCTestCase {
 
         let firstResultJSON = makeFeedData(images: [image1JSON])
         let secondResultJSON = makeFeedData(images: [image2JSON])
-        let lastResultJSON = makeFeedData(images: [image3JSON, image4JSON])
+        let thirdResultJSON = makeFeedData(images: [image3JSON, image4JSON])
+        let lastResultJSON = makeFeedData(images: [])
 
         let sut = makeSUT(
             client: .online([
                 response(firstResultJSON), response(image1Data),
                 response(secondResultJSON), response(image1Data), response(image2Data),
-                response(lastResultJSON), response(image1Data), response(image2Data), response(image3Data), response(image4Data)
+                response(thirdResultJSON), response(image1Data), response(image2Data), response(image3Data), response(image4Data),
+                response(lastResultJSON)
             ]),
             store: .empty(numOfImages: 7)
         )
@@ -40,11 +42,13 @@ class FeedAcceptanceTests: XCTestCase {
         XCTAssertFalse(sut.isShowingLoadingIndicator)
         XCTAssertEqual(sut.numberOfFeedImages, 1)
         expect(sut, toLoadImageData: image1Data, inCellAtIndex: 0)
+        XCTAssertTrue(sut.canLoadMore)
 
         sut.simulateLoadMoreFeedImages()
         XCTAssertEqual(sut.numberOfFeedImages, 2)
         expect(sut, toLoadImageData: image1Data, inCellAtIndex: 0)
         expect(sut, toLoadImageData: image2Data, inCellAtIndex: 1)
+        XCTAssertTrue(sut.canLoadMore)
 
         sut.simulateLoadMoreFeedImages()
         XCTAssertEqual(sut.numberOfFeedImages, 4)
@@ -52,6 +56,9 @@ class FeedAcceptanceTests: XCTestCase {
         expect(sut, toLoadImageData: image2Data, inCellAtIndex: 1)
         expect(sut, toLoadImageData: image3Data, inCellAtIndex: 2)
         expect(sut, toLoadImageData: image4Data, inCellAtIndex: 3)
+
+        sut.simulateLoadMoreFeedImages()
+        XCTAssertFalse(sut.canLoadMore)
     }
 
     func test_feed_displaysCachedFeedWhenOffline() {
