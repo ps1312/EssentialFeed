@@ -1,7 +1,7 @@
 import UIKit
 
 final class SnapshotWindow: UIWindow {
-    private var configuration: SnapshotConfiguration = .iPhone8(style: .light)
+    private var configuration: SnapshotConfiguration = .iPhone13(style: .light)
 
     convenience init(configuration: SnapshotConfiguration, root: UIViewController) {
         self.init(frame: CGRect(origin: .zero, size: configuration.size))

@@ -10,9 +10,6 @@ public final class ListViewController: UITableViewController, UITableViewDataSou
 
     public lazy var errorView: ErrorButton = ErrorButton()
     public var onRefresh: (() -> Void)?
-    public var cellControllers = [CellController]() {
-        didSet { onCellControllersUpdate() }
-    }
 
     public override func viewDidLoad() {
         configureLoadingIndicator()
@@ -52,13 +49,6 @@ public final class ListViewController: UITableViewController, UITableViewDataSou
         tableView.tableHeaderView = container
     }
 
-    private func onCellControllersUpdate() {
-        var snapshot = NSDiffableDataSourceSnapshot<Int, CellController>()
-        snapshot.appendSections([0])
-        snapshot.appendItems(cellControllers)
-        dataSource.apply(snapshot)
-    }
-
     public override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         sizeTableHeaderToFit()
@@ -66,6 +56,20 @@ public final class ListViewController: UITableViewController, UITableViewDataSou
 
     @objc func refresh() {
         onRefresh?()
+    }
+
+    public func display(_ sections: [CellController]...) {
+        var snapshot = NSDiffableDataSourceSnapshot<Int, CellController>()
+        sections.enumerated().forEach { section, cellControllers in
+            snapshot.appendSections([section])
+            snapshot.appendItems(cellControllers, toSection: section)
+        }
+
+        if #available(iOS 15.0, *) {
+            dataSource.applySnapshotUsingReloadData(snapshot)
+        } else {
+            dataSource.apply(snapshot)
+        }
     }
 
     public func display(_ viewModel: ResourceLoadingViewModel) {
@@ -81,30 +85,30 @@ public final class ListViewController: UITableViewController, UITableViewDataSou
     }
 
     public override func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
-        let dl = cellControllers[indexPath.row].delegate
+        let dl = dataSource.itemIdentifier(for: indexPath)?.delegate
         dl?.tableView?(tableView, willDisplay: cell, forRowAt: indexPath)
     }
 
     public override func tableView(_ tableView: UITableView, didEndDisplaying cell: UITableViewCell, forRowAt indexPath: IndexPath) {
-        let dl = cellControllers[indexPath.row].delegate
+        let dl = dataSource.itemIdentifier(for: indexPath)?.delegate
         dl?.tableView?(tableView, didEndDisplaying: cell, forRowAt: indexPath)
     }
 
     public override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let dl = cellControllers[indexPath.row].delegate
+        let dl = dataSource.itemIdentifier(for: indexPath)?.delegate
         dl?.tableView?(tableView, didSelectRowAt: indexPath)
     }
 
     public func tableView(_ tableView: UITableView, prefetchRowsAt indexPaths: [IndexPath]) {
         indexPaths.forEach { indexPath in
-            let pf = cellControllers[indexPath.row].prefetch
+            let pf = dataSource.itemIdentifier(for: indexPath)?.prefetch
             pf?.tableView(tableView, prefetchRowsAt: indexPaths)
         }
     }
 
     public func tableView(_ tableView: UITableView, cancelPrefetchingForRowsAt indexPaths: [IndexPath]) {
         indexPaths.forEach { indexPath in
-            let pf = cellControllers[indexPath.row].prefetch
+            let pf = dataSource.itemIdentifier(for: indexPath)?.prefetch
             pf?.tableView?(tableView, cancelPrefetchingForRowsAt: indexPaths)
         }
     }

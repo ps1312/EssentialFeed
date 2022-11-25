@@ -2,6 +2,16 @@ import Foundation
 import Combine
 import EssentialFeed
 
+extension Paginated {
+    func loadMorePublisher() -> AnyPublisher<Self, Error>? {
+        guard let loadMore = loadMore else { return nil }
+
+        return Deferred {
+            Future(loadMore)
+        }.eraseToAnyPublisher()
+    }
+}
+
 extension LocalFeedLoader {
     public func loadPublisher() -> AnyPublisher<[FeedImage], Swift.Error> {
         return Deferred {
@@ -19,6 +29,10 @@ extension FeedCache {
 extension Publisher where Output == [FeedImage] {
     func caching(to cache: FeedCache) -> AnyPublisher<Output, Failure> {
         handleEvents(receiveOutput: cache.saveIgnoringResult).eraseToAnyPublisher()
+    }
+
+    func caching(to cache: FeedCache, with existingImages: [FeedImage]) -> AnyPublisher<Output, Failure> {
+        handleEvents(receiveOutput: { cache.saveIgnoringResult(existingImages + $0) }).eraseToAnyPublisher()
     }
 }
 

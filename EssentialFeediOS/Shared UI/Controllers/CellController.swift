@@ -21,6 +21,13 @@ public struct CellController: Equatable, Hashable {
         self.prefetch = nil
     }
 
+    public init(id: AnyHashable, _ source: UITableViewDataSource & UITableViewDelegate) {
+        self.id = id
+        self.dataSource = source
+        self.delegate = source
+        self.prefetch = nil
+    }
+
     public static func == (lhs: CellController, rhs: CellController) -> Bool {
         lhs.id == rhs.id
     }

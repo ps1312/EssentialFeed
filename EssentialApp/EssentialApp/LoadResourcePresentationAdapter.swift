@@ -14,7 +14,7 @@ final class LoadResourcePresentationAdapter<Resource, View: ResourceView> {
     func loadResource() {
         presenter?.didStartLoading()
 
-        cancellable = loader().sink(receiveCompletion: { [weak self] result in
+        cancellable = loader().dispatchOnMainQueue().sink(receiveCompletion: { [weak self] result in
             switch (result) {
             case .finished: break
 

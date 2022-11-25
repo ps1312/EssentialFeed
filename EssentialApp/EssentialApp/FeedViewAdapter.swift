@@ -1,19 +1,20 @@
 import UIKit
+import Combine
 import EssentialFeed
 import EssentialFeediOS
 
-final class FeedViewAdapter: ResourceView {
+public final class FeedViewAdapter: ResourceView {
     private let onFeedImageTap: (FeedImage) -> Void
     private let imageLoader: (URL) -> FeedImageLoader.Publisher
     weak var controller: ListViewController?
 
-    init(onFeedImageTap: @escaping (FeedImage) -> Void, imageLoader: @escaping (URL) -> FeedImageLoader.Publisher) {
+    public init(onFeedImageTap: @escaping (FeedImage) -> Void, imageLoader: @escaping (URL) -> FeedImageLoader.Publisher) {
         self.onFeedImageTap = onFeedImageTap
         self.imageLoader = imageLoader
     }
 
-    func display(_ viewModel: FeedViewModel) {
-        controller?.cellControllers = viewModel.feed.map { model in
+    public func display(_ viewModel: Paginated<FeedImage>) {
+        let feedImageCellControllers = viewModel.items.map { model in
             let adapter = LoadResourcePresentationAdapter<Data, WeakRefVirtualProxy<FeedImageCellController>>(
                 loader: { [imageLoader] in imageLoader(model.url) }
             )
@@ -36,9 +37,27 @@ final class FeedViewAdapter: ResourceView {
                 }
             )
 
-
             return CellController(id: model, view)
         }
+
+        guard let loadMorePublisher = viewModel.loadMorePublisher() else {
+            controller?.display(feedImageCellControllers)
+            return
+        }
+
+        let adapter = LoadResourcePresentationAdapter<Paginated<FeedImage>, FeedViewAdapter>(
+            loader: { loadMorePublisher }
+        )
+
+        let loadMoreCellController = LoadMoreCellController { adapter.loadResource() }
+
+        adapter.presenter = LoadResourcePresenter(
+            loadingView: WeakRefVirtualProxy(loadMoreCellController),
+            errorView: WeakRefVirtualProxy(loadMoreCellController),
+            resourceView: self,
+            mapper: { $0 })
+
+        controller?.display(feedImageCellControllers, [CellController(id: UUID(), loadMoreCellController)])
     }
 }
 

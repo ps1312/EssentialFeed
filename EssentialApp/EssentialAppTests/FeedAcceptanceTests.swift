@@ -12,27 +12,53 @@ class FeedAcceptanceTests: XCTestCase {
     }
 
     func test_feed_displaysFeedCellsWhenOnlineAndLoadsImages() {
-        let data = makeFeedData(images: [makeFeedImageData(), makeFeedImageData()])
-        let image1 = UIImage.make(withColor: .gray).pngData()!
-        let image2 = UIImage.make(withColor: .blue).pngData()!
+        let image1Data = UIImage.make(withColor: .gray).pngData()!
+        let image1JSON = makeFeedImageData(index: 1)
+
+        let image2Data = UIImage.make(withColor: .blue).pngData()!
+        let image2JSON = makeFeedImageData(index: 2)
+
+        let image3Data = UIImage.make(withColor: .purple).pngData()!
+        let image3JSON = makeFeedImageData(index: 3)
+
+        let image4Data = UIImage.make(withColor: .cyan).pngData()!
+        let image4JSON = makeFeedImageData(index: 4)
+
+        let firstResultJSON = makeFeedData(images: [image1JSON])
+        let secondResultJSON = makeFeedData(images: [image2JSON])
+        let thirdResultJSON = makeFeedData(images: [image3JSON, image4JSON])
+        let lastResultJSON = makeFeedData(images: [])
+
         let sut = makeSUT(
-            client: .online([response(data), response(image1), response(image2)]),
-            store: .empty(numOfImages: 2)
+            client: .online([
+                response(firstResultJSON), response(image1Data),
+                response(secondResultJSON), response(image1Data), response(image2Data),
+                response(thirdResultJSON), response(image1Data), response(image2Data), response(image3Data), response(image4Data),
+                response(lastResultJSON)
+            ]),
+            store: .empty(numOfImages: 7)
         )
 
         XCTAssertFalse(sut.isShowingLoadingIndicator)
+        XCTAssertEqual(sut.numberOfFeedImages, 1)
+        expect(sut, toLoadImageData: image1Data, inCellAtIndex: 0)
+        XCTAssertTrue(sut.canLoadMore)
+
+        sut.simulateLoadMoreFeedImages()
         XCTAssertEqual(sut.numberOfFeedImages, 2)
+        expect(sut, toLoadImageData: image1Data, inCellAtIndex: 0)
+        expect(sut, toLoadImageData: image2Data, inCellAtIndex: 1)
+        XCTAssertTrue(sut.canLoadMore)
 
-        let cell1 = sut.simulateFeedImageCellIsVisible(at: 0) as? FeedImageCell
+        sut.simulateLoadMoreFeedImages()
+        XCTAssertEqual(sut.numberOfFeedImages, 4)
+        expect(sut, toLoadImageData: image1Data, inCellAtIndex: 0)
+        expect(sut, toLoadImageData: image2Data, inCellAtIndex: 1)
+        expect(sut, toLoadImageData: image3Data, inCellAtIndex: 2)
+        expect(sut, toLoadImageData: image4Data, inCellAtIndex: 3)
 
-        XCTAssertEqual(cell1?.feedImageData, image1)
-        XCTAssertEqual(cell1?.isShowingLoadingIndicator, false)
-        XCTAssertEqual(cell1?.isShowingRetryButton, false)
-
-        let cell2 = sut.simulateFeedImageCellIsVisible(at: 1) as? FeedImageCell
-        XCTAssertEqual(cell2?.feedImageData, image2)
-        XCTAssertEqual(cell2?.isShowingLoadingIndicator, false)
-        XCTAssertEqual(cell2?.isShowingRetryButton, false)
+        sut.simulateLoadMoreFeedImages()
+        XCTAssertFalse(sut.canLoadMore)
     }
 
     func test_feed_displaysCachedFeedWhenOffline() {
@@ -78,12 +104,19 @@ class FeedAcceptanceTests: XCTestCase {
         return controller
     }
 
+    private func expect(_ sut: ListViewController, toLoadImageData imageData: Data, inCellAtIndex index: Int) {
+        let cell = sut.simulateFeedImageCellIsVisible(at: index) as? FeedImageCell
+        XCTAssertEqual(cell?.feedImageData, imageData)
+        XCTAssertEqual(cell?.isShowingLoadingIndicator, false)
+        XCTAssertEqual(cell?.isShowingRetryButton, false)
+    }
+
     private func makeFeedData(images: Any) -> Data {
         try! JSONSerialization.data(withJSONObject: ["items": images])
     }
 
-    private func makeFeedImageData() -> [String: Any] {
-        ["id": UUID().uuidString, "image": "http://image1.com"]
+    private func makeFeedImageData(index: Int = 1) -> [String: Any] {
+        ["id": UUID().uuidString, "image": "http://image\(index).com"]
     }
 
     private func makeCommentsData() -> Data {

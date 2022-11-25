@@ -5,7 +5,7 @@ import EssentialFeediOS
 
 public class ImageCommentsUIComposer {
     public static func composeWith(loader: @escaping () -> AnyPublisher<[ImageComment], Error>) -> ListViewController {
-        let adapter = LoadResourcePresentationAdapter<[ImageComment], ImageCommentsViewAdapter>(loader: { loader().dispatchOnMainQueue() })
+        let adapter = LoadResourcePresentationAdapter<[ImageComment], ImageCommentsViewAdapter>(loader: loader)
 
         let viewController = ListViewController.makeWith(
             title: ImageCommentsPresenter.title,

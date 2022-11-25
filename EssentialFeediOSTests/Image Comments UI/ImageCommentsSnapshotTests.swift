@@ -7,10 +7,10 @@ class ImageCommentsSnapshotTests: XCTestCase {
     func test_nonEmptyComments() {
         let sut = makeSUT()
 
-        sut.cellControllers = nonEmptyComments()
+        sut.display(nonEmptyComments())
 
-        assert(snapshot: sut.snapshot(for: .iPhone8(style: .light)), named: "IMAGE_COMMENTS_WITH_CONTENT_light")
-        assert(snapshot: sut.snapshot(for: .iPhone8(style: .dark)), named: "IMAGE_COMMENTS_WITH_CONTENT_dark")
+        assert(snapshot: sut.snapshot(for: .iPhone13(style: .light)), named: "IMAGE_COMMENTS_WITH_CONTENT_light")
+        assert(snapshot: sut.snapshot(for: .iPhone13(style: .dark)), named: "IMAGE_COMMENTS_WITH_CONTENT_dark")
     }
 
     private func makeSUT() -> ListViewController {
