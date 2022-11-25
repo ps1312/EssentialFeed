@@ -76,7 +76,7 @@
                                                             </connections>
                                                         </button>
                                                     </subviews>
-                                                    <color key="backgroundColor" red="0.8901960784313725" green="0.8901960784313725" blue="0.8901960784313725" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                                    <color key="backgroundColor" systemColor="tertiarySystemFillColor"/>
                                                     <constraints>
                                                         <constraint firstItem="SbZ-Bl-KDm" firstAttribute="top" secondItem="F2q-zJ-dqj" secondAttribute="top" id="0Gr-8m-BDi"/>
                                                         <constraint firstAttribute="trailing" secondItem="SbZ-Bl-KDm" secondAttribute="trailing" id="0ym-6m-fwe"/>
@@ -142,6 +142,9 @@
         <image name="pin" width="10" height="14"/>
         <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+        </systemColor>
+        <systemColor name="tertiarySystemFillColor">
+            <color red="0.46274509803921571" green="0.46274509803921571" blue="0.50196078431372548" alpha="0.12" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
     </resources>
 </document>
