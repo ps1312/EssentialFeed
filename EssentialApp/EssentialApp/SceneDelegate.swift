@@ -14,9 +14,13 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     }()
 
     private lazy var store: FeedStore & FeedImageStore = {
-        try! CoreDataFeedStore(
-            storeURL: NSPersistentContainer.defaultDirectoryURL().appendingPathExtension("feed-store.sqlite")
-        )
+        do {
+            return try CoreDataFeedStore(
+                storeURL: NSPersistentContainer.defaultDirectoryURL().appendingPathExtension("feed-store.sqlite")
+            )
+        } catch {
+            return InMemoryFeedStore(currentDate: { Date() })
+        }
     }()
 
     private lazy var localFeedLoader = {

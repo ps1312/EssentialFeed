@@ -1,10 +1,14 @@
 import Foundation
 
-public class InMemoryFeedStore: FeedStore {
+public class InMemoryFeedStore: FeedStore & FeedImageStore {
     private let currentDate: () -> Date
 
     var cache = [LocalFeedImage]()
-    var images = [URL: Data]()
+    var images = [URL: Data]() {
+        didSet {
+            print("updated", images)
+        }
+    }
 
     public init(currentDate: @escaping () -> Date = Date.init) {
         self.currentDate = currentDate
