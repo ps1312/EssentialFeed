@@ -1,6 +1,7 @@
 import UIKit
 import Combine
 import CoreData
+import OSLog
 import EssentialFeed
 import EssentialFeediOS
 
@@ -8,6 +9,10 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     var window: UIWindow?
 
     private static let baseURL = URL(string: "https://ile-api.essentialdeveloper.com/essential-feed")!
+
+    private lazy var logger: Logger = {
+        Logger(subsystem: "com.exampleEssentialFeed.EssentialApp", category: "main")
+    }()
 
     private lazy var client: HTTPClient = {
         URLSessionHTTPClient(session: URLSession(configuration: .ephemeral))
@@ -19,7 +24,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
                 storeURL: NSPersistentContainer.defaultDirectoryURL().appendingPathExtension("feed-store.sqlite")
             )
         } catch {
-            assertionFailure("Expected CoreData to be instantiated correctly")
+            assertionFailure("Failed to instantiate CoreData with error: \(error.localizedDescription)")
+            logger.fault("Failed to instantiate CoreData with error: \(error.localizedDescription)")
             return InMemoryFeedStore(currentDate: { Date() })
         }
     }()
@@ -83,6 +89,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             .tryMap(FeedItemsMapper.map)
             .caching(to: localFeedLoader)
             .fallback(to: localFeedLoader.loadPublisher)
+            .trace(to: logger)
             .map { self.makePage(feed: $0, lastImage: $0.last)}
             .eraseToAnyPublisher()
     }

@@ -1,3 +1,5 @@
+import UIKit
+import OSLog
 import Foundation
 import Combine
 import EssentialFeed
@@ -33,6 +35,16 @@ extension Publisher where Output == [FeedImage] {
 
     func caching(to cache: FeedCache, with existingImages: [FeedImage]) -> AnyPublisher<Output, Failure> {
         handleEvents(receiveOutput: { cache.saveIgnoringResult(existingImages + $0) }).eraseToAnyPublisher()
+    }
+
+    func trace(to logger: Logger) -> AnyPublisher<[FeedImage], Failure> {
+        let start = CACurrentMediaTime()
+        logger.trace("Started loading feed")
+
+        return handleEvents(receiveCompletion: { _ in
+            let now = CACurrentMediaTime()
+            logger.trace("Finished loading feed in: \(now - start) seconds")
+        }).eraseToAnyPublisher()
     }
 }
 
