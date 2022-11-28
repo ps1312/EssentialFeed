@@ -2,7 +2,9 @@ import Foundation
 
 public class InMemoryFeedStore: FeedStore {
     private let currentDate: () -> Date
+
     var cache = [LocalFeedImage]()
+    var images = [URL: Data]()
 
     public init(currentDate: @escaping () -> Date = Date.init) {
         self.currentDate = currentDate
@@ -29,6 +31,16 @@ public class InMemoryFeedStore: FeedStore {
 
 extension InMemoryFeedStore {
     public func retrieve(from url: URL, completion: @escaping FeedImageStore.RetrievalCompletion) {
-        completion(.empty)
+        if let image = images[url] {
+            completion(.found(image))
+        } else {
+            completion(.empty)
+        }
     }
+
+    public func insert(url: URL, with data: Data, completion: @escaping FeedImageStore.InsertCompletion) {
+        images[url] = data
+        completion(nil)
+    }
+
 }

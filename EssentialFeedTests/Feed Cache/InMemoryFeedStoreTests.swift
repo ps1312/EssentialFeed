@@ -48,6 +48,30 @@ class InMemoryFeedStoreTests: XCTestCase {
         wait(for: [exp], timeout: 5.0)
     }
 
+    func test_imageRetrieve_deliversDataOnNonEmptyCache() {
+        let url = makeURL(suffix: "specific-image")
+        let data = makeData()
+        let sut = makeSUT()
+
+        let insertExp = expectation(description: "Wait for image cache insertion")
+        sut.insert(url: url, with: data) { _ in
+            insertExp.fulfill()
+        }
+
+        let retrieveExp = expectation(description: "Wait for image cache retrieval")
+        sut.retrieve(from: url) { result in
+            switch (result) {
+            case let .found(receivedData):
+                XCTAssertEqual(data, receivedData)
+            default:
+                XCTFail("Expected found, instead got \(result)")
+            }
+            retrieveExp.fulfill()
+        }
+
+        wait(for: [insertExp, retrieveExp], timeout: 5.0)
+    }
+
     func makeSUT(date: Date = Date(), file: StaticString = #filePath, line: UInt = #line) -> InMemoryFeedStore {
         let sut = InMemoryFeedStore(currentDate: { date })
         testMemoryLeak(sut, file: file, line: line)
