@@ -21,6 +21,26 @@ class InMemoryFeedStoreTests: XCTestCase {
         expect(sut, toRetrieve: .found(feed: locals, timestamp: now))
     }
 
+    func test_retrieveAfterDelete_deliversEmptyAfterDeletingNonEmptyCache() {
+        let now = Date()
+        let locals = uniqueImages().locals
+        let sut = makeSUT(date: now)
+
+        let exp = expectation(description: "Wait for cache persistance")
+        sut.persist(images: locals, timestamp: now) { error in
+            exp.fulfill()
+        }
+
+        let exp2 = expectation(description: "Wait for cache deletion")
+        sut.delete { _ in
+            exp2.fulfill()
+        }
+
+        wait(for: [exp, exp2], timeout: 5.0)
+
+        expect(sut, toRetrieve: .empty)
+    }
+
     func makeSUT(date: Date = Date(), file: StaticString = #filePath, line: UInt = #line) -> InMemoryFeedStore {
         let sut = InMemoryFeedStore(currentDate: { date })
         testMemoryLeak(sut, file: file, line: line)
@@ -40,7 +60,7 @@ class InMemoryFeedStoreTests: XCTestCase {
                 XCTAssertEqual(receivedTimestamp, expectedTimestamp, file: file, line: line)
 
             default:
-                XCTFail("Expected \(expectedResult), received \(receivedResult)")
+                XCTFail("Expected \(expectedResult), received \(receivedResult)", file: file, line: line)
 
             }
 

@@ -20,4 +20,9 @@ public class InMemoryFeedStore {
         cache = images
         completion(nil)
     }
+
+    public func delete(completion: @escaping FeedStore.DeletionCompletion) {
+        cache = []
+        completion(nil)
+    }
 }
