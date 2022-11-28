@@ -1,6 +1,6 @@
 import Foundation
 
-public class InMemoryFeedStore {
+public class InMemoryFeedStore: FeedStore {
     private let currentDate: () -> Date
     var cache = [LocalFeedImage]()
 
