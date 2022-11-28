@@ -2,12 +2,12 @@ import XCTest
 import EssentialFeed
 
 class InMemoryFeedStoreTests: XCTestCase {
-    func test_init_doesNotHaveSideEffects() {
+    func test_init_doesNotHaveSideEffectsOnFeed() {
         let sut = makeSUT()
         expect(sut, toRetrieve: .empty)
     }
 
-    func test_retrieveAfterPersist_deliversLastCachedImagesWithTimestamp() {
+    func test_feedRetrieveAfterPersist_deliversLastCacheWithTimestamp() {
         let now = Date()
         let locals = uniqueImages().locals
         let sut = makeSUT(date: now)
@@ -16,7 +16,7 @@ class InMemoryFeedStoreTests: XCTestCase {
         expect(sut, toRetrieve: .found(feed: locals, timestamp: now))
     }
 
-    func test_retrieveAfterDelete_deliversEmptyAfterDeletingNonEmptyCache() {
+    func test_feedRetrieveAfterDelete_deliversEmptyAfterDeletingNonEmptyCache() {
         let now = Date()
         let locals = uniqueImages().locals
         let sut = makeSUT(date: now)
