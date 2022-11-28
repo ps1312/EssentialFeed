@@ -3,14 +3,14 @@ import EssentialFeed
 
 class InMemoryFeedStoreTests: XCTestCase {
     func test_init_doesNotHaveSideEffects() {
-        let sut = InMemoryFeedStore()
+        let sut = makeSUT()
         expect(sut, toRetrieve: .empty)
     }
 
     func test_retrieveAfterPersist_deliversLastCachedImagesWithTimestamp() {
         let now = Date()
         let locals = uniqueImages().locals
-        let sut = InMemoryFeedStore(currentDate: { now })
+        let sut = makeSUT(date: now)
 
         let exp = expectation(description: "Wait for cache persistance")
         sut.persist(images: locals, timestamp: now) { error in
@@ -19,6 +19,12 @@ class InMemoryFeedStoreTests: XCTestCase {
         wait(for: [exp], timeout: 5.0)
 
         expect(sut, toRetrieve: .found(feed: locals, timestamp: now))
+    }
+
+    func makeSUT(date: Date = Date(), file: StaticString = #filePath, line: UInt = #line) -> InMemoryFeedStore {
+        let sut = InMemoryFeedStore(currentDate: { date })
+        testMemoryLeak(sut, file: file, line: line)
+        return sut
     }
 
     func expect(_ sut: InMemoryFeedStore, toRetrieve expectedResult: CacheRetrieveResult, file: StaticString = #filePath, line: UInt = #line) {
