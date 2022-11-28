@@ -31,21 +31,9 @@ class InMemoryFeedStoreTests: XCTestCase {
     // MARK: - FeedImageStore tests
 
     func test_imageRetrieve_deliversEmptyOnEmptyCache() {
-        let url = makeURL(suffix: "specific-image")
         let sut = makeSUT()
 
-        let exp = expectation(description: "Wait for image cache retrieval")
-        sut.retrieve(from: url) { result in
-            switch (result) {
-            case .empty:
-                break
-            default:
-                XCTFail("Expected empty, instead got \(result)")
-            }
-            exp.fulfill()
-        }
-
-        wait(for: [exp], timeout: 5.0)
+        expect(sut, toRetrieveImageCache: .empty, from: makeURL())
     }
 
     func test_imageRetrieve_deliversDataOnNonEmptyCache() {
@@ -57,19 +45,9 @@ class InMemoryFeedStoreTests: XCTestCase {
         sut.insert(url: url, with: data) { _ in
             insertExp.fulfill()
         }
+        wait(for: [insertExp], timeout: 5.0)
 
-        let retrieveExp = expectation(description: "Wait for image cache retrieval")
-        sut.retrieve(from: url) { result in
-            switch (result) {
-            case let .found(receivedData):
-                XCTAssertEqual(data, receivedData)
-            default:
-                XCTFail("Expected found, instead got \(result)")
-            }
-            retrieveExp.fulfill()
-        }
-
-        wait(for: [insertExp, retrieveExp], timeout: 5.0)
+        expect(sut, toRetrieveImageCache: .found(data), from: url)
     }
 
     func makeSUT(date: Date = Date(), file: StaticString = #filePath, line: UInt = #line) -> InMemoryFeedStore {
@@ -111,6 +89,27 @@ class InMemoryFeedStoreTests: XCTestCase {
 
             }
 
+            exp.fulfill()
+        }
+
+        wait(for: [exp], timeout: 5.0)
+    }
+
+    func expect(_ sut: InMemoryFeedStore, toRetrieveImageCache expectedResult: CacheImageRetrieveResult, from url: URL) {
+        let exp = expectation(description: "Wait for image cache retrieval")
+
+        sut.retrieve(from: url) { receivedResult in
+            switch (receivedResult, expectedResult) {
+            case (.empty, .empty):
+                break
+
+            case let (.found(receivedImageData), .found(expectedImageData)):
+                XCTAssertEqual(expectedImageData, receivedImageData)
+
+            default:
+                XCTFail("Expected \(expectedResult), instead got \(receivedResult)")
+
+            }
             exp.fulfill()
         }
 
