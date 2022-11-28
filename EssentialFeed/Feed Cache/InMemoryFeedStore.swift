@@ -26,3 +26,9 @@ public class InMemoryFeedStore: FeedStore {
         completion(nil)
     }
 }
+
+extension InMemoryFeedStore {
+    public func retrieve(from url: URL, completion: @escaping FeedImageStore.RetrievalCompletion) {
+        completion(.empty)
+    }
+}

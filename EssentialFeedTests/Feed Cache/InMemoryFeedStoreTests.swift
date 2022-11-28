@@ -2,6 +2,8 @@ import XCTest
 import EssentialFeed
 
 class InMemoryFeedStoreTests: XCTestCase {
+    // MARK: - FeedStore tests
+
     func test_init_doesNotHaveSideEffectsOnFeed() {
         let sut = makeSUT()
         expect(sut, toRetrieve: .empty)
@@ -24,6 +26,26 @@ class InMemoryFeedStoreTests: XCTestCase {
         persist(in: sut, locals: locals, timestamp: now)
         delete(from: sut)
         expect(sut, toRetrieve: .empty)
+    }
+
+    // MARK: - FeedImageStore tests
+
+    func test_imageRetrieve_deliversEmptyOnEmptyCache() {
+        let url = makeURL(suffix: "specific-image")
+        let sut = makeSUT()
+
+        let exp = expectation(description: "Wait for image cache retrieval")
+        sut.retrieve(from: url) { result in
+            switch (result) {
+            case .empty:
+                break
+            default:
+                XCTFail("Expected empty, instead got \(result)")
+            }
+            exp.fulfill()
+        }
+
+        wait(for: [exp], timeout: 5.0)
     }
 
     func makeSUT(date: Date = Date(), file: StaticString = #filePath, line: UInt = #line) -> InMemoryFeedStore {
