@@ -37,12 +37,19 @@ class InMemoryFeedStoreTests: XCTestCase {
     }
 
     func test_imageRetrieve_deliversDataOnNonEmptyCache() {
-        let url = makeURL(suffix: "specific-image")
-        let data = makeData()
+        let url1 = makeURL(suffix: "specific-image")
+        let data1 = Data("first data".utf8)
+
+        let url2 = makeURL(suffix: "another-image")
+        let data2 = Data("second data".utf8)
+
         let sut = makeSUT()
 
-        insert(in: sut, data: data, on: url)
-        expect(sut, toRetrieveImageCache: .found(data), from: url)
+        insert(in: sut, data: data1, on: url1)
+        insert(in: sut, data: data2, on: url2)
+
+        expect(sut, toRetrieveImageCache: .found(data1), from: url1)
+        expect(sut, toRetrieveImageCache: .found(data2), from: url2)
     }
 
     func makeSUT(date: Date = Date(), file: StaticString = #filePath, line: UInt = #line) -> InMemoryFeedStore {
