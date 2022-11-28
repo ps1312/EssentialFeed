@@ -19,6 +19,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
                 storeURL: NSPersistentContainer.defaultDirectoryURL().appendingPathExtension("feed-store.sqlite")
             )
         } catch {
+            assertionFailure("Expected CoreData to be instantiated correctly")
             return InMemoryFeedStore(currentDate: { Date() })
         }
     }()
