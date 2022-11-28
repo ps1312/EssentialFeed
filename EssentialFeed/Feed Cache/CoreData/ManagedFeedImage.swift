@@ -16,6 +16,7 @@ public final class ManagedFeedImage: NSManagedObject {
         imageDescription = local.description
         location = local.location
         url = local.url
+        data = context.userInfo[url] as? Data
     }
 
     static func build(with images: [LocalFeedImage], in context: NSManagedObjectContext) -> NSOrderedSet {
@@ -27,8 +28,13 @@ public final class ManagedFeedImage: NSManagedObject {
     static func findBy(url: URL) throws -> ManagedFeedImage? {
         let request = NSFetchRequest<ManagedFeedImage>(entityName: entity().name!)
         request.predicate = NSPredicate(format: "url == %@", url.absoluteString)
-        let result = try request.execute().first
+        let managedImage = try request.execute().first
+        return managedImage
+    }
 
-        return result
+    public override func prepareForDeletion() {
+        super.prepareForDeletion()
+
+        managedObjectContext?.userInfo[url] = data
     }
 }
