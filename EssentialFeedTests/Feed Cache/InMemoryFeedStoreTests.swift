@@ -1,28 +1,6 @@
 import XCTest
 import EssentialFeed
 
-class InMemoryFeedStore {
-    private let currentDate: () -> Date
-    var cache = [LocalFeedImage]()
-
-    init(currentDate: @escaping () -> Date = Date.init) {
-        self.currentDate = currentDate
-    }
-
-    func retrieve(completion: @escaping FeedStore.RetrieveCompletion) {
-        if cache.isEmpty {
-            completion(.empty)
-        } else {
-            completion(.found(feed: cache, timestamp: currentDate()))
-        }
-    }
-
-    func persist(images: [LocalFeedImage], timestamp: Date, completion: @escaping FeedStore.PersistCompletion) {
-        cache = images
-        completion(nil)
-    }
-}
-
 class InMemoryFeedStoreTests: XCTestCase {
     func test_init_doesNotHaveSideEffects() {
         let sut = InMemoryFeedStore()
