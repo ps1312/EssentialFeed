@@ -12,12 +12,7 @@ class InMemoryFeedStoreTests: XCTestCase {
         let locals = uniqueImages().locals
         let sut = makeSUT(date: now)
 
-        let exp = expectation(description: "Wait for cache persistance")
-        sut.persist(images: locals, timestamp: now) { error in
-            exp.fulfill()
-        }
-        wait(for: [exp], timeout: 5.0)
-
+        persist(in: sut, locals: locals, timestamp: now)
         expect(sut, toRetrieve: .found(feed: locals, timestamp: now))
     }
 
@@ -26,18 +21,8 @@ class InMemoryFeedStoreTests: XCTestCase {
         let locals = uniqueImages().locals
         let sut = makeSUT(date: now)
 
-        let exp = expectation(description: "Wait for cache persistance")
-        sut.persist(images: locals, timestamp: now) { error in
-            exp.fulfill()
-        }
-
-        let exp2 = expectation(description: "Wait for cache deletion")
-        sut.delete { _ in
-            exp2.fulfill()
-        }
-
-        wait(for: [exp, exp2], timeout: 5.0)
-
+        persist(in: sut, locals: locals, timestamp: now)
+        delete(from: sut)
         expect(sut, toRetrieve: .empty)
     }
 
@@ -45,6 +30,22 @@ class InMemoryFeedStoreTests: XCTestCase {
         let sut = InMemoryFeedStore(currentDate: { date })
         testMemoryLeak(sut, file: file, line: line)
         return sut
+    }
+
+    func persist(in sut: InMemoryFeedStore, locals: [LocalFeedImage], timestamp: Date) {
+        let persistExp = expectation(description: "Wait for cache persistance")
+        sut.persist(images: locals, timestamp: timestamp) { error in
+            persistExp.fulfill()
+        }
+        wait(for: [persistExp], timeout: 5.0)
+    }
+
+    func delete(from sut: InMemoryFeedStore) {
+        let deleteExp = expectation(description: "Wait for cache deletion")
+        sut.delete { _ in
+            deleteExp.fulfill()
+        }
+        wait(for: [deleteExp], timeout: 5.0)
     }
 
     func expect(_ sut: InMemoryFeedStore, toRetrieve expectedResult: CacheRetrieveResult, file: StaticString = #filePath, line: UInt = #line) {
