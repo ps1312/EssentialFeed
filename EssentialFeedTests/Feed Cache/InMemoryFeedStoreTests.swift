@@ -41,12 +41,7 @@ class InMemoryFeedStoreTests: XCTestCase {
         let data = makeData()
         let sut = makeSUT()
 
-        let insertExp = expectation(description: "Wait for image cache insertion")
-        sut.insert(url: url, with: data) { _ in
-            insertExp.fulfill()
-        }
-        wait(for: [insertExp], timeout: 5.0)
-
+        insert(in: sut, data: data, on: url)
         expect(sut, toRetrieveImageCache: .found(data), from: url)
     }
 
@@ -55,6 +50,8 @@ class InMemoryFeedStoreTests: XCTestCase {
         testMemoryLeak(sut, file: file, line: line)
         return sut
     }
+
+    // MARK: - FeedStore Helpers
 
     func persist(in sut: InMemoryFeedStore, locals: [LocalFeedImage], timestamp: Date) {
         let persistExp = expectation(description: "Wait for cache persistance")
@@ -93,6 +90,16 @@ class InMemoryFeedStoreTests: XCTestCase {
         }
 
         wait(for: [exp], timeout: 5.0)
+    }
+
+    // MARK: - FeedImageStore Helpers
+
+    func insert(in sut: InMemoryFeedStore, data: Data, on url: URL) {
+        let insertExp = expectation(description: "Wait for image cache insertion")
+        sut.insert(url: url, with: data) { _ in
+            insertExp.fulfill()
+        }
+        wait(for: [insertExp], timeout: 5.0)
     }
 
     func expect(_ sut: InMemoryFeedStore, toRetrieveImageCache expectedResult: CacheImageRetrieveResult, from url: URL) {
