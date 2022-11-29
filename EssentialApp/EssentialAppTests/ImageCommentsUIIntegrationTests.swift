@@ -23,9 +23,11 @@ class ImageCommentsUIIntegrationTests: XCTestCase {
         sut.loadViewIfNeeded()
         XCTAssertEqual(loader.loadCallsCount, 1, "Comments loader should be first called when view appears")
 
+        loader.completeCommentsLoad()
         sut.simulatePullToRefresh()
         XCTAssertEqual(loader.loadCallsCount, 2, "Comments loader should be called again after user pulls to refresh")
 
+        loader.completeCommentsLoad(at: 1)
         sut.simulatePullToRefresh()
         XCTAssertEqual(loader.loadCallsCount, 3, "Comments loader should be called again after user pulls to refresh")
     }
@@ -196,7 +198,7 @@ class ImageCommentsUIIntegrationTests: XCTestCase {
             publishers[index].send(completion: .failure(error))
         }
 
-        func completeCommentsLoad(at index: Int = 0, with comments: [ImageComment]) {
+        func completeCommentsLoad(at index: Int = 0, with comments: [ImageComment] = []) {
             publishers[index].send(comments)
             publishers[index].send(completion: .finished)
         }
