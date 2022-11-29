@@ -516,6 +516,23 @@ class FeedUIIntegrationTests: XCTestCase {
         XCTAssertEqual(loader.imageLoadedURLs, [image.url, image.url], "Expected another image request after previous one completes")
     }
 
+    func test_loadMore_doesNotReloadAlreadyLoadedCellControllers() {
+        let image1 = uniqueImage()
+        let image2 = uniqueImage()
+        let (sut, loader) = makeSUT()
+        sut.loadViewIfNeeded()
+        loader.completeFeedLoad(with: [image1])
+
+        sut.simulateFeedImageCellIsVisible(at: 0)
+        XCTAssertEqual(loader.imageLoadedURLs, [image1.url], "Expected image request when view appears")
+
+        sut.simulateLoadMoreFeedImages()
+        loader.completeLoadMore(with: [image1, image2], lastPage: true)
+        sut.simulateFeedImageCellIsVisible(at: 0)
+        sut.simulateFeedImageCellIsVisible(at: 1)
+        XCTAssertEqual(loader.imageLoadedURLs, [image1.url, image2.url], "Expected first image to not reload after loading more")
+    }
+
     private func makeSUT(
         onFeedImageTap: @escaping (FeedImage) -> Void = { _ in },
         file: StaticString = #filePath,

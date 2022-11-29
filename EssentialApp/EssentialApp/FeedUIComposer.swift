@@ -15,8 +15,11 @@ public final class FeedUIComposer {
             onRefresh: adapter.loadResource,
             storyboardName: "Feed"
         )
-        let view = FeedViewAdapter(onFeedImageTap: onFeedImageTap, imageLoader: { imageLoader($0) })
-        view.controller = viewController
+        let view = FeedViewAdapter(
+            controller: viewController,
+            onFeedImageTap: onFeedImageTap,
+            imageLoader: { imageLoader($0) }
+        )
 
         adapter.presenter = LoadResourcePresenter<Paginated<FeedImage>, FeedViewAdapter>(
             loadingView: WeakRefVirtualProxy(viewController),
