@@ -11,8 +11,6 @@ public final class LocalFeedLoader {
 }
 
 extension LocalFeedLoader: FeedCache {
-    public typealias SaveResult = (Error?) -> Void
-
     public func save(feed: [FeedImage], completion: @escaping SaveResult) {
         store.delete { [weak self] error in
             guard let self = self else { return }

@@ -1,3 +1,5 @@
 public protocol FeedCache {
-    func save(feed: [FeedImage], completion: @escaping LocalFeedLoader.SaveResult)
+    typealias SaveResult = (Error?) -> Void
+
+    func save(feed: [FeedImage], completion: @escaping SaveResult)
 }
