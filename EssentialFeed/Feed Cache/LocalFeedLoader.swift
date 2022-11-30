@@ -20,22 +20,18 @@ extension LocalFeedLoader {
 extension LocalFeedLoader {
     public typealias LoadResult = (Result<[FeedImage], Error>) -> Void
 
-    public func load(completion: @escaping LoadResult) {
-        do {
-            let result = try store.retrieve()
+    public func load() throws -> [FeedImage] {
+        let result = try store.retrieve()
 
-            switch (result) {
-            case let .failure(error):
-                completion(.failure(error))
-                
-            case let .found(localFeed, timestamp) where FeedCachePolicy.validate(timestamp, against: self.currentDate()):
-                completion(.success(localFeed.toModels()))
-                
-            case .found, .empty:
-                completion(.success([]))
-            }
-        } catch {
-            completion(.failure(error))
+        switch (result) {
+        case let .failure(error):
+            throw error
+
+        case let .found(localFeed, timestamp) where FeedCachePolicy.validate(timestamp, against: self.currentDate()):
+            return localFeed.toModels()
+
+        case .found, .empty:
+            return []
         }
     }
 }
