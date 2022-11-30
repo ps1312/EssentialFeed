@@ -172,12 +172,12 @@ class FeedAcceptanceTests: XCTestCase {
             self.images = images
         }
 
-        func delete(completion: @escaping DeletionCompletion) {}
+        func delete() throws {}
 
-        func persist(images: [LocalFeedImage], timestamp: Date, completion: @escaping PersistCompletion) {}
+        func persist(images: [EssentialFeed.LocalFeedImage], timestamp: Date) throws {}
 
-        func retrieve(completion: @escaping RetrieveCompletion) {
-            completion(feed.remove(at: 0))
+        func retrieve() throws -> EssentialFeed.CacheRetrieveResult {
+            return feed.remove(at: 0)
         }
 
         func retrieve(from url: URL, completion: @escaping RetrievalCompletion) {
