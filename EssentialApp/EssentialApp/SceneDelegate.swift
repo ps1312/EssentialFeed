@@ -1,6 +1,7 @@
 import UIKit
 import Combine
 import CoreData
+import OSLog
 import EssentialFeed
 import EssentialFeediOS
 
@@ -9,14 +10,24 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     private static let baseURL = URL(string: "https://ile-api.essentialdeveloper.com/essential-feed")!
 
+    private lazy var logger: Logger = {
+        Logger(subsystem: "com.exampleEssentialFeed.EssentialApp", category: "main")
+    }()
+
     private lazy var client: HTTPClient = {
         URLSessionHTTPClient(session: URLSession(configuration: .ephemeral))
     }()
 
     private lazy var store: FeedStore & FeedImageStore = {
-        try! CoreDataFeedStore(
-            storeURL: NSPersistentContainer.defaultDirectoryURL().appendingPathExtension("feed-store.sqlite")
-        )
+        do {
+            return try CoreDataFeedStore(
+                storeURL: NSPersistentContainer.defaultDirectoryURL().appendingPathExtension("feed-store.sqlite")
+            )
+        } catch {
+            assertionFailure("Failed to instantiate CoreData with error: \(error.localizedDescription)")
+            logger.fault("Failed to instantiate CoreData with error: \(error.localizedDescription)")
+            return InMemoryFeedStore(currentDate: { Date() })
+        }
     }()
 
     private lazy var localFeedLoader = {
@@ -73,8 +84,9 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     }
 
     private func makeRemoteFeedLoaderWithLocalFallback() -> AnyPublisher<Paginated<FeedImage>, Error> {
-        client
-            .getPublisher(url: FeedEndpoint.get(after: nil).url(baseURL: Self.baseURL))
+        let url = FeedEndpoint.get(after: nil).url(baseURL: Self.baseURL)
+        return client
+            .getPublisher(url: url)
             .tryMap(FeedItemsMapper.map)
             .caching(to: localFeedLoader)
             .fallback(to: localFeedLoader.loadPublisher)
@@ -85,9 +97,11 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     private func makeLocalFeedImageLoaderWithRemoteFallback(url: URL) -> AnyPublisher<Data, Error> {
         localImageLoader
             .loadImagePublisher(from: url)
-            .fallback(to: { self.client.getPublisher(url: url)
-                                .tryMap(FeedImageMapper.map)
-                                .caching(to: self.localImageLoader, with: url)
+            .trace(url: url, to: logger)
+            .fallback(to: {
+                self.client.getPublisher(url: url)
+                    .tryMap(FeedImageMapper.map)
+                    .caching(to: self.localImageLoader, with: url)
             })
     }
 

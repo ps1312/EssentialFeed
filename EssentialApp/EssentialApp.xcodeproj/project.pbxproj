@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		3A099897293505C700C3E2C8 /* DispatchQueue+CombineHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A099896293505C700C3E2C8 /* DispatchQueue+CombineHelpers.swift */; };
 		3A23F8F428F5A3670025C1FB /* SceneDelegateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A23F8F328F5A3670025C1FB /* SceneDelegateTests.swift */; };
 		3A2E531328EF3F4000B4EED7 /* Shared.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A2E531228EF3F4000B4EED7 /* Shared.swift */; };
 		3A2E531528EF3F8200B4EED7 /* XCTestCase+TestMemoryLeak.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A2E531428EF3F8200B4EED7 /* XCTestCase+TestMemoryLeak.swift */; };
@@ -64,6 +65,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		3A099896293505C700C3E2C8 /* DispatchQueue+CombineHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DispatchQueue+CombineHelpers.swift"; sourceTree = "<group>"; };
 		3A23F8F328F5A3670025C1FB /* SceneDelegateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegateTests.swift; sourceTree = "<group>"; };
 		3A2E531228EF3F4000B4EED7 /* Shared.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Shared.swift; sourceTree = "<group>"; };
 		3A2E531428EF3F8200B4EED7 /* XCTestCase+TestMemoryLeak.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "XCTestCase+TestMemoryLeak.swift"; sourceTree = "<group>"; };
@@ -176,6 +178,7 @@
 				3AF2D89528EE3351007D5098 /* Assets.xcassets */,
 				3AF2D89728EE3351007D5098 /* LaunchScreen.storyboard */,
 				3AF2D89A28EE3351007D5098 /* Info.plist */,
+				3A099896293505C700C3E2C8 /* DispatchQueue+CombineHelpers.swift */,
 			);
 			path = EssentialApp;
 			sourceTree = "<group>";
@@ -294,6 +297,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				3A94400C291198BA0013078D /* ImageCommentsViewAdapter.swift in Sources */,
+				3A099897293505C700C3E2C8 /* DispatchQueue+CombineHelpers.swift in Sources */,
 				3AE976BE28FD9EFB0080D5D2 /* WeakRefVirtualProxy.swift in Sources */,
 				3AE976BC28FD9EE60080D5D2 /* LoadResourcePresentationAdapter.swift in Sources */,
 				3AA169232914073000E8C84C /* ListViewComposerFactory.swift in Sources */,

@@ -25,6 +25,7 @@ class FeedLoaderSpy: FeedImageLoader {
     func completeFeedLoad(at index: Int = 0, with images: [FeedImage] = [], lastPage: Bool = false) {
         let result = Paginated<FeedImage>(items: images, loadMore: lastPage ? nil : makeLoadMoreAdapter())
         publishers[index].send(result)
+        publishers[index].send(completion: .finished)
     }
 
     func completeFeedLoad(at index: Int, with error: Error) {
@@ -65,6 +66,7 @@ class FeedLoaderSpy: FeedImageLoader {
     var imageLoadRequests = [(url: URL, completion: (FeedImageLoader.Result) -> Void)]()
     var imageLoadedURLs: [URL] { return imageLoadRequests.map { $0.url } }
     var canceledLoadRequests = [URL]()
+    var imageLoadPublishers = [PassthroughSubject<Data, Error>]()
 
     private struct TaskSpy: FeedImageLoaderTask {
         let cancelCallback: () -> Void
@@ -74,21 +76,28 @@ class FeedLoaderSpy: FeedImageLoader {
         }
     }
 
+    func loadImageDataPublisher(url: URL) -> AnyPublisher<Data, Error> {
+        let publisher = PassthroughSubject<Data, Error>()
+        imageLoadPublishers.append(publisher)
+
+        return publisher
+            .handleEvents(receiveSubscription: { [weak self] _ in
+                self?.imageLoadRequests.append((url, { _ in }))
+            }, receiveCancel: { [weak self] in
+                self?.canceledLoadRequests.append(url)
+            })
+            .eraseToAnyPublisher()
+    }
+
     func load(from url: URL, completion: @escaping (FeedImageLoader.Result) -> Void) -> FeedImageLoaderTask {
-        imageLoadRequests.append((url, completion))
-
-        let task = TaskSpy(cancelCallback: { [weak self] in
-            self?.canceledLoadRequests.append(url)
-        })
-
-        return task
+        TaskSpy(cancelCallback: {})
     }
 
-    func finishImageLoadingFailing(at index: Int) {
-        imageLoadRequests[index].completion(.failure(makeNSError()))
+    func finishImagePublisherLoadingFailing(at index: Int) {
+        imageLoadPublishers[index].send(completion: .failure(makeNSError()))
     }
 
-    func finishImageLoadingSuccessfully(at index: Int, with data: Data = Data()) {
-        imageLoadRequests[index].completion(.success(data))
+    func finishImagePublisherLoadingSuccessfully(at index: Int, with data: Data = Data()) {
+        imageLoadPublishers[index].send(data)
     }
 }

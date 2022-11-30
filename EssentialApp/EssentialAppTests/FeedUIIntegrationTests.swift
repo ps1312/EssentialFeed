@@ -23,9 +23,11 @@ class FeedUIIntegrationTests: XCTestCase {
         sut.loadViewIfNeeded()
         XCTAssertEqual(loader.loadCallsCount, 1, "Feed loader should be first called when view appears")
 
+        loader.completeFeedLoad()
         sut.simulatePullToRefresh()
         XCTAssertEqual(loader.loadCallsCount, 2, "Feed loader should be called again after user pulls to refresh")
 
+        loader.completeFeedLoad(at: 1)
         sut.simulatePullToRefresh()
         XCTAssertEqual(loader.loadCallsCount, 3, "Feed loader should be called again after user pulls to refresh")
     }
@@ -177,11 +179,11 @@ class FeedUIIntegrationTests: XCTestCase {
         XCTAssertEqual(firstCell?.isShowingLoadingIndicator, true, "Expected an indicator while waiting for image load completion")
         XCTAssertEqual(lastCell?.isShowingLoadingIndicator, true, "Expected an indicator while waiting for image load completion")
 
-        loader.finishImageLoadingFailing(at: 0)
+        loader.finishImagePublisherLoadingFailing(at: 0)
         XCTAssertEqual(firstCell?.isShowingLoadingIndicator, false, "Expected no indicators after first image load completes")
         XCTAssertEqual(lastCell?.isShowingLoadingIndicator, true, "Expected an indicator while waiting for image load completion even after first image loads")
 
-        loader.finishImageLoadingFailing(at: 1)
+        loader.finishImagePublisherLoadingFailing(at: 1)
         XCTAssertEqual(firstCell?.isShowingLoadingIndicator, false, "Expected no indicators because image is already loaded")
         XCTAssertEqual(lastCell?.isShowingLoadingIndicator, false, "Expected no indicators after second image load completes")
 
@@ -190,8 +192,8 @@ class FeedUIIntegrationTests: XCTestCase {
         XCTAssertEqual(firstCell?.isShowingLoadingIndicator, true, "Expected a indicator when image is retrying to load")
         XCTAssertEqual(lastCell?.isShowingLoadingIndicator, true, "Expected a indicator when image is retrying to load")
 
-        loader.finishImageLoadingSuccessfully(at: 2)
-        loader.finishImageLoadingSuccessfully(at: 3)
+        loader.finishImagePublisherLoadingSuccessfully(at: 2)
+        loader.finishImagePublisherLoadingSuccessfully(at: 3)
         XCTAssertEqual(firstCell?.isShowingLoadingIndicator, false, "Expected no indicators because image loaded successfully")
         XCTAssertEqual(lastCell?.isShowingLoadingIndicator, false, "Expected no indicators because image loaded successfully")
     }
@@ -207,8 +209,8 @@ class FeedUIIntegrationTests: XCTestCase {
 
         let firstCell = sut.simulateFeedImageCellIsVisible(at: 0) as! FeedImageCell
         let lastCell = sut.simulateFeedImageCellIsVisible(at: 1) as! FeedImageCell
-        loader.finishImageLoadingSuccessfully(at: 0, with: firstImageData)
-        loader.finishImageLoadingSuccessfully(at: 1, with: lastImageData)
+        loader.finishImagePublisherLoadingSuccessfully(at: 0, with: firstImageData)
+        loader.finishImagePublisherLoadingSuccessfully(at: 1, with: lastImageData)
 
         XCTAssertEqual(firstCell.feedImageView.image?.pngData(), firstImageData, "Expected feed image to have loaded with the correct image data")
         XCTAssertEqual(lastCell.feedImageView.image?.pngData(), lastImageData, "Expected feed image to have loaded with the correct image data")
@@ -230,16 +232,16 @@ class FeedUIIntegrationTests: XCTestCase {
         let firstCell = sut.simulateFeedImageCellIsVisible(at: 0) as! FeedImageCell
         let lastCell = sut.simulateFeedImageCellIsVisible(at: 1) as! FeedImageCell
 
-        loader.finishImageLoadingFailing(at: 0)
+        loader.finishImagePublisherLoadingFailing(at: 0)
         XCTAssertTrue(firstCell.isShowingRetryButton, "Expected retry button to be displayed after first cell image loading failure")
 
-        loader.finishImageLoadingSuccessfully(at: 1, with: firstImageData)
+        loader.finishImagePublisherLoadingSuccessfully(at: 1, with: firstImageData)
         XCTAssertFalse(lastCell.isShowingRetryButton, "Expected retry button to remain hidden after last cell image loaded successfully")
 
         firstCell.simulateImageLoadRetry()
         XCTAssertEqual(loader.imageLoadedURLs, [firstImageURL, lastImageURL, firstImageURL], "Expected \(firstImageURL) to be called twice because of it's retry")
 
-        loader.finishImageLoadingSuccessfully(at: 2, with: lastImageData)
+        loader.finishImagePublisherLoadingSuccessfully(at: 2, with: lastImageData)
         XCTAssertFalse(firstCell.isShowingRetryButton, "Expected retry button to be invisible after reloading first cell image successfully")
     }
 
@@ -252,12 +254,12 @@ class FeedUIIntegrationTests: XCTestCase {
         loader.completeFeedLoad(at: 0, with: [uniqueImage()])
 
         let firstCell = sut.simulateFeedImageCellIsVisible(at: 0) as! FeedImageCell
-        loader.finishImageLoadingSuccessfully(at: 0, with: invalidImageData)
+        loader.finishImagePublisherLoadingSuccessfully(at: 0, with: invalidImageData)
 
         XCTAssertTrue(firstCell.isShowingRetryButton, "Expected retry button to be visible when loaded data is invalid")
 
         firstCell.simulateImageLoadRetry()
-        loader.finishImageLoadingSuccessfully(at: 1, with: validImageData)
+        loader.finishImagePublisherLoadingSuccessfully(at: 1, with: validImageData)
 
         XCTAssertFalse(firstCell.isShowingRetryButton, "Expected retry button to not be visible after retrying with valid data")
     }
@@ -296,7 +298,7 @@ class FeedUIIntegrationTests: XCTestCase {
         loader.completeFeedLoad(at: 0, with: [uniqueImage()])
 
         let view = sut.simulateFeedImageCellNotVisible(at: 0) as! FeedImageCell
-        loader.finishImageLoadingSuccessfully(at: 0, with: validImageData)
+        loader.finishImagePublisherLoadingSuccessfully(at: 0, with: validImageData)
 
         XCTAssertNil(view.feedImageData)
     }
@@ -322,7 +324,7 @@ class FeedUIIntegrationTests: XCTestCase {
 
         let exp = expectation(description: "Wait for image load to finish in background queue")
         DispatchQueue.global().async {
-            loader.finishImageLoadingSuccessfully(at: 0)
+            loader.finishImagePublisherLoadingSuccessfully(at: 0)
             exp.fulfill()
         }
 
@@ -353,7 +355,7 @@ class FeedUIIntegrationTests: XCTestCase {
         XCTAssertEqual(sut.isShowingErrorMessage, false)
     }
 
-    func test_feedImageWillDisplay_requestsImageLoad() {
+    func test_feedImageWillDisplay_requestsImageLoadAfterCancellingFirst() {
         let image = uniqueImage()
         let (sut, loader) = makeSUT()
         sut.loadViewIfNeeded()
@@ -361,23 +363,23 @@ class FeedUIIntegrationTests: XCTestCase {
         loader.completeFeedLoad(at: 0, with: [image])
         sut.simulateItemCellWillBecomeVisible(at: 0)
 
+        XCTAssertEqual(loader.canceledLoadRequests, [image.url], "Expected cellForRowAt request to be cancelled after view disappears")
         XCTAssertEqual(loader.imageLoadedURLs, [image.url, image.url], "Expected image to load again after becoming visible")
     }
 
     func test_feedImageCell_configuresViewCorrectlyWhenCellBecomingVisibleAgain() {
+        let imageData = UIImage.make(withColor: .cyan).pngData()!
         let (sut, loader) = makeSUT()
         sut.loadViewIfNeeded()
+        loader.completeFeedLoad(with: [uniqueImage()])
 
-        loader.completeFeedLoad(at: 0, with: [uniqueImage()])
         let cell = sut.simulateItemCellWillBecomeVisible(at: 0) as? FeedImageCell
-
         XCTAssertEqual(cell?.isShowingLoadingIndicator, true)
         XCTAssertEqual(cell?.isShowingRetryButton, false)
         XCTAssertEqual(cell?.feedImageData, nil)
 
-        let imageData = UIImage.make(withColor: .cyan).pngData()!
-        loader.finishImageLoadingSuccessfully(at: 1, with: imageData)
-
+        loader.finishImagePublisherLoadingSuccessfully(at: 1, with: imageData)
+        RunLoop.current.run(until: Date())
         XCTAssertEqual(cell?.isShowingLoadingIndicator, false)
         XCTAssertEqual(cell?.isShowingRetryButton, false)
         XCTAssertEqual(cell?.feedImageData, imageData)
@@ -497,13 +499,47 @@ class FeedUIIntegrationTests: XCTestCase {
         XCTAssertEqual(loader.loadMoreCallCount, 3, "Expected another load more call after previous one completes")
     }
 
+    func test_feedImageCell_doesNotTriggerImageReloadWhileRequestingData() {
+        let image = uniqueImage()
+        let (sut, loader) = makeSUT()
+        sut.loadViewIfNeeded()
+        loader.completeFeedLoad(with: [image])
+
+        sut.simulateFeedImageCellNearVisible(at: 0)
+        XCTAssertEqual(loader.imageLoadedURLs, [image.url], "Expected image request when view is about to appear")
+
+        sut.simulateFeedImageCellIsVisible(at: 0)
+        XCTAssertEqual(loader.imageLoadedURLs, [image.url], "Expected no image request until previous one completes")
+
+        loader.finishImagePublisherLoadingSuccessfully(at: 0)
+        sut.simulateFeedImageCellIsVisible(at: 0)
+        XCTAssertEqual(loader.imageLoadedURLs, [image.url, image.url], "Expected another image request after previous one completes")
+    }
+
+    func test_loadMore_doesNotReloadAlreadyLoadedCellControllers() {
+        let image1 = uniqueImage()
+        let image2 = uniqueImage()
+        let (sut, loader) = makeSUT()
+        sut.loadViewIfNeeded()
+        loader.completeFeedLoad(with: [image1])
+
+        sut.simulateFeedImageCellIsVisible(at: 0)
+        XCTAssertEqual(loader.imageLoadedURLs, [image1.url], "Expected image request when view appears")
+
+        sut.simulateLoadMoreFeedImages()
+        loader.completeLoadMore(with: [image1, image2], lastPage: true)
+        sut.simulateFeedImageCellIsVisible(at: 0)
+        sut.simulateFeedImageCellIsVisible(at: 1)
+        XCTAssertEqual(loader.imageLoadedURLs, [image1.url, image2.url], "Expected first image to not reload after loading more")
+    }
+
     private func makeSUT(
         onFeedImageTap: @escaping (FeedImage) -> Void = { _ in },
         file: StaticString = #filePath,
         line: UInt = #line
     ) -> (sut: ListViewController, loader: FeedLoaderSpy) {
         let loader = FeedLoaderSpy()
-        let sut = FeedUIComposer.composeWith(onFeedImageTap: onFeedImageTap, loader: loader.loadPublisher, imageLoader: loader.loadImagePublisher)
+        let sut = FeedUIComposer.composeWith(onFeedImageTap: onFeedImageTap, loader: loader.loadPublisher, imageLoader: loader.loadImageDataPublisher)
 
         testMemoryLeak(loader, file: file, line: line)
         testMemoryLeak(sut, file: file, line: line)

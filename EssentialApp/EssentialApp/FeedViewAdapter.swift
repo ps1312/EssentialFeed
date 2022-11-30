@@ -6,15 +6,25 @@ import EssentialFeediOS
 public final class FeedViewAdapter: ResourceView {
     private let onFeedImageTap: (FeedImage) -> Void
     private let imageLoader: (URL) -> FeedImageLoader.Publisher
+    private let cellControllers: [UUID: CellController]
     weak var controller: ListViewController?
 
-    public init(onFeedImageTap: @escaping (FeedImage) -> Void, imageLoader: @escaping (URL) -> FeedImageLoader.Publisher) {
+    public init(cellControllers: [UUID: CellController] = [:], controller: ListViewController?, onFeedImageTap: @escaping (FeedImage) -> Void, imageLoader: @escaping (URL) -> FeedImageLoader.Publisher) {
+        self.cellControllers = cellControllers
+        self.controller = controller
         self.onFeedImageTap = onFeedImageTap
         self.imageLoader = imageLoader
     }
 
     public func display(_ viewModel: Paginated<FeedImage>) {
+        guard let controller = controller else { return }
+
+        var currentFeed = self.cellControllers
         let feedImageCellControllers = viewModel.items.map { model in
+            if let cachedController = currentFeed[model.id] {
+                return cachedController
+            }
+
             let adapter = LoadResourcePresentationAdapter<Data, WeakRefVirtualProxy<FeedImageCellController>>(
                 loader: { [imageLoader] in imageLoader(model.url) }
             )
@@ -37,11 +47,13 @@ public final class FeedViewAdapter: ResourceView {
                 }
             )
 
-            return CellController(id: model, view)
+            let cellController = CellController(id: model, view)
+            currentFeed[model.id] = cellController
+            return cellController
         }
 
         guard let loadMorePublisher = viewModel.loadMorePublisher() else {
-            controller?.display(feedImageCellControllers)
+            controller.display(feedImageCellControllers)
             return
         }
 
@@ -54,10 +66,15 @@ public final class FeedViewAdapter: ResourceView {
         adapter.presenter = LoadResourcePresenter(
             loadingView: WeakRefVirtualProxy(loadMoreCellController),
             errorView: WeakRefVirtualProxy(loadMoreCellController),
-            resourceView: self,
+            resourceView: FeedViewAdapter(
+                cellControllers: currentFeed,
+                controller: controller,
+                onFeedImageTap: onFeedImageTap,
+                imageLoader: imageLoader
+            ),
             mapper: { $0 })
 
-        controller?.display(feedImageCellControllers, [CellController(id: UUID(), loadMoreCellController)])
+        controller.display(feedImageCellControllers, [CellController(id: UUID(), loadMoreCellController)])
     }
 }
 

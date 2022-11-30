@@ -16,8 +16,12 @@ extension CoreDataFeedStore: FeedImageStore {
     }
 
     public func retrieve(from url: URL, completion: @escaping RetrievalCompletion) {
-        perform { _ in
+        perform { context in
             do {
+                if let imageData = context.userInfo[url] as? Data {
+                    return completion(.found(imageData))
+                }
+                
                 guard let model = try ManagedFeedImage.findBy(url: url), let imageData = model.data else {
                     return completion(.empty)
                 }
