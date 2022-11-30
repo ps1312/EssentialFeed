@@ -214,16 +214,11 @@ class CoreDataFeedImageStoreTests: XCTestCase {
 
     @discardableResult
     func insertImage(_ sut: FeedStore, feed: [LocalFeedImage], timestamp: Date) -> Error? {
-        let exp = expectation(description: "wait for insertion to complete")
-
-        var persistError: Error? = nil
-        sut.persist(images: feed, timestamp: timestamp) { error in
-            persistError = error
-            exp.fulfill()
+        do {
+            try sut.persist(images: feed, timestamp: timestamp)
+            return nil
+        } catch {
+            return error
         }
-
-        wait(for: [exp], timeout: 1.0)
-
-        return persistError
     }
 }
