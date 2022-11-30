@@ -39,7 +39,9 @@ extension LocalFeedLoader {
 extension LocalFeedLoader {
     public typealias ValidateCacheResult = Result<Void, Error>
 
-    public func validateCache(completion: @escaping (ValidateCacheResult) -> Void) {
+    public func validateCache() throws {
+        var capturedError: Error?
+
         do {
             let result = try store.retrieve()
 
@@ -53,18 +55,15 @@ extension LocalFeedLoader {
             case .found, .empty:
                 break
             }
+
+            return
         } catch {
             try? store.delete()
+            capturedError = error
         }
-    }
 
-    private func finishDeleteWith(_ completion: @escaping (ValidateCacheResult) -> Void) -> (Error?) -> Void {
-        return { error in
-            if let deletionError = error {
-                completion(.failure(deletionError))
-            } else {
-                completion(.success(()))
-            }
+        if let error = capturedError {
+            throw error
         }
     }
 }

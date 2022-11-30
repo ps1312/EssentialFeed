@@ -9,125 +9,103 @@ class ValidateCacheUseCaseTests: XCTestCase {
         XCTAssertTrue(store.messages.isEmpty)
     }
 
-    func test_validateCache_requestsDeletionWhenRetrievalFails() {
+    func test_validateCache_requestsDeletionWhenRetrievalFails() throws {
         let (sut, store) = makeSUT()
 
         store.completeRetrieve(with: makeNSError())
-        sut.validateCache { _ in }
+        try sut.validateCache()
 
         XCTAssertEqual(store.messages, [.retrieve, .delete])
     }
 
-    func test_validateCache_requestsDeletionWhenExpired() {
+    func test_validateCache_requestsDeletionWhenExpired() throws {
         let currentDate = Date()
         let expiredTimestamp = currentDate.minusFeedCacheMaxAge().adding(seconds: -1)
         let (sut, store) = makeSUT(currentDate: { currentDate })
 
         store.completeRetrieve(with: uniqueImages().locals, timestamp: expiredTimestamp)
-        sut.validateCache { _ in }
+        try sut.validateCache()
 
         XCTAssertEqual(store.messages, [.retrieve, .delete])
     }
 
-    func test_validateCache_requestsDeletionWhenCacheIsOnExpirationDate() {
+    func test_validateCache_requestsDeletionWhenCacheIsOnExpirationDate() throws {
         let currentDate = Date()
         let expirationTimestamp = currentDate.minusFeedCacheMaxAge()
         let (sut, store) = makeSUT(currentDate: { currentDate })
 
         store.completeRetrieve(with: uniqueImages().locals, timestamp: expirationTimestamp)
-        sut.validateCache { _ in }
+        try sut.validateCache()
 
         XCTAssertEqual(store.messages, [.retrieve, .delete])
     }
 
-    func test_validateCache_doesNotRequestDeletionWhenCacheIsNotExpired() {
+    func test_validateCache_doesNotRequestDeletionWhenCacheIsNotExpired() throws {
         let currentDate = Date()
         let notExpiredTimestamp = currentDate.minusFeedCacheMaxAge().adding(seconds: 1)
         let (sut, store) = makeSUT(currentDate: { currentDate })
 
-        sut.validateCache { _ in }
+        try sut.validateCache()
         store.completeRetrieve(with: uniqueImages().locals, timestamp: notExpiredTimestamp)
 
         XCTAssertEqual(store.messages, [.retrieve])
     }
 
-    func test_validateCache_doesNotRequestDeletionWhenCacheIsEmpty() {
+    func test_validateCache_doesNotRequestDeletionWhenCacheIsEmpty() throws {
         let (sut, store) = makeSUT()
 
-        sut.validateCache { _ in }
+        try sut.validateCache()
         store.completeRetrieveWithEmptyCache()
 
         XCTAssertEqual(store.messages, [.retrieve])
     }
 
-    func test_validateCache_doesNotRequestDeletionAfterSUTHasBeenDeallocated() {
-        let store = FeedStoreSpy()
-        var sut: LocalFeedLoader? = LocalFeedLoader(store: store)
-
-        sut?.validateCache { _ in }
-        sut = nil
-        store.completeRetrieve(with: makeNSError())
-
-        XCTAssertEqual(store.messages, [.retrieve])
-    }
-
-    func test_validateCache_deliversErrorOnDeletionFailureAfterRetrievalFailure() {
-        let error = makeNSError()
+    func test_validateCache_deliversErrorOnDeletionFailureAfterRetrievalFailure() throws {
+        let expectedError = makeNSError()
         let (sut, store) = makeSUT()
 
-        validate(sut, toCompleteWith: .failure(error), when: {
-            store.completeRetrieve(with: error)
-            store.completeDelete(with: error)
-        })
+        store.completeRetrieve(with: expectedError)
+        store.completeDelete(with: expectedError)
+
+        do {
+            try sut.validateCache()
+        } catch {
+            XCTAssertEqual(error as NSError, expectedError)
+        }
     }
 
     func test_validateCache_deliversErrorOnDeletionFailureAndExpiredCache() {
-        let error = makeNSError()
+        let expectedError = makeNSError()
         let expiredTimestamp = Date().minusFeedCacheMaxAge().adding(seconds: -1)
         let (sut, store) = makeSUT()
 
-        validate(sut, toCompleteWith: .failure(error), when: {
-            store.completeRetrieve(with: uniqueImages().locals, timestamp: expiredTimestamp)
-            store.completeDelete(with: error)
-        })
+        store.completeRetrieve(with: uniqueImages().locals, timestamp: expiredTimestamp)
+        store.completeDelete(with: expectedError)
+
+        do {
+            try sut.validateCache()
+        } catch {
+            XCTAssertEqual(error as NSError, expectedError)
+        }
     }
 
-    func test_validateCache_deliversSuccessWhenValidatingEmptyCache() {
+    func test_validateCache_deliversSuccessWhenValidatingEmptyCache() throws {
         let (sut, store) = makeSUT()
 
-        validate(sut, toCompleteWith: .success(()), when: {
-            store.completeRetrieveWithEmptyCache()
-        })
+        store.completeRetrieveWithEmptyCache()
+
+        try sut.validateCache()
     }
 
-    func test_validateCache_deliversSuccessWhenValidatingNonExpiredNonEmptyCache() {
+    func test_validateCache_deliversSuccessWhenValidatingNonExpiredNonEmptyCache() throws {
         let (sut, store) = makeSUT()
 
-        validate(sut, toCompleteWith: .success(()), when: {
-            store.completeRetrieve(with: uniqueImages().locals, timestamp: Date())
-        })
+        store.completeRetrieve(with: uniqueImages().locals, timestamp: Date())
+
+        try sut.validateCache()
     }
 
     // MARK: - Helpers
-
-    private func validate(_ sut: LocalFeedLoader, toCompleteWith expectedResult: LocalFeedLoader.ValidateCacheResult, when action: () -> Void, file: StaticString = #filePath, line: UInt = #line) {
-
-        sut.validateCache { receivedResult in
-            switch (receivedResult, expectedResult) {
-            case (.success, .success):
-                break
-
-            case let (.failure(receivedFailure), .failure(expectedFailure)):
-                XCTAssertEqual(receivedFailure as NSError, expectedFailure as NSError, file: file, line: line)
-
-            default:
-                XCTFail("Expected \(expectedResult), instead got \(receivedResult)", file: file, line: line)
-            }
-        }
-
-        action()
-
-    }
 
     private func makeSUT(currentDate: @escaping () -> Date = Date.init, file: StaticString = #filePath, line: UInt = #line) -> (LocalFeedLoader, FeedStoreSpy) {
         let feedStore = FeedStoreSpy()
