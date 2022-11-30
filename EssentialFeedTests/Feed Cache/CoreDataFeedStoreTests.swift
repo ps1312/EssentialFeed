@@ -69,12 +69,6 @@ class CoreDataFeedStoreTests: XCTestCase, FailableFeedStoreSpec {
         assertThatDeleteEmptiesPreviouslyInsertedCache(on: sut)
     }
 
-    func test_storeSideEffects_runSerially() {
-        let sut = makeSUT()
-
-        assertThatStoreSideEffectsRunSerially(on: sut)
-    }
-
     func test_retrieve_deliversErrorOnRetrievalFailure() {
         let stub = NSManagedObjectContext.setupAlwaysFailingFetchStub()
         stub.startIntercepting()
