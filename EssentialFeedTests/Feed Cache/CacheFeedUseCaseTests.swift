@@ -17,14 +17,14 @@ class CacheFeedUseCaseTests: XCTestCase {
         })
     }
 
-    func test_save_requestsCachePersistenceWithProvidedFeedImagesAndTimestamp() {
+    func test_save_requestsCachePersistenceWithProvidedFeedImagesAndTimestamp() throws {
         let expectedTimestamp = Date()
         let (models, locals) = uniqueImages()
         let (sut, feedStore) = makeSUT(currentDate: { expectedTimestamp })
 
         feedStore.completeDeletionWithSuccess()
         feedStore.completePersistWithSuccess()
-        sut.save(feed: models) { _ in }
+        try sut.save(feed: models)
 
         XCTAssertEqual(feedStore.messages, [.delete, .persist(images: locals, timestamp: expectedTimestamp)])
     }
@@ -48,33 +48,6 @@ class CacheFeedUseCaseTests: XCTestCase {
         })
     }
 
-    func test_save_doesNotCompleteDeletionWhenSUTHasBeenDeallocated() {
-        let store = FeedStoreSpy()
-        var sut: LocalFeedLoader? = LocalFeedLoader(store: store)
-
-        var capturedError: Error? = nil
-        sut?.save(feed: uniqueImages().models) { capturedError = $0 }
-
-        sut = nil
-        store.completeDelete(with: makeNSError())
-
-        XCTAssertNil(capturedError)
-    }
-
-    func test_save_doesNotCompletePersistenceWhenSUTHasBeenDeallocated() {
-        let store = FeedStoreSpy()
-        var sut: LocalFeedLoader? = LocalFeedLoader(store: store)
-
-        var capturedError: Error? = nil
-        sut?.save(feed: uniqueImages().models) { capturedError = $0 }
-        store.completeDeletionWithSuccess()
-
-        sut = nil
-        store.completePersist(with: makeNSError())
-
-        XCTAssertNil(capturedError)
-    }
-
     // MARK: - Helpers
 
     private func makeSUT(currentDate: @escaping () -> Date = Date.init, file: StaticString = #filePath, line: UInt = #line) -> (LocalFeedLoader, FeedStoreSpy) {
@@ -88,17 +61,14 @@ class CacheFeedUseCaseTests: XCTestCase {
     }
 
     private func expect(_ sut: LocalFeedLoader, toCompleteWithError expectedError: NSError?, when action: () -> Void, file: StaticString = #filePath, line: UInt = #line) {
-        let exp = expectation(description: "waiting for cache saving completion")
-
         action()
 
         var capturedError: Error? = nil
-        sut.save(feed: uniqueImages().models) { error in
+        do {
+            try sut.save(feed: uniqueImages().models)
+        } catch {
             capturedError = error
-            exp.fulfill()
         }
-
-        wait(for: [exp], timeout: 1.0)
 
         XCTAssertEqual(capturedError as? NSError, expectedError, file: file, line: line)
     }
