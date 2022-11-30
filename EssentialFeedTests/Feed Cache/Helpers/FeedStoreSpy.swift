@@ -17,19 +17,23 @@ class FeedStoreSpy: FeedStore {
 
     var messages = [Message]()
 
-    func delete(completion: @escaping DeletionCompletion) {
-        completion(deleteResult)
+    func delete() throws {
         messages.append(.delete)
+        if let error = deleteResult {
+            throw error
+        }
     }
 
-    func persist(images: [LocalFeedImage], timestamp: Date, completion: @escaping PersistCompletion) {
-        completion(persistResult)
+    func persist(images: [EssentialFeed.LocalFeedImage], timestamp: Date) throws {
         messages.append(.persist(images: images, timestamp: timestamp))
+        if let error = persistResult {
+            throw error
+        }
     }
 
-    func retrieve(completion: @escaping RetrieveCompletion) {
-        completion(retrieveResult)
+    func retrieve() throws -> EssentialFeed.CacheRetrieveResult {
         messages.append(.retrieve)
+        return retrieveResult
     }
 
     func completeDelete(with error: Error, at index: Int = 0) {
