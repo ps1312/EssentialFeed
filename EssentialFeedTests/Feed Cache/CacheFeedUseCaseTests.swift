@@ -2,14 +2,13 @@ import XCTest
 import EssentialFeed
 
 class CacheFeedUseCaseTests: XCTestCase {
-
-    func testInitDoesNotRequestCacheDeletion() {
+    func test_init_doesNotRequestCacheDeletion() {
         let (_, feedStore) = makeSUT()
 
         XCTAssertEqual(feedStore.messages, [])
     }
 
-    func testSaveRequestsCurrentCacheDeletion() {
+    func test_save_requestsCurrentCacheDeletion() {
         let (sut, feedStore) = makeSUT()
 
         sut.save(feed: uniqueImages().models) { _ in }
@@ -17,7 +16,7 @@ class CacheFeedUseCaseTests: XCTestCase {
         XCTAssertEqual(feedStore.messages, [.delete])
     }
 
-    func testSaveDeliversErrorOnDeletionFailure() {
+    func test_save_deliversErrorOnDeletionFailure() {
         let expectedError = makeNSError()
         let (sut, feedStore) = makeSUT()
 
@@ -26,7 +25,7 @@ class CacheFeedUseCaseTests: XCTestCase {
         })
     }
 
-    func testSaveRequestsCachePersistenceWithProvidedFeedImagesAndTimestamp() {
+    func test_save_requestsCachePersistenceWithProvidedFeedImagesAndTimestamp() {
         let expectedTimestamp = Date()
         let (models, locals) = uniqueImages()
         let (sut, feedStore) = makeSUT(currentDate: { expectedTimestamp })
@@ -37,7 +36,7 @@ class CacheFeedUseCaseTests: XCTestCase {
         XCTAssertEqual(feedStore.messages, [.delete, .persist(images: locals, timestamp: expectedTimestamp)])
     }
 
-    func testSaveDeliversErrorOnCachePersistenceFailure() {
+    func test_save_deliversErrorOnCachePersistenceFailure() {
         let expectedError = makeNSError()
         let (sut, feedStore) = makeSUT()
 
@@ -47,7 +46,7 @@ class CacheFeedUseCaseTests: XCTestCase {
         })
     }
 
-    func testSaveDoesNotDeliverErrorWhenNewCachePersistenceSucceeds() {
+    func test_save_doesNotDeliverErrorWhenNewCachePersistenceSucceeds() {
         let (sut, feedStore) = makeSUT()
 
         expect(sut, toCompleteWithError: nil, when: {
@@ -56,7 +55,7 @@ class CacheFeedUseCaseTests: XCTestCase {
         })
     }
 
-    func testSaveDoesNotCompleteDeletionWhenSUTHasBeenDeallocated() {
+    func test_save_doesNotCompleteDeletionWhenSUTHasBeenDeallocated() {
         let store = FeedStoreSpy()
         var sut: LocalFeedLoader? = LocalFeedLoader(store: store)
 
@@ -69,7 +68,7 @@ class CacheFeedUseCaseTests: XCTestCase {
         XCTAssertNil(capturedError)
     }
 
-    func testSaveDoesNotCompletePersistenceWhenSUTHasBeenDeallocated() {
+    func test_save_doesNotCompletePersistenceWhenSUTHasBeenDeallocated() {
         let store = FeedStoreSpy()
         var sut: LocalFeedLoader? = LocalFeedLoader(store: store)
 
