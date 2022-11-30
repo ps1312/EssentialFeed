@@ -121,20 +121,6 @@ class LoadFeedFromCacheUseCaseTests: XCTestCase {
         XCTAssertEqual(storeSpy.messages, [.retrieve])
     }
 
-    func testLoadDoesNotCompleteWhenSUTHasBeenDeallocated() {
-        let storeSpy = FeedStoreSpy()
-        var sut: LocalFeedLoader? = LocalFeedLoader(store: storeSpy)
-
-        var capturedResults = [Result<[FeedImage], Error>]()
-        sut?.load { capturedResults.append($0) }
-
-        sut = nil
-        storeSpy.completeRetrieveWithEmptyCache()
-
-        XCTAssertEqual(capturedResults.count, 0)
-    }
-
-
     // MARK: - Helpers
 
     private func makeSUT(currentDate: @escaping () -> Date = Date.init, file: StaticString = #filePath, line: UInt = #line) -> (LocalFeedLoader, FeedStoreSpy) {
@@ -150,6 +136,8 @@ class LoadFeedFromCacheUseCaseTests: XCTestCase {
     private func expect(_ sut: LocalFeedLoader, toCompleteWith expectedResult: Result<[FeedImage], Error>, when action: () -> Void, file: StaticString = #filePath, line: UInt = #line) {
         let exp = expectation(description: "wait for load to complete")
 
+        action()
+
         sut.load { receivedResult in
             switch (receivedResult, expectedResult) {
             case let (.success(receivedFeed), .success(expectedFeed)):
@@ -159,13 +147,12 @@ class LoadFeedFromCacheUseCaseTests: XCTestCase {
                 XCTAssertEqual(receivedError as NSError, expectedError as NSError, file: file, line: line)
 
             default:
-                XCTFail("Received result and expected result should match, instead got \(receivedResult) and \(expectedResult)")
+                XCTFail("Received result and expected result should match, instead got \(receivedResult) and \(expectedResult)", file: file, line: line)
             }
 
             exp.fulfill()
         }
 
-        action()
 
         wait(for: [exp], timeout: 1.0)
     }

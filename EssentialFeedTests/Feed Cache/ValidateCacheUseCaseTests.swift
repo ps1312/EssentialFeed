@@ -3,44 +3,44 @@ import EssentialFeed
 
 class ValidateCacheUseCaseTests: XCTestCase {
 
-    func testInitDoesNotMessageFeedStore() {
+    func test_init_doesNotMessageFeedStore() {
         let (_, store) = makeSUT()
 
         XCTAssertTrue(store.messages.isEmpty)
     }
 
-    func testValidateCacheRequestsDeletionWhenRetrievalFails() {
+    func test_validateCache_requestsDeletionWhenRetrievalFails() {
         let (sut, store) = makeSUT()
 
-        sut.validateCache { _ in }
         store.completeRetrieve(with: makeNSError())
+        sut.validateCache { _ in }
 
         XCTAssertEqual(store.messages, [.retrieve, .delete])
     }
 
-    func testValidateCacheRequestsDeletionWhenExpired() {
+    func test_validateCache_requestsDeletionWhenExpired() {
         let currentDate = Date()
         let expiredTimestamp = currentDate.minusFeedCacheMaxAge().adding(seconds: -1)
         let (sut, store) = makeSUT(currentDate: { currentDate })
 
-        sut.validateCache { _ in }
         store.completeRetrieve(with: uniqueImages().locals, timestamp: expiredTimestamp)
+        sut.validateCache { _ in }
 
         XCTAssertEqual(store.messages, [.retrieve, .delete])
     }
 
-    func testValidateCacheRequestsDeletionWhenCacheIsOnExpirationDate() {
+    func test_validateCache_requestsDeletionWhenCacheIsOnExpirationDate() {
         let currentDate = Date()
         let expirationTimestamp = currentDate.minusFeedCacheMaxAge()
         let (sut, store) = makeSUT(currentDate: { currentDate })
 
-        sut.validateCache { _ in }
         store.completeRetrieve(with: uniqueImages().locals, timestamp: expirationTimestamp)
+        sut.validateCache { _ in }
 
         XCTAssertEqual(store.messages, [.retrieve, .delete])
     }
 
-    func testValidateCacheDoesNotRequestDeletionWhenCacheIsNotExpired() {
+    func test_validateCache_doesNotRequestDeletionWhenCacheIsNotExpired() {
         let currentDate = Date()
         let notExpiredTimestamp = currentDate.minusFeedCacheMaxAge().adding(seconds: 1)
         let (sut, store) = makeSUT(currentDate: { currentDate })
@@ -51,7 +51,7 @@ class ValidateCacheUseCaseTests: XCTestCase {
         XCTAssertEqual(store.messages, [.retrieve])
     }
 
-    func testValidateCacheDoesNotRequestDeletionWhenCacheIsEmpty() {
+    func test_validateCache_doesNotRequestDeletionWhenCacheIsEmpty() {
         let (sut, store) = makeSUT()
 
         sut.validateCache { _ in }
@@ -60,7 +60,7 @@ class ValidateCacheUseCaseTests: XCTestCase {
         XCTAssertEqual(store.messages, [.retrieve])
     }
 
-    func testValidateCacheDoesNotRequestDeletionAfterSUTHasBeenDeallocated() {
+    func test_validateCache_doesNotRequestDeletionAfterSUTHasBeenDeallocated() {
         let store = FeedStoreSpy()
         var sut: LocalFeedLoader? = LocalFeedLoader(store: store)
 
