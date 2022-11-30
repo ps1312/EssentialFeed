@@ -10,7 +10,7 @@ public final class LocalFeedLoader {
     }
 }
 
-extension LocalFeedLoader: FeedCache {
+extension LocalFeedLoader {
     public func save(feed: [FeedImage]) throws {
         try store.delete()
         try store.persist(images: feed.toLocal(), timestamp: currentDate())

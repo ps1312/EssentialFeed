@@ -20,9 +20,7 @@ extension LocalFeedLoader {
             Future(self.load)
         }.eraseToAnyPublisher()
     }
-}
 
-extension FeedCache {
     func saveIgnoringResult(_ feed: [FeedImage]) {
         do {
             try save(feed: feed)
@@ -31,11 +29,11 @@ extension FeedCache {
 }
 
 extension Publisher where Output == [FeedImage] {
-    func caching(to cache: FeedCache) -> AnyPublisher<Output, Failure> {
+    func caching(to cache: LocalFeedLoader) -> AnyPublisher<Output, Failure> {
         handleEvents(receiveOutput: cache.saveIgnoringResult).eraseToAnyPublisher()
     }
 
-    func caching(to cache: FeedCache, with existingImages: [FeedImage]) -> AnyPublisher<Output, Failure> {
+    func caching(to cache: LocalFeedLoader, with existingImages: [FeedImage]) -> AnyPublisher<Output, Failure> {
         handleEvents(receiveOutput: { cache.saveIgnoringResult(existingImages + $0) }).eraseToAnyPublisher()
     }
 }
