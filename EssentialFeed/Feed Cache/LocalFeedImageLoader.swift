@@ -10,13 +10,13 @@ public class LocalFeedImageLoader {
 
 extension LocalFeedImageLoader: FeedImageLoader {
     private final class LocalFeedImageLoaderTask: FeedImageLoaderTask {
-        private var completion: ((LoadFeedImageResult) -> Void)?
+        private var completion: ((FeedImageLoader.Result) -> Void)?
 
-        init(_ completion: @escaping (LoadFeedImageResult) -> Void) {
+        init(_ completion: @escaping (FeedImageLoader.Result) -> Void) {
             self.completion = completion
         }
 
-        func complete(_ result: LoadFeedImageResult) {
+        func complete(_ result: FeedImageLoader.Result) {
             completion?(result)
         }
 
@@ -34,27 +34,12 @@ extension LocalFeedImageLoader: FeedImageLoader {
         case notFound
     }
 
-    public typealias LoadFeedImageResult = Result<Data, Error>
+    public func load(from url: URL) throws -> Data {
+        let result = try store.retrieve(from: url)
+        return Data()
+    }
 
-    public func load(from url: URL, completion: @escaping (LoadFeedImageResult) -> Void) -> FeedImageLoaderTask {
-        do {
-            let result = try store.retrieve(from: url)
-
-            switch (result) {
-            case .empty:
-                completion(.failure(LoadError.notFound))
-
-            case .found(let data):
-                completion(.success(data))
-
-            case .failure:
-                completion(.failure(LoadError.failed))
-            }
-
-        } catch {
-            completion(.failure(LoadError.failed))
-        }
-
+    public func load(from url: URL, completion: @escaping (FeedImageLoader.Result) -> Void) -> FeedImageLoaderTask {
         return LocalFeedImageLoaderTask { _ in }
     }
 }

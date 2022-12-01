@@ -7,12 +7,12 @@ class LoadFeedImageFromCacheUseCaseTests: XCTestCase {
         XCTAssertTrue(store.messages.isEmpty, "Expected no collaboration with store yet")
     }
 
-    func test_load_makesStoreRetrievalWithProvidedURL() {
+    func test_load_makesStoreRetrievalWithProvidedURL() throws {
         let url = makeURL()
         let (sut, store) = makeSUT()
 
         store.completeRetrieve(with: makeNSError())
-        _ = sut.load(from: url) { _ in }
+        _ = try sut.load(from: url)
 
         XCTAssertEqual(store.messages, [.retrieve(from: url)], "Expected SUT to message store with URL for image data retrieval")
     }
@@ -43,28 +43,28 @@ class LoadFeedImageFromCacheUseCaseTests: XCTestCase {
         }
     }
 
-    func test_load_triggersNoSideEffectsInStoreOnFailure() {
+    func test_load_triggersNoSideEffectsInStoreOnFailure() throws {
         let url = makeURL()
         let (sut, store) = makeSUT()
 
         store.completeRetrieve(with: makeNSError())
-        _ = sut.load(from: url) { _ in }
+        _ = try sut.load(from: url)
 
         XCTAssertEqual(store.messages, [.retrieve(from: url)])
     }
 
-    func test_load_triggersNoSideEffectsInStoreOnSuccess() {
+    func test_load_triggersNoSideEffectsInStoreOnSuccess() throws {
         let data = makeData()
         let url = makeURL()
         let (sut, store) = makeSUT()
 
         store.completeRetrieve(with: data)
-        _ = sut.load(from: url) { _ in }
+        _ = try sut.load(from: url)
 
         XCTAssertEqual(store.messages, [.retrieve(from: url)])
     }
 
-    private func expect(_ sut: LocalFeedImageLoader, toCompleteWith expectedResult: LocalFeedImageLoader.LoadFeedImageResult, when action: () -> Void, file: StaticString = #filePath, line: UInt = #line) {
+    private func expect(_ sut: LocalFeedImageLoader, toCompleteWith expectedResult: FeedImageLoader.Result, when action: () -> Void, file: StaticString = #filePath, line: UInt = #line) {
         action()
 
         _ = sut.load(from: makeURL()) { capturedResult in

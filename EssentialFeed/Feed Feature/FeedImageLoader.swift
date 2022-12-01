@@ -7,5 +7,7 @@ public protocol FeedImageLoaderTask {
 public protocol FeedImageLoader {
     typealias Result = Swift.Result<Data, Error>
 
-    func load(from url: URL, completion: @escaping (Result) -> Void) -> FeedImageLoaderTask
+    @available(*, deprecated)
+    func load(from url: URL, completion: @escaping (FeedImageLoader.Result) -> Void) -> FeedImageLoaderTask
+    func load(from url: URL) throws -> Data
 }
