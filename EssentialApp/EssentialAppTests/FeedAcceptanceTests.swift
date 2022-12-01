@@ -184,8 +184,6 @@ class FeedAcceptanceTests: XCTestCase {
             return images.remove(at: 0)
         }
 
-        func retrieve(from url: URL, completion: @escaping RetrievalCompletion) {}
-
         func insert(url: URL, with data: Data) throws {}
     }
 }

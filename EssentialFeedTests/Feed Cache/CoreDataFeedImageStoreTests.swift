@@ -134,28 +134,6 @@ class CoreDataFeedImageStoreTests: XCTestCase {
         }
     }
 
-    func retrieveImage(_ sut: FeedImageStore, url: URL) -> Data? {
-        let exp = expectation(description: "wait for feed image data retrieve")
-
-        var capturedData: Data? = nil
-
-        sut.retrieve(from: url) { result in
-            switch (result) {
-            case .found(let cachedData):
-                capturedData = cachedData
-
-            default:
-                XCTFail("Expected image data retrieval to succeed, instead got \(result)")
-            }
-
-            exp.fulfill()
-        }
-
-        wait(for: [exp], timeout: 1.0)
-
-        return capturedData
-    }
-
     @discardableResult
     func saveImage(_ sut: FeedImageStore, in url: URL, data: Data) -> Error? {
         do {

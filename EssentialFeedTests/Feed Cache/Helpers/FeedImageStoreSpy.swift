@@ -12,11 +12,6 @@ final class FeedImageStoreSpy: FeedImageStore {
     var insertResult: Error?
     var retrieveResult: CacheImageRetrieveResult = .empty
 
-    func retrieve(from url: URL, completion: @escaping RetrievalCompletion) {
-        messages.append(.retrieve(from: url))
-        retrievalCompletions.append(completion)
-    }
-
     func retrieve(from url: URL) throws -> CacheImageRetrieveResult {
         messages.append(.retrieve(from: url))
         return retrieveResult

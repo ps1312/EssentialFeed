@@ -28,6 +28,4 @@ extension CoreDataFeedStore: FeedImageStore {
 
         return capturedResult
     }
-
-    public func retrieve(from url: URL, completion: @escaping RetrievalCompletion) {}
 }
