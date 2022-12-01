@@ -16,15 +16,9 @@ class CoreDataFeedImageStoreTests: XCTestCase {
     func test_retrieve_deliversErrorOnStoreFailure() {
         let sut = makeSUT()
         let stub = NSManagedObjectContext.setupAlwaysFailingFetchStub()
-        let exp = expectation(description: "wait for insertion to complete")
-
         stub.startIntercepting()
-        sut.retrieve(from: makeURL()) { error in
-            XCTAssertNotNil(error, "Expected insert to fail on always failing core data context")
-            exp.fulfill()
-        }
 
-        wait(for: [exp], timeout: 1.0)
+        XCTAssertThrowsError(try sut.retrieve(from: makeURL()))
     }
 
     func test_retrieve_deliversEmptyOnEmptyCache() {
@@ -123,9 +117,8 @@ class CoreDataFeedImageStoreTests: XCTestCase {
     }
 
     func expect(_ sut: CoreDataFeedStore, toCompleteRetrieveWith expectedResult: CacheImageRetrieveResult, from url: URL, file: StaticString = #filePath, line: UInt = #line) {
-        let exp = expectation(description: "wait for retrieve to complete")
-
-        sut.retrieve(from: url) { receivedResult in
+        do {
+            let receivedResult = try sut.retrieve(from: url)
             switch (receivedResult, expectedResult) {
             case (.empty, .empty):
                 break
@@ -136,12 +129,9 @@ class CoreDataFeedImageStoreTests: XCTestCase {
             default:
                 XCTFail("Expected received and expected results to match, instead got \(receivedResult) and \(expectedResult)", file: file, line: line)
             }
-
-            exp.fulfill()
+        } catch {
+            XCTFail("Expected retrieve to not fail, got \(error)")
         }
-
-        wait(for: [exp], timeout: 1.0)
-
     }
 
     func retrieveImage(_ sut: FeedImageStore, url: URL) -> Data? {

@@ -180,9 +180,11 @@ class FeedAcceptanceTests: XCTestCase {
             return feed.remove(at: 0)
         }
 
-        func retrieve(from url: URL, completion: @escaping RetrievalCompletion) {
-            completion(images.remove(at: 0))
+        func retrieve(from url: URL) throws -> EssentialFeed.CacheImageRetrieveResult {
+            return images.remove(at: 0)
         }
+
+        func retrieve(from url: URL, completion: @escaping RetrievalCompletion) {}
 
         func insert(url: URL, with data: Data) throws {}
     }
