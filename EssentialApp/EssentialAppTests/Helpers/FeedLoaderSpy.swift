@@ -93,10 +93,6 @@ class FeedLoaderSpy: FeedImageLoader {
         Data()
     }
 
-    func load(from url: URL, completion: @escaping (FeedImageLoader.Result) -> Void) -> FeedImageLoaderTask {
-        TaskSpy(cancelCallback: {})
-    }
-
     func finishImagePublisherLoadingFailing(at index: Int) {
         imageLoadPublishers[index].send(completion: .failure(makeNSError()))
     }

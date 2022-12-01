@@ -52,10 +52,6 @@ extension LocalFeedImageLoader: FeedImageLoader {
             throw error
         }
     }
-
-    public func load(from url: URL, completion: @escaping (FeedImageLoader.Result) -> Void) -> FeedImageLoaderTask {
-        return LocalFeedImageLoaderTask { _ in }
-    }
 }
 
 public protocol FeedImageCache {

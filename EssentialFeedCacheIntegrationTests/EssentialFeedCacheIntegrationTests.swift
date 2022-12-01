@@ -129,20 +129,6 @@ class EssentialFeedCacheIntegrationTests: XCTestCase {
         wait(for: [exp], timeout: 5.0)
     }
 
-    private func retrieve(from sut: LocalFeedImageLoader, in url: URL) -> Data? {
-        let exp = expectation(description: "wait for image data retrieve to complete")
-
-        var capturedData: Data?
-        _ = sut.load(from: url) { result in
-            capturedData = try? result.get()
-            exp.fulfill()
-        }
-
-        wait(for: [exp], timeout: 5.0)
-
-        return capturedData
-    }
-
     private func cachesDirectory() -> URL {
         return FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first!
     }
