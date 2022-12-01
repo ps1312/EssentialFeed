@@ -18,7 +18,7 @@ class EssentialFeedCacheIntegrationTests: XCTestCase {
         let sutToPerformSave = makeFeedLoader()
         let sutToPerformLoad = makeFeedLoader()
 
-        insert(to: sutToPerformSave, models: images)
+        try sutToPerformSave.save(feed: images)
 
         XCTAssertEqual(images, try sutToPerformLoad.load())
     }
@@ -39,8 +39,8 @@ class EssentialFeedCacheIntegrationTests: XCTestCase {
         let sutToPerformLastSave = makeFeedLoader()
         let sutToPerformLoad = makeFeedLoader()
 
-        insert(to: sutToPerformSave, models: images)
-        insert(to: sutToPerformLastSave, models: lastImages)
+        try sutToPerformSave.save(feed: images)
+        try sutToPerformLastSave.save(feed: lastImages)
 
         XCTAssertEqual(lastImages, try sutToPerformLoad.load())
     }
@@ -53,8 +53,7 @@ class EssentialFeedCacheIntegrationTests: XCTestCase {
         let imageLoaderToPerformSave = makeImageLoader()
         let imageLoaderToPerformRetrieve = makeImageLoader()
 
-        insert(to: feedLoaderToPerformSave, models: [model])
-
+        try feedLoaderToPerformSave.save(feed: [model])
         try imageLoaderToPerformSave.save(url: model.url, with: data)
 
         let cachedData = try imageLoaderToPerformRetrieve.load(from: model.url)
@@ -68,8 +67,7 @@ class EssentialFeedCacheIntegrationTests: XCTestCase {
         let sutToPerformValidate = makeFeedLoader()
         let sutToPerformRetrieve = makeFeedLoader()
 
-        insert(to: sutToPerformSave, models: models)
-
+        try sutToPerformSave.save(feed: models)
         try sutToPerformValidate.validateCache()
 
         let result = try sutToPerformRetrieve.load()
@@ -82,8 +80,7 @@ class EssentialFeedCacheIntegrationTests: XCTestCase {
         let sutToPerformValidate = makeFeedLoader()
         let sutToPerformRetrieve = makeFeedLoader()
 
-        insert(to: sutToPerformSave, models: models)
-
+        try sutToPerformSave.save(feed: models)
         try sutToPerformValidate.validateCache()
 
         let result = try sutToPerformRetrieve.load()
@@ -108,25 +105,6 @@ class EssentialFeedCacheIntegrationTests: XCTestCase {
         testMemoryLeak(localFeedImageLoader, file: file, line: line)
 
         return localFeedImageLoader
-    }
-
-    private func insert(to sut: LocalFeedLoader, models: [FeedImage]) {
-        do {
-            try sut.save(feed: models)
-        } catch {
-            XCTFail("Expected save to not crash, instead got \(error)")
-        }
-    }
-
-    private func insert(into sut: LocalFeedImageLoader, url: URL, with data: Data) {
-        let exp = expectation(description: "wait for image data save to complete")
-
-        sut.save(url: url, with: data) { error in
-            XCTAssertNil(error, "Expected save to succeed")
-            exp.fulfill()
-        }
-
-        wait(for: [exp], timeout: 5.0)
     }
 
     private func cachesDirectory() -> URL {

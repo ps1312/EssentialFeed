@@ -46,6 +46,4 @@ extension LocalFeedImageLoader: FeedImageCache {
             throw SaveError.failed
         }
     }
-
-    public func save(url: URL, with data: Data, completion: @escaping (Error?) -> Void) {}
 }
