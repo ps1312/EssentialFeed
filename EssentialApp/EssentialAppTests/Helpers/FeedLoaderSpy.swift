@@ -63,18 +63,9 @@ class FeedLoaderSpy: FeedImageLoader {
 
     // MARK: - FeedImageLoaderSpy
 
-    var imageLoadRequests = [(url: URL, completion: (FeedImageLoader.Result) -> Void)]()
-    var imageLoadedURLs: [URL] { return imageLoadRequests.map { $0.url } }
+    var imageLoadedURLs = [URL]()
     var canceledLoadRequests = [URL]()
     var imageLoadPublishers = [PassthroughSubject<Data, Error>]()
-
-    private struct TaskSpy: FeedImageLoaderTask {
-        let cancelCallback: () -> Void
-
-        func cancel() {
-            cancelCallback()
-        }
-    }
 
     func loadImageDataPublisher(url: URL) -> AnyPublisher<Data, Error> {
         let publisher = PassthroughSubject<Data, Error>()
@@ -82,7 +73,7 @@ class FeedLoaderSpy: FeedImageLoader {
 
         return publisher
             .handleEvents(receiveSubscription: { [weak self] _ in
-                self?.imageLoadRequests.append((url, { _ in }))
+                self?.imageLoadedURLs.append(url)
             }, receiveCancel: { [weak self] in
                 self?.canceledLoadRequests.append(url)
             })

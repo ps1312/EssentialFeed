@@ -35,10 +35,6 @@ extension LocalFeedLoader {
 }
 
 extension Publisher where Output == [FeedImage] {
-    func caching(to cache: LocalFeedLoader) -> AnyPublisher<Output, Failure> {
-        handleEvents(receiveOutput: cache.saveIgnoringResult).eraseToAnyPublisher()
-    }
-
     func caching(to cache: LocalFeedLoader, with existingImages: [FeedImage]) -> AnyPublisher<Output, Failure> {
         handleEvents(receiveOutput: { cache.saveIgnoringResult(existingImages + $0) }).eraseToAnyPublisher()
     }
@@ -75,15 +71,5 @@ extension Publisher where Output == Data {
 extension Publisher {
     func fallback(to fallbackPublisher: @escaping () -> AnyPublisher<Output, Failure>) -> AnyPublisher<Output, Failure> {
         self.catch { _ in fallbackPublisher() }.eraseToAnyPublisher()
-    }
-
-    func trace(url: URL, to logger: Logger) -> AnyPublisher<Output, Failure> {
-        let start = CACurrentMediaTime()
-        logger.trace("Started loading url \(url)")
-
-        return handleEvents(receiveCompletion: { _ in
-            let now = CACurrentMediaTime()
-            logger.trace("Finished loading \(url) in: \(now - start) seconds")
-        }).eraseToAnyPublisher()
     }
 }

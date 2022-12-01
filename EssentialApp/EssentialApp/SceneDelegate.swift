@@ -88,7 +88,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         return client
             .getPublisher(url: url)
             .tryMap(FeedItemsMapper.map)
-            .caching(to: localFeedLoader)
+            .caching(to: localFeedLoader, with: [])
             .fallback(to: localFeedLoader.loadPublisher)
             .map { self.makePage(feed: $0, lastImage: $0.last)}
             .eraseToAnyPublisher()
@@ -97,7 +97,6 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     private func makeLocalFeedImageLoaderWithRemoteFallback(url: URL) -> AnyPublisher<Data, Error> {
         localImageLoader
             .loadImagePublisher(from: url)
-            .trace(url: url, to: logger)
             .fallback(to: {
                 self.client.getPublisher(url: url)
                     .tryMap(FeedImageMapper.map)

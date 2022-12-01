@@ -9,26 +9,6 @@ public class LocalFeedImageLoader {
 }
 
 extension LocalFeedImageLoader: FeedImageLoader {
-    private final class LocalFeedImageLoaderTask: FeedImageLoaderTask {
-        private var completion: ((FeedImageLoader.Result) -> Void)?
-
-        init(_ completion: @escaping (FeedImageLoader.Result) -> Void) {
-            self.completion = completion
-        }
-
-        func complete(_ result: FeedImageLoader.Result) {
-            completion?(result)
-        }
-
-        func cancel() {
-            preventFurtherCompletions()
-        }
-
-        private func preventFurtherCompletions() {
-            completion = nil
-        }
-    }
-
     public enum LoadError: Error {
         case failed
         case notFound
