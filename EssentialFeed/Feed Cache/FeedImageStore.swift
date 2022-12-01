@@ -3,7 +3,6 @@ import Foundation
 public enum CacheImageRetrieveResult {
     case empty
     case found(Data)
-    case failure(Error)
 }
 
 public protocol FeedImageStore {
