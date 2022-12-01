@@ -36,7 +36,7 @@ class InMemoryFeedStoreTests: XCTestCase {
         expect(sut, toRetrieveImageCache: .empty, from: makeURL())
     }
 
-    func test_imageRetrieve_deliversDataOnNonEmptyCache() {
+    func test_imageRetrieve_deliversDataOnNonEmptyCache() throws {
         let url1 = makeURL(suffix: "specific-image")
         let data1 = Data("first data".utf8)
 
@@ -45,8 +45,8 @@ class InMemoryFeedStoreTests: XCTestCase {
 
         let sut = makeSUT()
 
-        insert(in: sut, data: data1, on: url1)
-        insert(in: sut, data: data2, on: url2)
+        try sut.insert(url: url1, with: data1)
+        try sut.insert(url: url2, with: data2)
 
         expect(sut, toRetrieveImageCache: .found(data1), from: url1)
         expect(sut, toRetrieveImageCache: .found(data2), from: url2)
@@ -83,15 +83,7 @@ class InMemoryFeedStoreTests: XCTestCase {
 
     // MARK: - FeedImageStore Helpers
 
-    func insert(in sut: InMemoryFeedStore, data: Data, on url: URL) {
-        let insertExp = expectation(description: "Wait for image cache insertion")
-        sut.insert(url: url, with: data) { _ in
-            insertExp.fulfill()
-        }
-        wait(for: [insertExp], timeout: 5.0)
-    }
-
-    func expect(_ sut: InMemoryFeedStore, toRetrieveImageCache expectedResult: CacheImageRetrieveResult, from url: URL) {
+    func expect(_ sut: InMemoryFeedStore, toRetrieveImageCache expectedResult: CacheImageRetrieveResult, from url: URL, file: StaticString = #filePath, line: UInt = #line) {
         let exp = expectation(description: "Wait for image cache retrieval")
 
         sut.retrieve(from: url) { receivedResult in
@@ -103,7 +95,7 @@ class InMemoryFeedStoreTests: XCTestCase {
                 XCTAssertEqual(expectedImageData, receivedImageData)
 
             default:
-                XCTFail("Expected \(expectedResult), instead got \(receivedResult)")
+                XCTFail("Expected \(expectedResult), instead got \(receivedResult)", file: file, line: line)
 
             }
             exp.fulfill()

@@ -40,9 +40,10 @@ extension InMemoryFeedStore {
         }
     }
 
-    public func insert(url: URL, with data: Data, completion: @escaping FeedImageStore.InsertCompletion) {
+    public func insert(url: URL, with data: Data, completion: @escaping FeedImageStore.InsertCompletion) {}
+
+    public func insert(url: URL, with data: Data) throws {
         images[url] = data
-        completion(nil)
     }
 
 }

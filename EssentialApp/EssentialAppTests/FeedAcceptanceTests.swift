@@ -184,6 +184,7 @@ class FeedAcceptanceTests: XCTestCase {
             completion(images.remove(at: 0))
         }
 
+        func insert(url: URL, with data: Data) throws {}
         func insert(url: URL, with data: Data, completion: @escaping InsertCompletion) {}
     }
 }
