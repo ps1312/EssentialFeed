@@ -35,8 +35,22 @@ extension LocalFeedImageLoader: FeedImageLoader {
     }
 
     public func load(from url: URL) throws -> Data {
-        let result = try store.retrieve(from: url)
-        return Data()
+        do {
+            let result = try store.retrieve(from: url)
+
+            switch (result) {
+            case .empty:
+                throw LoadError.notFound
+
+            case .found(let data):
+                return data
+
+            case .failure:
+                throw LoadError.failed
+            }
+        } catch {
+            throw error
+        }
     }
 
     public func load(from url: URL, completion: @escaping (FeedImageLoader.Result) -> Void) -> FeedImageLoaderTask {

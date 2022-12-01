@@ -89,6 +89,10 @@ class FeedLoaderSpy: FeedImageLoader {
             .eraseToAnyPublisher()
     }
 
+    func load(from url: URL) throws -> Data {
+        Data()
+    }
+
     func load(from url: URL, completion: @escaping (FeedImageLoader.Result) -> Void) -> FeedImageLoaderTask {
         TaskSpy(cancelCallback: {})
     }

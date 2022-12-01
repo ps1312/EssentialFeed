@@ -11,7 +11,7 @@ class LoadFeedImageFromCacheUseCaseTests: XCTestCase {
         let url = makeURL()
         let (sut, store) = makeSUT()
 
-        store.completeRetrieve(with: makeNSError())
+        store.completeRetrieve(with: makeData())
         _ = try sut.load(from: url)
 
         XCTAssertEqual(store.messages, [.retrieve(from: url)], "Expected SUT to message store with URL for image data retrieval")
@@ -48,7 +48,9 @@ class LoadFeedImageFromCacheUseCaseTests: XCTestCase {
         let (sut, store) = makeSUT()
 
         store.completeRetrieve(with: makeNSError())
-        _ = try sut.load(from: url)
+        do {
+            _ = try sut.load(from: url)
+        } catch {}
 
         XCTAssertEqual(store.messages, [.retrieve(from: url)])
     }

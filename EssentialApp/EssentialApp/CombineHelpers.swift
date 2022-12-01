@@ -48,15 +48,15 @@ extension FeedImageLoader {
     public typealias Publisher = AnyPublisher<Data, Error>
 
     public func loadImagePublisher(from url: URL) -> Publisher {
-        var task: FeedImageLoaderTask?
-
         return Deferred {
             Future { completion in
-                task = load(from: url, completion: completion)
+                do {
+                    completion(.success(try load(from: url)))
+                } catch {
+                    completion(.failure(error))
+                }
             }
-        }.handleEvents(receiveCancel: {
-            task?.cancel()
-        }).eraseToAnyPublisher()
+        }.eraseToAnyPublisher()
     }
 }
 

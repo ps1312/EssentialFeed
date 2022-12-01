@@ -104,11 +104,11 @@ class FeedAcceptanceTests: XCTestCase {
         return controller
     }
 
-    private func expect(_ sut: ListViewController, toLoadImageData imageData: Data, inCellAtIndex index: Int) {
+    private func expect(_ sut: ListViewController, toLoadImageData imageData: Data, inCellAtIndex index: Int, file: StaticString = #filePath, line: UInt = #line) {
         let cell = sut.simulateFeedImageCellIsVisible(at: index) as? FeedImageCell
-        XCTAssertEqual(cell?.feedImageData, imageData)
-        XCTAssertEqual(cell?.isShowingLoadingIndicator, false)
-        XCTAssertEqual(cell?.isShowingRetryButton, false)
+        XCTAssertEqual(cell?.feedImageData, imageData, file: file, line: line)
+        XCTAssertEqual(cell?.isShowingLoadingIndicator, false, file: file, line: line)
+        XCTAssertEqual(cell?.isShowingRetryButton, false, file: file, line: line)
     }
 
     private func makeFeedData(images: Any) -> Data {

@@ -45,7 +45,7 @@ class EssentialFeedCacheIntegrationTests: XCTestCase {
         XCTAssertEqual(lastImages, try sutToPerformLoad.load())
     }
 
-    func test_LocalFeedImageLoaderAndCoreDataFeedStore_deliversInsertedData() {
+    func test_LocalFeedImageLoaderAndCoreDataFeedStore_deliversInsertedData() throws {
         let data = makeData()
         let model = uniqueImages().models[0]
 
@@ -57,7 +57,7 @@ class EssentialFeedCacheIntegrationTests: XCTestCase {
 
         insert(into: imageLoaderToPerformSave, url: model.url, with: data)
 
-        let cachedData = retrieve(from: imageLoaderToPerformRetrieve, in: model.url)
+        let cachedData = try imageLoaderToPerformRetrieve.load(from: model.url)
         XCTAssertEqual(cachedData, data)
     }
 
