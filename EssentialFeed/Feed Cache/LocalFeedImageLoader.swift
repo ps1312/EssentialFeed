@@ -35,7 +35,7 @@ extension LocalFeedImageLoader: FeedImageLoader {
 }
 
 public protocol FeedImageCache {
-    func save(url: URL, with data: Data, completion: @escaping (Error?) -> Void)
+    func save(url: URL, with data: Data) throws
 }
 
 extension LocalFeedImageLoader: FeedImageCache {
@@ -43,12 +43,13 @@ extension LocalFeedImageLoader: FeedImageCache {
         case failed
     }
 
-    public func save(url: URL, with data: Data, completion: @escaping (Error?) -> Void) {
+    public func save(url: URL, with data: Data) throws {
         do {
             try store.insert(url: url, with: data)
-            completion(nil)
         } catch {
-            completion(SaveError.failed)
+            throw SaveError.failed
         }
     }
+
+    public func save(url: URL, with data: Data, completion: @escaping (Error?) -> Void) {}
 }

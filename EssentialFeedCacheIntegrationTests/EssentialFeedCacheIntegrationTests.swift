@@ -55,7 +55,7 @@ class EssentialFeedCacheIntegrationTests: XCTestCase {
 
         insert(to: feedLoaderToPerformSave, models: [model])
 
-        insert(into: imageLoaderToPerformSave, url: model.url, with: data)
+        try imageLoaderToPerformSave.save(url: model.url, with: data)
 
         let cachedData = try imageLoaderToPerformRetrieve.load(from: model.url)
         XCTAssertEqual(cachedData, data)
