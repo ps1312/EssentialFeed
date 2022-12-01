@@ -34,10 +34,6 @@ extension LocalFeedImageLoader: FeedImageLoader {
     }
 }
 
-public protocol FeedImageCache {
-    func save(url: URL, with data: Data) throws
-}
-
 extension LocalFeedImageLoader: FeedImageCache {
     public enum SaveError: Error {
         case failed
