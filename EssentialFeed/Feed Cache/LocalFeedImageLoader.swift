@@ -37,25 +37,25 @@ extension LocalFeedImageLoader: FeedImageLoader {
     public typealias LoadFeedImageResult = Result<Data, Error>
 
     public func load(from url: URL, completion: @escaping (LoadFeedImageResult) -> Void) -> FeedImageLoaderTask {
-        let localTask = LocalFeedImageLoaderTask(completion)
-
-        store.retrieve(from: url) { [weak self] result in
-            guard self != nil else { return }
+        do {
+            let result = try store.retrieve(from: url)
 
             switch (result) {
             case .empty:
-                localTask.complete(.failure(LoadError.notFound))
-
-            case .failure:
-                localTask.complete(.failure(LoadError.failed))
+                completion(.failure(LoadError.notFound))
 
             case .found(let data):
-                localTask.complete(.success(data))
+                completion(.success(data))
 
+            case .failure:
+                completion(.failure(LoadError.failed))
             }
+
+        } catch {
+            completion(.failure(LoadError.failed))
         }
 
-        return localTask
+        return LocalFeedImageLoaderTask { _ in }
     }
 }
 

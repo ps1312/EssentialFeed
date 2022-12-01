@@ -10,22 +10,28 @@ final class FeedImageStoreSpy: FeedImageStore {
     var retrievalCompletions = [RetrievalCompletion]()
     var insertCompletions = [InsertCompletion]()
     var insertResult: Error?
+    var retrieveResult: CacheImageRetrieveResult = .empty
 
     func retrieve(from url: URL, completion: @escaping RetrievalCompletion) {
         messages.append(.retrieve(from: url))
         retrievalCompletions.append(completion)
     }
 
+    func retrieve(from url: URL) throws -> CacheImageRetrieveResult {
+        messages.append(.retrieve(from: url))
+        return retrieveResult
+    }
+
     func completeRetrieve(with error: Error, at index: Int = 0) {
-        retrievalCompletions[index](.failure(error))
+        retrieveResult = .failure(error)
     }
 
     func completeRetrieve(with data: Data, at index: Int = 0) {
-        retrievalCompletions[index](.found(data))
+        retrieveResult = .found(data)
     }
 
     func completeRetrieveWithEmpty(at index: Int = 0) {
-        retrievalCompletions[index](.empty)
+        retrieveResult = .empty
     }
 
     func insert(url: URL, with data: Data) throws {

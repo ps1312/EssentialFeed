@@ -11,6 +11,7 @@ class LoadFeedImageFromCacheUseCaseTests: XCTestCase {
         let url = makeURL()
         let (sut, store) = makeSUT()
 
+        store.completeRetrieve(with: makeNSError())
         _ = sut.load(from: url) { _ in }
 
         XCTAssertEqual(store.messages, [.retrieve(from: url)], "Expected SUT to message store with URL for image data retrieval")
@@ -42,37 +43,12 @@ class LoadFeedImageFromCacheUseCaseTests: XCTestCase {
         }
     }
 
-    func test_load_doesNotCompleteAfterTaskHasBeenCanceled() {
-        let (sut, store) = makeSUT()
-
-        var capturedResult: LocalFeedImageLoader.LoadFeedImageResult?
-        let task = sut.load(from: makeURL()) { capturedResult = $0 }
-
-        task.cancel()
-        store.completeRetrieve(with: makeNSError())
-
-        XCTAssertNil(capturedResult, "Expected load to not complete after task has been canceled")
-    }
-
-    func test_load_doesNotCompleteAfterSUTHasBeenDeallocated() {
-        let store = FeedImageStoreSpy()
-        var sut: LocalFeedImageLoader? = LocalFeedImageLoader(store: store)
-
-        var capturedResult: LocalFeedImageLoader.LoadFeedImageResult?
-        _ = sut?.load(from: makeURL()) { capturedResult = $0 }
-
-        sut = nil
-        store.completeRetrieve(with: makeNSError())
-
-        XCTAssertNil(capturedResult, "Expected load to not complete after SUT instance has been deallocated")
-    }
-
     func test_load_triggersNoSideEffectsInStoreOnFailure() {
         let url = makeURL()
         let (sut, store) = makeSUT()
 
-        _ = sut.load(from: url) { _ in }
         store.completeRetrieve(with: makeNSError())
+        _ = sut.load(from: url) { _ in }
 
         XCTAssertEqual(store.messages, [.retrieve(from: url)])
     }
@@ -82,13 +58,15 @@ class LoadFeedImageFromCacheUseCaseTests: XCTestCase {
         let url = makeURL()
         let (sut, store) = makeSUT()
 
-        _ = sut.load(from: url) { _ in }
         store.completeRetrieve(with: data)
+        _ = sut.load(from: url) { _ in }
 
         XCTAssertEqual(store.messages, [.retrieve(from: url)])
     }
 
     private func expect(_ sut: LocalFeedImageLoader, toCompleteWith expectedResult: LocalFeedImageLoader.LoadFeedImageResult, when action: () -> Void, file: StaticString = #filePath, line: UInt = #line) {
+        action()
+
         _ = sut.load(from: makeURL()) { capturedResult in
             switch (capturedResult, expectedResult) {
             case let (.failure(capturedError), .failure(expectedError)):
@@ -102,8 +80,6 @@ class LoadFeedImageFromCacheUseCaseTests: XCTestCase {
 
             }
         }
-
-        action()
     }
 
     private func makeSUT(file: StaticString = #filePath, line: UInt = #line) -> (LocalFeedImageLoader, FeedImageStoreSpy) {
