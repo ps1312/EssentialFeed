@@ -35,8 +35,6 @@ final class FeedImageStoreSpy: FeedImageStore {
         }
     }
 
-    func insert(url: URL, with data: Data, completion: @escaping InsertCompletion) {}
-
     func completeInsert(with error: Error, at index: Int = 0) {
         insertResult = error
     }

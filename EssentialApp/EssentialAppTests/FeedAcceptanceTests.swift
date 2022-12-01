@@ -185,7 +185,6 @@ class FeedAcceptanceTests: XCTestCase {
         }
 
         func insert(url: URL, with data: Data) throws {}
-        func insert(url: URL, with data: Data, completion: @escaping InsertCompletion) {}
     }
 }
 

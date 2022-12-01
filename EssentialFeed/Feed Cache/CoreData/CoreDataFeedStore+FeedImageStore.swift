@@ -10,8 +10,6 @@ extension CoreDataFeedStore: FeedImageStore {
         }
     }
 
-    public func insert(url: URL, with data: Data, completion: @escaping InsertCompletion) {}
-
     public func retrieve(from url: URL, completion: @escaping RetrievalCompletion) {
         perform { context in
             do {
