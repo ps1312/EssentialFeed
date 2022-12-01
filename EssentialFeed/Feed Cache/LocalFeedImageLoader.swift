@@ -69,14 +69,11 @@ extension LocalFeedImageLoader: FeedImageCache {
     }
 
     public func save(url: URL, with data: Data, completion: @escaping (Error?) -> Void) {
-        store.insert(url: url, with: data) { [weak self] error in
-            guard self != nil else { return }
-
-            if error == nil {
-                completion(nil)
-            } else {
-                completion(SaveError.failed)
-            }
+        do {
+            try store.insert(url: url, with: data)
+            completion(nil)
+        } catch {
+            completion(SaveError.failed)
         }
     }
 }

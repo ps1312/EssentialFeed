@@ -9,6 +9,7 @@ final class FeedImageStoreSpy: FeedImageStore {
     var messages = [Message]()
     var retrievalCompletions = [RetrievalCompletion]()
     var insertCompletions = [InsertCompletion]()
+    var insertResult: Error?
 
     func retrieve(from url: URL, completion: @escaping RetrievalCompletion) {
         messages.append(.retrieve(from: url))
@@ -27,16 +28,20 @@ final class FeedImageStoreSpy: FeedImageStore {
         retrievalCompletions[index](.empty)
     }
 
-    func insert(url: URL, with data: Data, completion: @escaping InsertCompletion) {
+    func insert(url: URL, with data: Data) throws {
         messages.append(.insert(url, data))
-        insertCompletions.append(completion)
+        if let error = insertResult {
+            throw error
+        }
     }
 
+    func insert(url: URL, with data: Data, completion: @escaping InsertCompletion) {}
+
     func completeInsert(with error: Error, at index: Int = 0) {
-        insertCompletions[index](error)
+        insertResult = error
     }
 
     func completeInsertWithSuccess(at index: Int = 0) {
-        insertCompletions[index](nil)
+        insertResult = nil
     }
 }
