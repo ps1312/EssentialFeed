@@ -112,8 +112,9 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     }
 
     private func selection(image: FeedImage) {
-        let url = URL(string: "https://ile-api.essentialdeveloper.com/essential-feed/v1/image/\(image.id.uuidString)/comments")!
-        let comments = ImageCommentsUIComposer.composeWith(loader: { self.makeRemoteCommentsLoader(url: url) })
+        let comments = ImageCommentsUIComposer.composeWith(loader: {
+            self.makeRemoteCommentsLoader(url: ImageCommentsEndpoint.get(from: image).url(baseURL: Self.baseURL))
+        })
         navigationController.pushViewController(comments, animated: true)
     }
 
