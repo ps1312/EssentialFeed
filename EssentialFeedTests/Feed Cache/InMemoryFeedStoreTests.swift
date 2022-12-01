@@ -84,9 +84,9 @@ class InMemoryFeedStoreTests: XCTestCase {
     // MARK: - FeedImageStore Helpers
 
     func expect(_ sut: InMemoryFeedStore, toRetrieveImageCache expectedResult: CacheImageRetrieveResult, from url: URL, file: StaticString = #filePath, line: UInt = #line) {
-        let exp = expectation(description: "Wait for image cache retrieval")
+        do {
+            let receivedResult = try sut.retrieve(from: url)
 
-        sut.retrieve(from: url) { receivedResult in
             switch (receivedResult, expectedResult) {
             case (.empty, .empty):
                 break
@@ -96,11 +96,9 @@ class InMemoryFeedStoreTests: XCTestCase {
 
             default:
                 XCTFail("Expected \(expectedResult), instead got \(receivedResult)", file: file, line: line)
-
             }
-            exp.fulfill()
+        } catch {
+            XCTFail("Expected retrieve to not fail, got \(error)")
         }
-
-        wait(for: [exp], timeout: 5.0)
     }
 }
