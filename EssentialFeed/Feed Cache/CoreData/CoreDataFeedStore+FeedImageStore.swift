@@ -1,19 +1,16 @@
 import Foundation
 
 extension CoreDataFeedStore: FeedImageStore {
-    public func insert(url: URL, with data: Data, completion: @escaping InsertCompletion) {
-        perform { context in
-            do {
-                let model = try ManagedFeedImage.findBy(url: url)
-                model?.data = data
+    public func insert(url: URL, with data: Data) throws {
+        try performSync { context in
+            let model = try ManagedFeedImage.findBy(url: url)
+            model?.data = data
 
-                try context.save()
-                completion(nil)
-            } catch {
-                completion(error)
-            }
+            try context.save()
         }
     }
+
+    public func insert(url: URL, with data: Data, completion: @escaping InsertCompletion) {}
 
     public func retrieve(from url: URL, completion: @escaping RetrievalCompletion) {
         perform { context in
