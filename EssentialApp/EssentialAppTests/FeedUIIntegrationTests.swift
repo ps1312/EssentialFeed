@@ -385,6 +385,26 @@ class FeedUIIntegrationTests: XCTestCase {
         XCTAssertEqual(cell?.feedImageData, imageData)
     }
 
+    func test_feedCell_isConfiguredCorrectlyWhenTransitioningFromPrefetchToVisibleWhileRequestingImage() {
+        let (sut, loader) = makeSUT()
+        sut.loadViewIfNeeded()
+        loader.completeFeedLoad(with: [uniqueImage()])
+
+        sut.simulateItemCellWillBecomeVisible(at: 0)
+        let view0 = sut.simulateFeedImageCellIsVisible(at: 0) as? FeedImageCell
+
+        XCTAssertEqual(view0?.feedImageView.image, nil, "Expected no rendered image when view becomes visible while still preloading image")
+        XCTAssertEqual(view0?.isShowingRetryButton, false, "Expected no retry action when view becomes visible while still preloading image")
+        XCTAssertEqual(view0?.isShowingLoadingIndicator, true, "Expected loading indicator when view becomes visible while still preloading image")
+
+        let imageData = UIImage.make(withColor: .red).pngData()!
+        loader.finishImagePublisherLoadingSuccessfully(at: 1, with: imageData)
+
+        XCTAssertEqual(view0?.feedImageView.image?.pngData(), imageData, "Expected rendered image after image preloads successfully")
+        XCTAssertEqual(view0?.isShowingRetryButton, false, "Expected no retry action after image preloads successfully")
+        XCTAssertEqual(view0?.isShowingLoadingIndicator, false, "Expected no loading indicator after image preloads successfully")
+    }
+
     // MARK: - Load more tests
     func test_loadMore_isCalledUponLoadMoreAction() {
         let (sut, loader) = makeSUT()
