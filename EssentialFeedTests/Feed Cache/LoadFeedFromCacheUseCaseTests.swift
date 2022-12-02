@@ -4,136 +4,120 @@ import EssentialFeed
 
 class LoadFeedFromCacheUseCaseTests: XCTestCase {
 
-    func testInitDoesNotRequestCacheDeletion() {
+    func test_init_doesNotRequestCacheDeletion() {
         let (_, storeSpy) = makeSUT()
 
         XCTAssertEqual(storeSpy.messages, [])
     }
 
-    func testLoadRequestsCacheRetrieval() {
+    func test_load_requestsCacheRetrieval() throws {
         let (sut, storeSpy) = makeSUT()
 
-        sut.load { _ in }
+        _ = try sut.load()
 
         XCTAssertEqual(storeSpy.messages, [.retrieve])
     }
 
-    func testLoadDeliversErrorOnRetrievalFailure() {
-        let expectedError = makeNSError()
+    func test_load_deliversErrorOnRetrievalFailure() {
         let (sut, storeSpy) = makeSUT()
 
-        expect(sut, toCompleteWith: .failure(expectedError), when: {
-            storeSpy.completeRetrieve(with: expectedError)
-        })
+        storeSpy.completeRetrieve(with: makeNSError())
+
+        XCTAssertThrowsError(try sut.load())
     }
 
-    func testLoadDeliversEmptyListWhenCacheIsEmpty() {
+    func test_load_deliversEmptyListWhenCacheIsEmpty() {
         let (sut, storeSpy) = makeSUT()
 
-        expect(sut, toCompleteWith: .success([]), when: {
-            storeSpy.completeRetrieveWithEmptyCache()
-        })
+        storeSpy.completeRetrieveWithEmptyCache()
+
+        XCTAssertEqual([], try sut.load())
     }
 
-    func testLoadDeliversFeedImagesWhenCacheIsNotExpired() {
+    func test_load_deliversFeedImagesWhenCacheIsNotExpired() {
         let currentDate = Date()
         let notExpiredTimestamp = currentDate.minusFeedCacheMaxAge().adding(seconds: 1)
         let expectedFeed = uniqueImages()
         let (sut, storeSpy) = makeSUT()
 
-        expect(sut, toCompleteWith: .success(expectedFeed.models), when: {
-            storeSpy.completeRetrieve(with: expectedFeed.locals, timestamp: notExpiredTimestamp)
-        })
+        storeSpy.completeRetrieve(with: expectedFeed.locals, timestamp: notExpiredTimestamp)
+
+        XCTAssertEqual(expectedFeed.models, try sut.load())
     }
 
-    func testLoadDeliversEmptyListWhenCacheIsExpired() {
+    func test_load_deliversEmptyListWhenCacheIsExpired() {
         let currentDate = Date()
         let expiredTimestamp = currentDate.minusFeedCacheMaxAge().adding(seconds: -1)
         let (sut, storeSpy) = makeSUT(currentDate: { currentDate })
 
-        expect(sut, toCompleteWith: .success([]), when: {
-            storeSpy.completeRetrieve(with: uniqueImages().locals, timestamp: expiredTimestamp)
-        })
-    }
-
-    func testLoadDeliversEmptyFeedImagesArrayWhenCacheIsOnExpirationDate() {
-        let currentDate = Date()
-        let expirationTimestamp = currentDate.minusFeedCacheMaxAge()
-        let (sut, storeSpy) = makeSUT(currentDate: { currentDate })
-
-        expect(sut, toCompleteWith: .success([]), when: {
-            storeSpy.completeRetrieve(with: uniqueImages().locals, timestamp: expirationTimestamp)
-        })
-    }
-
-    func testLoadHasNoSideEffectsWhenRetrieveFails() {
-        let (sut, storeSpy) = makeSUT()
-
-        sut.load { _ in }
-        storeSpy.completeRetrieve(with: makeNSError())
-
-        XCTAssertEqual(storeSpy.messages, [.retrieve])
-    }
-
-    func testLoadHasNoSideEffectsWhenCacheIsExpired() {
-        let currentDate = Date()
-        let expiredTimestamp = currentDate.minusFeedCacheMaxAge().adding(seconds: -1)
-
-        let (sut, storeSpy) = makeSUT(currentDate: { currentDate })
-
-        sut.load { _ in }
         storeSpy.completeRetrieve(with: uniqueImages().locals, timestamp: expiredTimestamp)
 
-        XCTAssertEqual(storeSpy.messages, [.retrieve])
+        XCTAssertEqual([], try sut.load())
     }
 
-    func testLoadHasNoSideEffectsWhenCacheIsOnExpirationDate() {
+    func test_load_deliversEmptyFeedImagesArrayWhenCacheIsOnExpirationDate() {
         let currentDate = Date()
         let expirationTimestamp = currentDate.minusFeedCacheMaxAge()
-
         let (sut, storeSpy) = makeSUT(currentDate: { currentDate })
 
-        sut.load { _ in }
         storeSpy.completeRetrieve(with: uniqueImages().locals, timestamp: expirationTimestamp)
 
-        XCTAssertEqual(storeSpy.messages, [.retrieve])
+        XCTAssertEqual([], try sut.load())
     }
 
-    func testLoadDoesNotDeleteCacheWhenNotExpired() {
-        let currentDate = Date()
-        let notExpiredTimestamp = currentDate.minusFeedCacheMaxAge().adding(seconds: 1)
-
-        let (sut, storeSpy) = makeSUT(currentDate: { currentDate })
-
-        sut.load { _ in }
-        storeSpy.completeRetrieve(with: uniqueImages().locals, timestamp: notExpiredTimestamp)
-
-        XCTAssertEqual(storeSpy.messages, [.retrieve])
-
-    }
-
-    func testLoadDoesNotDeleteCacheWhenAlreadyEmpty() {
+    func test_load_hasNoSideEffectsWhenRetrieveFails() throws {
         let (sut, storeSpy) = makeSUT()
 
-        sut.load { _ in }
-        storeSpy.completeRetrieveWithEmptyCache()
+        storeSpy.completeRetrieve(with: makeNSError())
+        do {
+            _ = try sut.load()
+        } catch {}
 
         XCTAssertEqual(storeSpy.messages, [.retrieve])
     }
 
-    func testLoadDoesNotCompleteWhenSUTHasBeenDeallocated() {
-        let storeSpy = FeedStoreSpy()
-        var sut: LocalFeedLoader? = LocalFeedLoader(store: storeSpy)
+    func test_load_hasNoSideEffectsWhenCacheIsExpired() throws {
+        let currentDate = Date()
+        let expiredTimestamp = currentDate.minusFeedCacheMaxAge().adding(seconds: -1)
+        let (sut, storeSpy) = makeSUT(currentDate: { currentDate })
 
-        var capturedResults = [Result<[FeedImage], Error>]()
-        sut?.load { capturedResults.append($0) }
+        storeSpy.completeRetrieve(with: uniqueImages().locals, timestamp: expiredTimestamp)
+        _ = try sut.load()
 
-        sut = nil
-        storeSpy.completeRetrieveWithEmptyCache()
-
-        XCTAssertEqual(capturedResults.count, 0)
+        XCTAssertEqual(storeSpy.messages, [.retrieve])
     }
 
+    func test_load_hasNoSideEffectsWhenCacheIsOnExpirationDate() throws {
+        let currentDate = Date()
+        let expirationTimestamp = currentDate.minusFeedCacheMaxAge()
+        let (sut, storeSpy) = makeSUT(currentDate: { currentDate })
+
+        storeSpy.completeRetrieve(with: uniqueImages().locals, timestamp: expirationTimestamp)
+        _ = try sut.load()
+
+        XCTAssertEqual(storeSpy.messages, [.retrieve])
+    }
+
+    func test_load_doesNotDeleteCacheWhenNotExpired() throws {
+        let currentDate = Date()
+        let notExpiredTimestamp = currentDate.minusFeedCacheMaxAge().adding(seconds: 1)
+        let (sut, storeSpy) = makeSUT(currentDate: { currentDate })
+
+        storeSpy.completeRetrieve(with: uniqueImages().locals, timestamp: notExpiredTimestamp)
+        _ = try sut.load()
+
+        XCTAssertEqual(storeSpy.messages, [.retrieve])
+
+    }
+
+    func test_load_doesNotDeleteCacheWhenAlreadyEmpty() throws {
+        let (sut, storeSpy) = makeSUT()
+
+        storeSpy.completeRetrieveWithEmptyCache()
+        _ = try sut.load()
+
+        XCTAssertEqual(storeSpy.messages, [.retrieve])
+    }
 
     // MARK: - Helpers
 
@@ -145,28 +129,5 @@ class LoadFeedFromCacheUseCaseTests: XCTestCase {
         testMemoryLeak(feedStore, file: file, line: line)
 
         return (sut, feedStore)
-    }
-
-    private func expect(_ sut: LocalFeedLoader, toCompleteWith expectedResult: Result<[FeedImage], Error>, when action: () -> Void, file: StaticString = #filePath, line: UInt = #line) {
-        let exp = expectation(description: "wait for load to complete")
-
-        sut.load { receivedResult in
-            switch (receivedResult, expectedResult) {
-            case let (.success(receivedFeed), .success(expectedFeed)):
-                XCTAssertEqual(receivedFeed, expectedFeed, file: file, line: line)
-
-            case let (.failure(receivedError), .failure(expectedError)):
-                XCTAssertEqual(receivedError as NSError, expectedError as NSError, file: file, line: line)
-
-            default:
-                XCTFail("Received result and expected result should match, instead got \(receivedResult) and \(expectedResult)")
-            }
-
-            exp.fulfill()
-        }
-
-        action()
-
-        wait(for: [exp], timeout: 1.0)
     }
 }

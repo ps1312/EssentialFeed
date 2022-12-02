@@ -11,6 +11,7 @@ public class CoreDataFeedStore {
     public enum StoreError: Error {
         case modelNotFound
         case failedToLoadPersistentContainer(Error)
+        case failedToPerformSync
     }
 
     public init(storeURL: URL) throws {
@@ -23,6 +24,19 @@ public class CoreDataFeedStore {
             context = container.newBackgroundContext()
         } catch {
             throw StoreError.failedToLoadPersistentContainer(error)
+        }
+    }
+
+    func performSync(_ block: @escaping (NSManagedObjectContext) throws -> Void) throws {
+        try context.performAndWait { [context] in
+            do {
+                try block(context)
+                return
+            } catch {
+                context.rollback()
+            }
+
+            throw StoreError.failedToPerformSync
         }
     }
 

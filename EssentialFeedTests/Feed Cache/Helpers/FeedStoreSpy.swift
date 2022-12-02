@@ -5,6 +5,9 @@ class FeedStoreSpy: FeedStore {
     private var deleteRequests = [DeletionCompletion]()
     private var persistRequests = [PersistCompletion]()
     private var retrieveRequests = [RetrieveCompletion]()
+    private var deleteResult: Error?
+    private var persistResult: Error?
+    private var retrieveResult: CacheRetrieveResult = .empty
 
     enum Message: Equatable {
         case delete
@@ -14,47 +17,51 @@ class FeedStoreSpy: FeedStore {
 
     var messages = [Message]()
 
-    func delete(completion: @escaping DeletionCompletion) {
-        deleteRequests.append(completion)
+    func delete() throws {
         messages.append(.delete)
+        if let error = deleteResult {
+            throw error
+        }
     }
 
-    func persist(images: [LocalFeedImage], timestamp: Date, completion: @escaping PersistCompletion) {
-        persistRequests.append(completion)
+    func persist(images: [EssentialFeed.LocalFeedImage], timestamp: Date) throws {
         messages.append(.persist(images: images, timestamp: timestamp))
+        if let error = persistResult {
+            throw error
+        }
     }
 
-    func retrieve(completion: @escaping RetrieveCompletion) {
-        retrieveRequests.append(completion)
+    func retrieve() throws -> EssentialFeed.CacheRetrieveResult {
         messages.append(.retrieve)
+        return retrieveResult
     }
 
     func completeDelete(with error: Error, at index: Int = 0) {
-        deleteRequests[index](error)
+        deleteResult = error
     }
 
     func completeDeletionWithSuccess(at index: Int = 0) {
-        deleteRequests[index](nil)
+        deleteResult = nil
     }
 
     func completePersist(with error: Error, at index: Int = 0) {
-        persistRequests[index](error)
+        persistResult = error
     }
 
     func completePersistWithSuccess(at index: Int = 0) {
-        persistRequests[index](nil)
+        persistResult = nil
     }
 
     func completeRetrieve(with error: Error, at index: Int = 0) {
-        retrieveRequests[index](.failure(error))
+        retrieveResult = .failure(error)
     }
 
     func completeRetrieveWithEmptyCache(at index: Int = 0) {
-        retrieveRequests[index](.empty)
+        retrieveResult = .empty
     }
 
     func completeRetrieve(with feed: [LocalFeedImage], timestamp: Date, at index: Int = 0) {
-        retrieveRequests[index](.found(feed: feed, timestamp: timestamp))
+        retrieveResult = .found(feed: feed, timestamp: timestamp)
     }
 
 }

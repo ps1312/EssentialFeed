@@ -16,24 +16,18 @@ class CoreDataFeedImageStoreTests: XCTestCase {
     func test_retrieve_deliversErrorOnStoreFailure() {
         let sut = makeSUT()
         let stub = NSManagedObjectContext.setupAlwaysFailingFetchStub()
-        let exp = expectation(description: "wait for insertion to complete")
-
         stub.startIntercepting()
-        sut.retrieve(from: makeURL()) { error in
-            XCTAssertNotNil(error, "Expected insert to fail on always failing core data context")
-            exp.fulfill()
-        }
 
-        wait(for: [exp], timeout: 1.0)
+        XCTAssertThrowsError(try sut.retrieve(from: makeURL()))
     }
 
     func test_retrieve_deliversEmptyOnEmptyCache() {
-        let sut = makeSUT()
         let local = uniqueImages().locals[0]
+        let sut = makeSUT()
 
         insertImage(sut, feed: [local], timestamp: Date())
 
-        expect(sut, toCompleteRetrieveWith: .empty, from: local.url)
+        XCTAssertEqual(try sut.retrieve(from: local.url), nil)
     }
 
     func test_retrieve_hasNoSideEffectsOnEmptyCache() {
@@ -42,7 +36,8 @@ class CoreDataFeedImageStoreTests: XCTestCase {
 
         insertImage(sut, feed: [local], timestamp: Date())
 
-        expect(sut, toCompleteRetrieveTwiceWith: .empty, from: local.url)
+        XCTAssertEqual(try sut.retrieve(from: local.url), nil)
+        XCTAssertEqual(try sut.retrieve(from: local.url), nil)
     }
 
     func test_retrieve_hasNoSideEffectsOnNonEmptyCache() {
@@ -53,7 +48,8 @@ class CoreDataFeedImageStoreTests: XCTestCase {
         insertImage(sut, feed: [local], timestamp: Date())
         saveImage(sut, in: local.url, data: data)
 
-        expect(sut, toCompleteRetrieveTwiceWith: .found(data), from: local.url)
+        XCTAssertEqual(try sut.retrieve(from: local.url), data)
+        XCTAssertEqual(try sut.retrieve(from: local.url), data)
     }
 
     func test_retrieveAfterInsert_deliversStoredFeedImageData() {
@@ -64,7 +60,8 @@ class CoreDataFeedImageStoreTests: XCTestCase {
         insertImage(sut, feed: [local], timestamp: Date())
         saveImage(sut, in: local.url, data: data)
 
-        expect(sut, toCompleteRetrieveWith: .found(data), from: local.url)
+        XCTAssertEqual(try sut.retrieve(from: local.url), data)
+        XCTAssertEqual(try sut.retrieve(from: local.url), data)
     }
 
     func test_insertAfterInsert_deliversLastInsertedData() {
@@ -75,10 +72,10 @@ class CoreDataFeedImageStoreTests: XCTestCase {
 
         insertImage(sut, feed: [local], timestamp: Date())
         saveImage(sut, in: local.url, data: firstData)
-        expect(sut, toCompleteRetrieveWith: .found(firstData), from: local.url)
+        XCTAssertEqual(try sut.retrieve(from: local.url), firstData)
 
         saveImage(sut, in: local.url, data: lastData)
-        expect(sut, toCompleteRetrieveWith: .found(lastData), from: local.url)
+        XCTAssertEqual(try sut.retrieve(from: local.url), lastData)
     }
 
     func test_insert_updatesOnlyFeedImageDataWithProvidedURL() {
@@ -91,8 +88,8 @@ class CoreDataFeedImageStoreTests: XCTestCase {
         insertImage(sut, feed: [local1, local2], timestamp: Date())
         saveImage(sut, in: local1.url, data: data)
 
-        expect(sut, toCompleteRetrieveWith: .found(data), from: local1.url)
-        expect(sut, toCompleteRetrieveWith: .empty, from: local2.url)
+        XCTAssertEqual(try sut.retrieve(from: local1.url), data)
+        XCTAssertEqual(try sut.retrieve(from: local2.url), nil)
     }
 
     func test_insert_hasNoSideEffectsOnFailure() {
@@ -105,38 +102,7 @@ class CoreDataFeedImageStoreTests: XCTestCase {
         insertImage(sut, feed: [local], timestamp: Date())
         saveImage(sut, in: makeURL(), data: makeData())
 
-        expect(sut, toCompleteRetrieveWith: .empty, from: local.url)
-    }
-
-    func test_store_runSideEffectsSerially() {
-        var completedOperationsInOrder = [XCTestExpectation]()
-
-        let op1 = expectation(description: "wait for first retrieve to complete")
-        let op2 = expectation(description: "wait for insert to complete")
-        let op3 = expectation(description: "wait for last retrieve to complete")
-
-        let url = makeURL()
-        let data = makeData()
-        let sut = makeSUT()
-
-        sut.retrieve(from: url) { _ in
-            completedOperationsInOrder.append(op1)
-            op1.fulfill()
-        }
-
-        sut.insert(url: url, with: data) { _ in
-            completedOperationsInOrder.append(op2)
-            op2.fulfill()
-        }
-
-        sut.retrieve(from: url) { _ in
-            completedOperationsInOrder.append(op3)
-            op3.fulfill()
-        }
-
-        waitForExpectations(timeout: 5.0)
-
-        XCTAssertEqual(completedOperationsInOrder, [op1, op2, op3])
+        XCTAssertEqual(try sut.retrieve(from: local.url), nil)
     }
 
     private func makeSUT(file: StaticString = #filePath, line: UInt = #line) -> CoreDataFeedStore {
@@ -148,82 +114,23 @@ class CoreDataFeedImageStoreTests: XCTestCase {
         return store
     }
 
-    func expect(_ sut: CoreDataFeedStore, toCompleteRetrieveTwiceWith expectedResult: CacheImageRetrieveResult, from url: URL, file: StaticString = #filePath, line: UInt = #line) {
-        expect(sut, toCompleteRetrieveWith: expectedResult, from: url)
-        expect(sut, toCompleteRetrieveWith: expectedResult, from: url)
-    }
-
-    func expect(_ sut: CoreDataFeedStore, toCompleteRetrieveWith expectedResult: CacheImageRetrieveResult, from url: URL, file: StaticString = #filePath, line: UInt = #line) {
-        let exp = expectation(description: "wait for retrieve to complete")
-
-        sut.retrieve(from: url) { receivedResult in
-            switch (receivedResult, expectedResult) {
-            case (.empty, .empty):
-                break
-
-            case (.found(let cachedData), .found(let expectedData)):
-                XCTAssertEqual(cachedData, expectedData, "Expected retrieve to deliver \(expectedData), instead got \(cachedData)", file: file, line: line)
-
-            default:
-                XCTFail("Expected received and expected results to match, instead got \(receivedResult) and \(expectedResult)", file: file, line: line)
-            }
-
-            exp.fulfill()
-        }
-
-        wait(for: [exp], timeout: 1.0)
-
-    }
-
-    func retrieveImage(_ sut: FeedImageStore, url: URL) -> Data? {
-        let exp = expectation(description: "wait for feed image data retrieve")
-
-        var capturedData: Data? = nil
-
-        sut.retrieve(from: url) { result in
-            switch (result) {
-            case .found(let cachedData):
-                capturedData = cachedData
-
-            default:
-                XCTFail("Expected image data retrieval to succeed, instead got \(result)")
-            }
-
-            exp.fulfill()
-        }
-
-        wait(for: [exp], timeout: 1.0)
-
-        return capturedData
-    }
-
     @discardableResult
     func saveImage(_ sut: FeedImageStore, in url: URL, data: Data) -> Error? {
-        let exp = expectation(description: "wait for insertion to complete")
-
-        var saveError: Error? = nil
-        sut.insert(url: url, with: data) { error in
-            saveError = error
-            exp.fulfill()
+        do {
+            try sut.insert(url: url, with: data)
+            return nil
+        } catch {
+            return error
         }
-
-        wait(for: [exp], timeout: 1.0)
-
-        return saveError
     }
 
     @discardableResult
     func insertImage(_ sut: FeedStore, feed: [LocalFeedImage], timestamp: Date) -> Error? {
-        let exp = expectation(description: "wait for insertion to complete")
-
-        var persistError: Error? = nil
-        sut.persist(images: feed, timestamp: timestamp) { error in
-            persistError = error
-            exp.fulfill()
+        do {
+            try sut.persist(images: feed, timestamp: timestamp)
+            return nil
+        } catch {
+            return error
         }
-
-        wait(for: [exp], timeout: 1.0)
-
-        return persistError
     }
 }

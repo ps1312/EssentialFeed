@@ -7,103 +7,71 @@ class LoadFeedImageFromCacheUseCaseTests: XCTestCase {
         XCTAssertTrue(store.messages.isEmpty, "Expected no collaboration with store yet")
     }
 
-    func test_load_makesStoreRetrievalWithProvidedURL() {
+    func test_load_makesStoreRetrievalWithProvidedURL() throws {
         let url = makeURL()
         let (sut, store) = makeSUT()
 
-        _ = sut.load(from: url) { _ in }
+        store.completeRetrieve(with: makeData())
+        _ = try sut.load(from: url)
 
         XCTAssertEqual(store.messages, [.retrieve(from: url)], "Expected SUT to message store with URL for image data retrieval")
     }
 
     func test_load_deliversFailedErrorOnRetrievalFailure() {
-        let error = makeNSError()
+        let expectedError = LocalFeedImageLoader.LoadError.failed
         let (sut, store) = makeSUT()
 
-        expect(sut, toCompleteWith: .failure(LocalFeedImageLoader.LoadError.failed), when: {
-            store.completeRetrieve(with: error)
-        })
+        store.completeRetrieve(with: expectedError)
+
+        do {
+            _ = try sut.load(from: makeURL())
+        } catch {
+            XCTAssertEqual(error as NSError, expectedError as NSError)
+        }
     }
 
     func test_load_deliversStoredDataOnRetrievalSuccess() {
         let data = makeData()
         let (sut, store) = makeSUT()
 
-        expect(sut, toCompleteWith: .success(data), when: {
-            store.completeRetrieve(with: data)
-        })
+        store.completeRetrieve(with: data)
+
+        XCTAssertEqual(try sut.load(from: makeURL()), data)
     }
 
-    func test_load_deliversNotFoundOnEmptyCache() {
+    func test_load_deliversNotFoundErrorOnEmptyCache() {
         let (sut, store) = makeSUT()
 
-        expect(sut, toCompleteWith: .failure(LocalFeedImageLoader.LoadError.notFound)) {
-            store.completeRetrieveWithEmpty()
+        store.completeRetrieveWithEmpty()
+
+        do {
+            _ = try sut.load(from: makeURL())
+        } catch {
+            XCTAssertEqual(error as NSError, LocalFeedImageLoader.LoadError.notFound as NSError)
         }
     }
 
-    func test_load_doesNotCompleteAfterTaskHasBeenCanceled() {
-        let (sut, store) = makeSUT()
-
-        var capturedResult: LocalFeedImageLoader.LoadFeedImageResult?
-        let task = sut.load(from: makeURL()) { capturedResult = $0 }
-
-        task.cancel()
-        store.completeRetrieve(with: makeNSError())
-
-        XCTAssertNil(capturedResult, "Expected load to not complete after task has been canceled")
-    }
-
-    func test_load_doesNotCompleteAfterSUTHasBeenDeallocated() {
-        let store = FeedImageStoreSpy()
-        var sut: LocalFeedImageLoader? = LocalFeedImageLoader(store: store)
-
-        var capturedResult: LocalFeedImageLoader.LoadFeedImageResult?
-        _ = sut?.load(from: makeURL()) { capturedResult = $0 }
-
-        sut = nil
-        store.completeRetrieve(with: makeNSError())
-
-        XCTAssertNil(capturedResult, "Expected load to not complete after SUT instance has been deallocated")
-    }
-
-    func test_load_triggersNoSideEffectsInStoreOnFailure() {
+    func test_load_triggersNoSideEffectsInStoreOnFailure() throws {
         let url = makeURL()
         let (sut, store) = makeSUT()
 
-        _ = sut.load(from: url) { _ in }
         store.completeRetrieve(with: makeNSError())
+        do {
+            _ = try sut.load(from: url)
+        } catch {}
 
         XCTAssertEqual(store.messages, [.retrieve(from: url)])
     }
 
-    func test_load_triggersNoSideEffectsInStoreOnSuccess() {
+    func test_load_triggersNoSideEffectsInStoreOnSuccess() throws {
         let data = makeData()
         let url = makeURL()
         let (sut, store) = makeSUT()
 
-        _ = sut.load(from: url) { _ in }
         store.completeRetrieve(with: data)
+        _ = try sut.load(from: url)
 
         XCTAssertEqual(store.messages, [.retrieve(from: url)])
-    }
-
-    private func expect(_ sut: LocalFeedImageLoader, toCompleteWith expectedResult: LocalFeedImageLoader.LoadFeedImageResult, when action: () -> Void, file: StaticString = #filePath, line: UInt = #line) {
-        _ = sut.load(from: makeURL()) { capturedResult in
-            switch (capturedResult, expectedResult) {
-            case let (.failure(capturedError), .failure(expectedError)):
-                XCTAssertEqual(capturedError as NSError, expectedError as NSError, "Expected failure errors to match", file: file, line: line)
-
-            case let (.success(capturedData), .success(expectedData)):
-                XCTAssertEqual(capturedData, expectedData, "Expected success data to match", file: file, line: line)
-
-            default:
-                XCTFail("Captured and expected results should be the same, instead got captured: \(capturedResult) with expected: \(expectedResult)", file: file, line: line)
-
-            }
-        }
-
-        action()
     }
 
     private func makeSUT(file: StaticString = #filePath, line: UInt = #line) -> (LocalFeedImageLoader, FeedImageStoreSpy) {

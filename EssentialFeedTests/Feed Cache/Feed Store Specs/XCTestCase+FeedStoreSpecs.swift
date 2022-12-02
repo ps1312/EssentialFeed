@@ -74,59 +74,24 @@ extension FeedStoreSpecs where Self: XCTestCase {
         expect(sut, toRetrieve: .empty)
     }
 
-    func assertThatStoreSideEffectsRunSerially(on sut: FeedStore, file: StaticString = #filePath, line: UInt = #line) {
-        var completedOperationsInOrder = [XCTestExpectation]()
-
-        let op1 = expectation(description: "Operation 1")
-        sut.persist(images: uniqueImages().locals, timestamp: Date()) { _ in
-            completedOperationsInOrder.append(op1)
-            op1.fulfill()
-        }
-
-        let op2 = expectation(description: "Operation 2")
-        sut.delete { _ in
-            completedOperationsInOrder.append(op2)
-            op2.fulfill()
-        }
-
-        let op3 = expectation(description: "Operation 3")
-        sut.persist(images: uniqueImages().locals, timestamp: Date()) { _ in
-            completedOperationsInOrder.append(op3)
-            op3.fulfill()
-        }
-
-        waitForExpectations(timeout: 5.0)
-
-        XCTAssertEqual(completedOperationsInOrder, [op1, op2, op3])
-    }
-
     @discardableResult
     func delete(_ sut: FeedStore) -> Error? {
-        let exp = expectation(description: "wait for deletion to complete")
-
-        var deleteError: Error? = nil
-        sut.delete { error in
-            deleteError = error
-            exp.fulfill()
+        do {
+            try sut.delete()
+            return nil
+        } catch {
+            return error
         }
-        wait(for: [exp], timeout: 1.0)
-
-        return deleteError
     }
 
     @discardableResult
     func insert(_ sut: FeedStore, feed: [LocalFeedImage], timestamp: Date) -> Error? {
-        let exp = expectation(description: "wait for insertion to complete")
-
-        var persistError: Error? = nil
-        sut.persist(images: feed, timestamp: timestamp) { error in
-            persistError = error
-            exp.fulfill()
+        do {
+            try sut.persist(images: feed, timestamp: timestamp)
+            return nil
+        } catch {
+            return error
         }
-
-        wait(for: [exp], timeout: 1.0)
-
-        return persistError
     }
 
     func expect(_ sut: FeedStore, toRetrieveTwice expectedResult: CacheRetrieveResult, file: StaticString = #filePath, line: UInt = #line) {
@@ -135,9 +100,9 @@ extension FeedStoreSpecs where Self: XCTestCase {
     }
 
     func expect(_ sut: FeedStore, toRetrieve expectedResult: CacheRetrieveResult, file: StaticString = #filePath, line: UInt = #line) {
-        let exp = expectation(description: "wait for insertion and retrieval to complete")
+        do {
+            let receivedResult = try sut.retrieve()
 
-        sut.retrieve { receivedResult in
             switch (receivedResult, expectedResult) {
             case (.empty, .empty), (.failure, .failure):
                 break
@@ -149,10 +114,12 @@ extension FeedStoreSpecs where Self: XCTestCase {
             default:
                 XCTFail("Expected results to match, instead got \(receivedResult) and \(expectedResult)", file: file, line: line)
             }
+        } catch {
+            if case .failure = expectedResult {
+                return
+            }
 
-            exp.fulfill()
+            XCTFail("Expected only to have entered catch when expectedResult is a .failure, instead got \(expectedResult)")
         }
-
-        wait(for: [exp], timeout: 1.0)
     }
 }

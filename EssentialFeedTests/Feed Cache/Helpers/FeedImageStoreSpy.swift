@@ -7,36 +7,40 @@ final class FeedImageStoreSpy: FeedImageStore {
         case insert(URL, Data)
     }
     var messages = [Message]()
-    var retrievalCompletions = [RetrievalCompletion]()
-    var insertCompletions = [InsertCompletion]()
+    var insertResult: Error?
+    var retrieveResult: Result<Data?, Error>?
 
-    func retrieve(from url: URL, completion: @escaping RetrievalCompletion) {
+    func retrieve(from url: URL) throws -> Data? {
         messages.append(.retrieve(from: url))
-        retrievalCompletions.append(completion)
+
+        let result = try retrieveResult?.get()
+        return result
     }
 
     func completeRetrieve(with error: Error, at index: Int = 0) {
-        retrievalCompletions[index](.failure(error))
+        retrieveResult = .failure(error)
     }
 
     func completeRetrieve(with data: Data, at index: Int = 0) {
-        retrievalCompletions[index](.found(data))
+        retrieveResult = .success(data)
     }
 
     func completeRetrieveWithEmpty(at index: Int = 0) {
-        retrievalCompletions[index](.empty)
+        retrieveResult = .success(nil)
     }
 
-    func insert(url: URL, with data: Data, completion: @escaping InsertCompletion) {
+    func insert(url: URL, with data: Data) throws {
         messages.append(.insert(url, data))
-        insertCompletions.append(completion)
+        if let error = insertResult {
+            throw error
+        }
     }
 
     func completeInsert(with error: Error, at index: Int = 0) {
-        insertCompletions[index](error)
+        insertResult = error
     }
 
     func completeInsertWithSuccess(at index: Int = 0) {
-        insertCompletions[index](nil)
+        insertResult = nil
     }
 }

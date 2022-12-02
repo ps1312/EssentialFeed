@@ -9,58 +9,23 @@ public class LocalFeedImageLoader {
 }
 
 extension LocalFeedImageLoader: FeedImageLoader {
-    private final class LocalFeedImageLoaderTask: FeedImageLoaderTask {
-        private var completion: ((LoadFeedImageResult) -> Void)?
-
-        init(_ completion: @escaping (LoadFeedImageResult) -> Void) {
-            self.completion = completion
-        }
-
-        func complete(_ result: LoadFeedImageResult) {
-            completion?(result)
-        }
-
-        func cancel() {
-            preventFurtherCompletions()
-        }
-
-        private func preventFurtherCompletions() {
-            completion = nil
-        }
-    }
-
     public enum LoadError: Error {
         case failed
         case notFound
     }
 
-    public typealias LoadFeedImageResult = Result<Data, Error>
-
-    public func load(from url: URL, completion: @escaping (LoadFeedImageResult) -> Void) -> FeedImageLoaderTask {
-        let localTask = LocalFeedImageLoaderTask(completion)
-
-        store.retrieve(from: url) { [weak self] result in
-            guard self != nil else { return }
-
-            switch (result) {
-            case .empty:
-                localTask.complete(.failure(LoadError.notFound))
-
-            case .failure:
-                localTask.complete(.failure(LoadError.failed))
-
-            case .found(let data):
-                localTask.complete(.success(data))
-
+    public func load(from url: URL) throws -> Data {
+        do {
+            if let imageData = try store.retrieve(from: url) {
+                return imageData
             }
+
+        } catch {
+            throw LoadError.failed
         }
 
-        return localTask
+        throw LoadError.notFound
     }
-}
-
-public protocol FeedImageCache {
-    func save(url: URL, with data: Data, completion: @escaping (Error?) -> Void)
 }
 
 extension LocalFeedImageLoader: FeedImageCache {
@@ -68,15 +33,11 @@ extension LocalFeedImageLoader: FeedImageCache {
         case failed
     }
 
-    public func save(url: URL, with data: Data, completion: @escaping (Error?) -> Void) {
-        store.insert(url: url, with: data) { [weak self] error in
-            guard self != nil else { return }
-
-            if error == nil {
-                completion(nil)
-            } else {
-                completion(SaveError.failed)
-            }
+    public func save(url: URL, with data: Data) throws {
+        do {
+            try store.insert(url: url, with: data)
+        } catch {
+            throw SaveError.failed
         }
     }
 }

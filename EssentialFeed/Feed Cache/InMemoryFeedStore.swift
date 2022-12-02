@@ -4,47 +4,44 @@ public class InMemoryFeedStore: FeedStore & FeedImageStore {
     private let currentDate: () -> Date
 
     var cache = [LocalFeedImage]()
-    var images = [URL: Data]() {
-        didSet {
-            print("updated", images)
-        }
-    }
+    var images = [URL: Data]()
 
     public init(currentDate: @escaping () -> Date = Date.init) {
         self.currentDate = currentDate
     }
 
-    public func retrieve(completion: @escaping FeedStore.RetrieveCompletion) {
+    public func retrieve(completion: @escaping FeedStore.RetrieveCompletion) {}
+    public func persist(images: [LocalFeedImage], timestamp: Date, completion: @escaping FeedStore.PersistCompletion) {}
+    public func delete(completion: @escaping DeletionCompletion) {}
+
+    public func retrieve() throws -> CacheRetrieveResult {
         if cache.isEmpty {
-            completion(.empty)
+            return .empty
         } else {
-            completion(.found(feed: cache, timestamp: currentDate()))
+            return .found(feed: cache, timestamp: currentDate())
         }
     }
 
-    public func persist(images: [LocalFeedImage], timestamp: Date, completion: @escaping FeedStore.PersistCompletion) {
+    public func persist(images: [LocalFeedImage], timestamp: Date) throws {
         cache = images
-        completion(nil)
     }
 
-    public func delete(completion: @escaping FeedStore.DeletionCompletion) {
+    public func delete() throws {
         cache = []
-        completion(nil)
     }
 }
 
 extension InMemoryFeedStore {
-    public func retrieve(from url: URL, completion: @escaping FeedImageStore.RetrievalCompletion) {
+    public func retrieve(from url: URL) throws -> Data? {
         if let image = images[url] {
-            completion(.found(image))
+            return image
         } else {
-            completion(.empty)
+            return nil
         }
     }
 
-    public func insert(url: URL, with data: Data, completion: @escaping FeedImageStore.InsertCompletion) {
+    public func insert(url: URL, with data: Data) throws {
         images[url] = data
-        completion(nil)
     }
 
 }

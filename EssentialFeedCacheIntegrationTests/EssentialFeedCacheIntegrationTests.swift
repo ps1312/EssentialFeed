@@ -13,23 +13,25 @@ class EssentialFeedCacheIntegrationTests: XCTestCase {
         clearTestArtifacts()
     }
 
-    func test_LocalFeedLoaderAndCoreDataFeedStore_deliversCachedValuesOnNonEmptyCache() {
+    func test_LocalFeedLoaderAndCoreDataFeedStore_deliversCachedValuesOnNonEmptyCache() throws {
         let images = uniqueImages().models
         let sutToPerformSave = makeFeedLoader()
         let sutToPerformLoad = makeFeedLoader()
 
-        insert(to: sutToPerformSave, models: images)
+        try sutToPerformSave.save(feed: images)
 
-        expect(sutToPerformLoad, toReceive: .success(images))
+        XCTAssertEqual(images, try sutToPerformLoad.load())
     }
 
-    func test_LocalFeedLoaderAndCoreDataFeedStore_deliversAnEmptyFeedImagesArrayOnEmptyCache() {
+    func test_LocalFeedLoaderAndCoreDataFeedStore_deliversAnEmptyFeedImagesArrayOnEmptyCache() throws {
         let sut = makeFeedLoader()
 
-        expect(sut, toReceive: .success([]))
+        let result = try sut.load()
+
+        XCTAssertTrue(result.isEmpty)
     }
 
-    func test_LocalFeedLoaderAndCoreDataFeedStore_overridesPreviouslyInsertedCache() {
+    func test_LocalFeedLoaderAndCoreDataFeedStore_overridesPreviouslyInsertedCache() throws {
         let images = uniqueImages().models
         let lastImages = uniqueImages().models
 
@@ -37,13 +39,13 @@ class EssentialFeedCacheIntegrationTests: XCTestCase {
         let sutToPerformLastSave = makeFeedLoader()
         let sutToPerformLoad = makeFeedLoader()
 
-        insert(to: sutToPerformSave, models: images)
-        insert(to: sutToPerformLastSave, models: lastImages)
+        try sutToPerformSave.save(feed: images)
+        try sutToPerformLastSave.save(feed: lastImages)
 
-        expect(sutToPerformLoad, toReceive: .success(lastImages))
+        XCTAssertEqual(lastImages, try sutToPerformLoad.load())
     }
 
-    func test_LocalFeedImageLoaderAndCoreDataFeedStore_deliversInsertedData() {
+    func test_LocalFeedImageLoaderAndCoreDataFeedStore_deliversInsertedData() throws {
         let data = makeData()
         let model = uniqueImages().models[0]
 
@@ -51,39 +53,38 @@ class EssentialFeedCacheIntegrationTests: XCTestCase {
         let imageLoaderToPerformSave = makeImageLoader()
         let imageLoaderToPerformRetrieve = makeImageLoader()
 
-        insert(to: feedLoaderToPerformSave, models: [model])
+        try feedLoaderToPerformSave.save(feed: [model])
+        try imageLoaderToPerformSave.save(url: model.url, with: data)
 
-        insert(into: imageLoaderToPerformSave, url: model.url, with: data)
-
-        let cachedData = retrieve(from: imageLoaderToPerformRetrieve, in: model.url)
+        let cachedData = try imageLoaderToPerformRetrieve.load(from: model.url)
         XCTAssertEqual(cachedData, data)
     }
 
-    func test_LocalFeedLoaderAndCoreDataFeedStore_deletesInvalidCachedFeed() {
+    func test_LocalFeedLoaderAndCoreDataFeedStore_deletesInvalidCachedFeed() throws {
         let invalidTimestamp = Date().minusFeedCacheMaxAge() - 1
         let models = uniqueImages().models
-        let feedLoaderToPerformSave = makeFeedLoader(currentDate: { invalidTimestamp })
-        let feedLoaderToPerformValidate = makeFeedLoader()
-        let feedLoaderToPerformRetrieve = makeFeedLoader()
+        let sutToPerformSave = makeFeedLoader(currentDate: { invalidTimestamp })
+        let sutToPerformValidate = makeFeedLoader()
+        let sutToPerformRetrieve = makeFeedLoader()
 
-        insert(to: feedLoaderToPerformSave, models: models)
+        try sutToPerformSave.save(feed: models)
+        try sutToPerformValidate.validateCache()
 
-        feedLoaderToPerformValidate.validateCache() { _ in }
-
-        expect(feedLoaderToPerformRetrieve, toReceive: .success([]))
+        let result = try sutToPerformRetrieve.load()
+        XCTAssertTrue(result.isEmpty)
     }
 
-    func test_LocalFeedloaderAndCoreDataFeedStore_doesNotDeletesValidCache() {
+    func test_LocalFeedloaderAndCoreDataFeedStore_doesNotDeletesValidCache() throws {
         let models = uniqueImages().models
-        let feedLoaderToPerformSave = makeFeedLoader()
-        let feedLoaderToPerformValidate = makeFeedLoader()
-        let feedLoaderToPerformRetrieve = makeFeedLoader()
+        let sutToPerformSave = makeFeedLoader()
+        let sutToPerformValidate = makeFeedLoader()
+        let sutToPerformRetrieve = makeFeedLoader()
 
-        insert(to: feedLoaderToPerformSave, models: models)
+        try sutToPerformSave.save(feed: models)
+        try sutToPerformValidate.validateCache()
 
-        feedLoaderToPerformValidate.validateCache() { _ in }
-
-        expect(feedLoaderToPerformRetrieve, toReceive: .success(models))
+        let result = try sutToPerformRetrieve.load()
+        XCTAssertEqual(models, result)
     }
 
     private func makeFeedLoader(currentDate: @escaping () -> Date = Date.init, file: StaticString = #filePath, line: UInt = #line) -> LocalFeedLoader {
@@ -104,61 +105,6 @@ class EssentialFeedCacheIntegrationTests: XCTestCase {
         testMemoryLeak(localFeedImageLoader, file: file, line: line)
 
         return localFeedImageLoader
-    }
-
-
-    private func expect(_ sut: LocalFeedLoader, toReceive expectedResult: Result<[FeedImage], Error>, file: StaticString = #filePath, line: UInt = #line) {
-        let exp = expectation(description: "Wait for save and load to complete")
-
-        sut.load { receivedResult in
-            switch (receivedResult, expectedResult) {
-            case (.success(let receivedFeedItems), .success(let expectedFeedItems)):
-                XCTAssertEqual(receivedFeedItems, expectedFeedItems, file: file, line: line)
-
-            default:
-                XCTFail("Expected load to complete with empty, instead got \(receivedResult)")
-            }
-
-            exp.fulfill()
-        }
-
-        wait(for: [exp], timeout: 1.0)
-    }
-
-    private func insert(to sut: LocalFeedLoader, models: [FeedImage]) {
-        let exp = expectation(description: "Wait for save to complete")
-
-        sut.save(feed: models) { receivedError in
-            XCTAssertNil(receivedError, "Expected save to succeed")
-            exp.fulfill()
-        }
-
-        wait(for: [exp], timeout: 1.0)
-    }
-
-    private func insert(into sut: LocalFeedImageLoader, url: URL, with data: Data) {
-        let exp = expectation(description: "wait for image data save to complete")
-
-        sut.save(url: url, with: data) { error in
-            XCTAssertNil(error, "Expected save to succeed")
-            exp.fulfill()
-        }
-
-        wait(for: [exp], timeout: 5.0)
-    }
-
-    private func retrieve(from sut: LocalFeedImageLoader, in url: URL) -> Data? {
-        let exp = expectation(description: "wait for image data retrieve to complete")
-
-        var capturedData: Data?
-        _ = sut.load(from: url) { result in
-            capturedData = try? result.get()
-            exp.fulfill()
-        }
-
-        wait(for: [exp], timeout: 5.0)
-
-        return capturedData
     }
 
     private func cachesDirectory() -> URL {

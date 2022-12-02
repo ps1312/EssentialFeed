@@ -66,7 +66,7 @@ class FeedAcceptanceTests: XCTestCase {
         let image = UIImage.make(withColor: .green).pngData()!
         let sut = makeSUT(
             client: .offline,
-            store: FeedStoreStub(feed: [.found(feed: [local], timestamp: Date())], images: [.found(image)])
+            store: FeedStoreStub(feed: [.found(feed: [local], timestamp: Date())], images: [image])
         )
 
         let cell = sut.simulateFeedImageCellIsVisible(at: 0) as? FeedImageCell
@@ -94,7 +94,8 @@ class FeedAcceptanceTests: XCTestCase {
     }
 
     private func makeSUT(client: HTTPClientStub, store: FeedStoreStub) -> ListViewController {
-        let sut = SceneDelegate(client: client, store: store)
+        let scheduler = DispatchQueue.mainQueueScheduler.eraseToAnyScheduler()
+        let sut = SceneDelegate(client: client, store: store, scheduler: scheduler)
         sut.window = UIWindow(frame: CGRect(x: 0, y: 0, width: 1, height: 1))
         sut.configureView()
 
@@ -104,11 +105,11 @@ class FeedAcceptanceTests: XCTestCase {
         return controller
     }
 
-    private func expect(_ sut: ListViewController, toLoadImageData imageData: Data, inCellAtIndex index: Int) {
+    private func expect(_ sut: ListViewController, toLoadImageData imageData: Data, inCellAtIndex index: Int, file: StaticString = #filePath, line: UInt = #line) {
         let cell = sut.simulateFeedImageCellIsVisible(at: index) as? FeedImageCell
-        XCTAssertEqual(cell?.feedImageData, imageData)
-        XCTAssertEqual(cell?.isShowingLoadingIndicator, false)
-        XCTAssertEqual(cell?.isShowingRetryButton, false)
+        XCTAssertEqual(cell?.feedImageData, imageData, file: file, line: line)
+        XCTAssertEqual(cell?.isShowingLoadingIndicator, false, file: file, line: line)
+        XCTAssertEqual(cell?.isShowingRetryButton, false, file: file, line: line)
     }
 
     private func makeFeedData(images: Any) -> Data {
@@ -160,31 +161,31 @@ class FeedAcceptanceTests: XCTestCase {
 
     private final class FeedStoreStub: FeedStore, FeedImageStore {
         static func empty(numOfImages: Int) -> FeedStoreStub {
-            let images = Array(repeating: 0, count: numOfImages).map { _ in CacheImageRetrieveResult.empty }
+            let images = Array(repeating: 0, count: numOfImages).map { _ in nil as Data? }
             return FeedStoreStub(feed: [.empty], images: images)
         }
 
         private var feed = [CacheRetrieveResult]()
-        private var images = [CacheImageRetrieveResult]()
+        private var images = [Data?]()
 
-        init(feed: [CacheRetrieveResult], images: [CacheImageRetrieveResult]) {
+        init(feed: [CacheRetrieveResult], images: [Data?]) {
             self.feed = feed
             self.images = images
         }
 
-        func delete(completion: @escaping DeletionCompletion) {}
+        func delete() throws {}
 
-        func persist(images: [LocalFeedImage], timestamp: Date, completion: @escaping PersistCompletion) {}
+        func persist(images: [EssentialFeed.LocalFeedImage], timestamp: Date) throws {}
 
-        func retrieve(completion: @escaping RetrieveCompletion) {
-            completion(feed.remove(at: 0))
+        func retrieve() throws -> EssentialFeed.CacheRetrieveResult {
+            return feed.remove(at: 0)
         }
 
-        func retrieve(from url: URL, completion: @escaping RetrievalCompletion) {
-            completion(images.remove(at: 0))
+        func retrieve(from url: URL) throws -> Data? {
+            return images.remove(at: 0)
         }
 
-        func insert(url: URL, with data: Data, completion: @escaping InsertCompletion) {}
+        func insert(url: URL, with data: Data) throws {}
     }
 }
 
