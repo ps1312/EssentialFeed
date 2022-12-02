@@ -28,15 +28,13 @@ class CacheFeedImageUseCase: XCTestCase {
         try sut.save(url: makeURL(), with: makeData())
     }
 
-    func test_save_triggersNoSideEffectsInStoreOnFailure() throws {
+    func test_save_triggersNoSideEffectsInStoreOnFailure() {
         let url = makeURL()
         let data = makeData()
         let (sut, store) = makeSUT()
 
         store.completeInsert(with: makeNSError())
-        do {
-            try sut.save(url: makeURL(), with: makeData())
-        } catch {}
+        try? sut.save(url: makeURL(), with: makeData())
 
         XCTAssertEqual(store.messages, [.insert(url, data)])
     }

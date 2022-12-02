@@ -24,10 +24,7 @@ extension LocalFeedLoader {
     }
 
     func saveIgnoringResult(_ feed: [FeedImage]) {
-
-        do {
-            try save(feed: feed)
-        } catch {}
+        try? save(feed: feed)
     }
 }
 
@@ -51,9 +48,7 @@ extension FeedImageLoader {
 
 extension FeedImageCache {
     func saveIgnoringResult(_ url: URL, with data: Data) {
-        do {
-            try save(url: url, with: data)
-        } catch {}
+        try? save(url: url, with: data)
     }
 }
 
