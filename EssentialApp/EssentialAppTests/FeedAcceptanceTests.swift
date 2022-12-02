@@ -94,7 +94,8 @@ class FeedAcceptanceTests: XCTestCase {
     }
 
     private func makeSUT(client: HTTPClientStub, store: FeedStoreStub) -> ListViewController {
-        let sut = SceneDelegate(client: client, store: store)
+        let scheduler = DispatchQueue.mainQueueScheduler.eraseToAnyScheduler()
+        let sut = SceneDelegate(client: client, store: store, scheduler: scheduler)
         sut.window = UIWindow(frame: CGRect(x: 0, y: 0, width: 1, height: 1))
         sut.configureView()
 

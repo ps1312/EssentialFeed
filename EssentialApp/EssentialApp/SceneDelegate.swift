@@ -8,6 +8,12 @@ import EssentialFeediOS
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     var window: UIWindow?
 
+    private lazy var scheduler: AnyDispatchQueueScheduler = DispatchQueue(
+        label: "com.essentialApp.infra.queue",
+        qos: .userInitiated,
+        attributes: .concurrent
+    ).eraseToAnyScheduler()
+
     private static let baseURL = URL(string: "https://ile-api.essentialdeveloper.com/essential-feed")!
 
     private lazy var logger: Logger = {
@@ -46,10 +52,11 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         ))
     }()
 
-    convenience init(client: HTTPClient, store: FeedStore & FeedImageStore) {
+    convenience init(client: HTTPClient, store: FeedStore & FeedImageStore, scheduler: AnyDispatchQueueScheduler) {
         self.init()
         self.client = client
         self.store = store
+        self.scheduler = scheduler
     }
     
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
@@ -91,16 +98,19 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             .caching(to: localFeedLoader, with: [])
             .fallback(to: localFeedLoader.loadPublisher)
             .map { self.makePage(feed: $0, lastImage: $0.last)}
+            .receive(on: scheduler)
             .eraseToAnyPublisher()
     }
 
     private func makeLocalFeedImageLoaderWithRemoteFallback(url: URL) -> AnyPublisher<Data, Error> {
         localImageLoader
             .loadImagePublisher(from: url)
-            .fallback(to: {
+            .fallback(to: { [scheduler] in
                 self.client.getPublisher(url: url)
                     .tryMap(FeedImageMapper.map)
                     .caching(to: self.localImageLoader, with: url)
+                    .receive(on: scheduler)
+                    .eraseToAnyPublisher()
             })
     }
 
@@ -108,6 +118,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         client
             .getPublisher(url: url)
             .tryMap(ImageCommentsMapper.map)
+            .receive(on: scheduler)
             .eraseToAnyPublisher()
     }
 
