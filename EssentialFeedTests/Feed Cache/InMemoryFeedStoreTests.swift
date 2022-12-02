@@ -33,7 +33,7 @@ class InMemoryFeedStoreTests: XCTestCase {
     func test_imageRetrieve_deliversEmptyOnEmptyCache() {
         let sut = makeSUT()
 
-        expect(sut, toRetrieveImageCache: .empty, from: makeURL())
+        XCTAssertEqual(nil, try sut.retrieve(from: makeURL()))
     }
 
     func test_imageRetrieve_deliversDataOnNonEmptyCache() throws {
@@ -48,8 +48,8 @@ class InMemoryFeedStoreTests: XCTestCase {
         try sut.insert(url: url1, with: data1)
         try sut.insert(url: url2, with: data2)
 
-        expect(sut, toRetrieveImageCache: .found(data1), from: url1)
-        expect(sut, toRetrieveImageCache: .found(data2), from: url2)
+        XCTAssertEqual(data1, try sut.retrieve(from: url1))
+        XCTAssertEqual(data2, try sut.retrieve(from: url2))
     }
 
     func makeSUT(date: Date = Date(), file: StaticString = #filePath, line: UInt = #line) -> InMemoryFeedStore {
@@ -83,22 +83,7 @@ class InMemoryFeedStoreTests: XCTestCase {
 
     // MARK: - FeedImageStore Helpers
 
-    func expect(_ sut: InMemoryFeedStore, toRetrieveImageCache expectedResult: CacheImageRetrieveResult, from url: URL, file: StaticString = #filePath, line: UInt = #line) {
-        do {
-            let receivedResult = try sut.retrieve(from: url)
-
-            switch (receivedResult, expectedResult) {
-            case (.empty, .empty):
-                break
-
-            case let (.found(receivedImageData), .found(expectedImageData)):
-                XCTAssertEqual(expectedImageData, receivedImageData)
-
-            default:
-                XCTFail("Expected \(expectedResult), instead got \(receivedResult)", file: file, line: line)
-            }
-        } catch {
-            XCTFail("Expected retrieve to not fail, got \(error)")
-        }
+    func expect(_ sut: InMemoryFeedStore, toRetrieveImageCache expectedResult: Data?, from url: URL, file: StaticString = #filePath, line: UInt = #line) {
+        XCTAssertEqual(expectedResult, try sut.retrieve(from: url))
     }
 }

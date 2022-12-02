@@ -10,22 +10,20 @@ extension CoreDataFeedStore: FeedImageStore {
         }
     }
 
-    public func retrieve(from url: URL) throws -> CacheImageRetrieveResult {
-        var capturedResult: CacheImageRetrieveResult!
+    public func retrieve(from url: URL) throws -> Data? {
+        var capturedImage: Data?
+
         try performSync { context in
             if let imageData = context.userInfo[url] as? Data {
-                capturedResult = .found(imageData)
+                capturedImage = imageData
                 return
             }
 
-            guard let model = try ManagedFeedImage.findBy(url: url), let imageData = model.data else {
-                capturedResult = .empty
-                return
-            }
+            guard let imageData = try ManagedFeedImage.findBy(url: url)?.data else { return }
 
-            capturedResult = .found(imageData)
+            capturedImage = imageData
         }
 
-        return capturedResult
+        return capturedImage
     }
 }

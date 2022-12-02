@@ -1,6 +1,5 @@
 import XCTest
 import EssentialFeed
-import EssentialApp
 
 class ImageCommentsEndpointTests: XCTestCase {
     func test_get_deliversCommentsEndpointWithFeedImageID() {

@@ -16,18 +16,15 @@ extension Paginated {
 
 extension LocalFeedLoader {
     public func loadPublisher() -> AnyPublisher<[FeedImage], Swift.Error> {
-        return Deferred {
+        Deferred {
             Future { completion in
-                do {
-                    completion(.success(try self.load()))
-                } catch {
-                    completion(.failure(error))
-                }
+                completion(Result { try self.load() })
             }
         }.eraseToAnyPublisher()
     }
 
     func saveIgnoringResult(_ feed: [FeedImage]) {
+
         do {
             try save(feed: feed)
         } catch {}
@@ -44,13 +41,9 @@ extension FeedImageLoader {
     public typealias Publisher = AnyPublisher<Data, Error>
 
     public func loadImagePublisher(from url: URL) -> Publisher {
-        return Deferred {
+        Deferred {
             Future { completion in
-                do {
-                    completion(.success(try load(from: url)))
-                } catch {
-                    completion(.failure(error))
-                }
+                completion(Result { try load(from: url) })
             }
         }.eraseToAnyPublisher()
     }

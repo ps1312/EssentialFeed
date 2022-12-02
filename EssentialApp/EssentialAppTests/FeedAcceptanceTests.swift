@@ -66,7 +66,7 @@ class FeedAcceptanceTests: XCTestCase {
         let image = UIImage.make(withColor: .green).pngData()!
         let sut = makeSUT(
             client: .offline,
-            store: FeedStoreStub(feed: [.found(feed: [local], timestamp: Date())], images: [.found(image)])
+            store: FeedStoreStub(feed: [.found(feed: [local], timestamp: Date())], images: [image])
         )
 
         let cell = sut.simulateFeedImageCellIsVisible(at: 0) as? FeedImageCell
@@ -160,14 +160,14 @@ class FeedAcceptanceTests: XCTestCase {
 
     private final class FeedStoreStub: FeedStore, FeedImageStore {
         static func empty(numOfImages: Int) -> FeedStoreStub {
-            let images = Array(repeating: 0, count: numOfImages).map { _ in CacheImageRetrieveResult.empty }
+            let images = Array(repeating: 0, count: numOfImages).map { _ in nil as Data? }
             return FeedStoreStub(feed: [.empty], images: images)
         }
 
         private var feed = [CacheRetrieveResult]()
-        private var images = [CacheImageRetrieveResult]()
+        private var images = [Data?]()
 
-        init(feed: [CacheRetrieveResult], images: [CacheImageRetrieveResult]) {
+        init(feed: [CacheRetrieveResult], images: [Data?]) {
             self.feed = feed
             self.images = images
         }
@@ -180,7 +180,7 @@ class FeedAcceptanceTests: XCTestCase {
             return feed.remove(at: 0)
         }
 
-        func retrieve(from url: URL) throws -> EssentialFeed.CacheImageRetrieveResult {
+        func retrieve(from url: URL) throws -> Data? {
             return images.remove(at: 0)
         }
 

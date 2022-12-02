@@ -22,12 +22,12 @@ class CoreDataFeedImageStoreTests: XCTestCase {
     }
 
     func test_retrieve_deliversEmptyOnEmptyCache() {
-        let sut = makeSUT()
         let local = uniqueImages().locals[0]
+        let sut = makeSUT()
 
         insertImage(sut, feed: [local], timestamp: Date())
 
-        expect(sut, toCompleteRetrieveWith: .empty, from: local.url)
+        XCTAssertEqual(try sut.retrieve(from: local.url), nil)
     }
 
     func test_retrieve_hasNoSideEffectsOnEmptyCache() {
@@ -36,7 +36,8 @@ class CoreDataFeedImageStoreTests: XCTestCase {
 
         insertImage(sut, feed: [local], timestamp: Date())
 
-        expect(sut, toCompleteRetrieveTwiceWith: .empty, from: local.url)
+        XCTAssertEqual(try sut.retrieve(from: local.url), nil)
+        XCTAssertEqual(try sut.retrieve(from: local.url), nil)
     }
 
     func test_retrieve_hasNoSideEffectsOnNonEmptyCache() {
@@ -47,7 +48,8 @@ class CoreDataFeedImageStoreTests: XCTestCase {
         insertImage(sut, feed: [local], timestamp: Date())
         saveImage(sut, in: local.url, data: data)
 
-        expect(sut, toCompleteRetrieveTwiceWith: .found(data), from: local.url)
+        XCTAssertEqual(try sut.retrieve(from: local.url), data)
+        XCTAssertEqual(try sut.retrieve(from: local.url), data)
     }
 
     func test_retrieveAfterInsert_deliversStoredFeedImageData() {
@@ -58,7 +60,8 @@ class CoreDataFeedImageStoreTests: XCTestCase {
         insertImage(sut, feed: [local], timestamp: Date())
         saveImage(sut, in: local.url, data: data)
 
-        expect(sut, toCompleteRetrieveWith: .found(data), from: local.url)
+        XCTAssertEqual(try sut.retrieve(from: local.url), data)
+        XCTAssertEqual(try sut.retrieve(from: local.url), data)
     }
 
     func test_insertAfterInsert_deliversLastInsertedData() {
@@ -69,10 +72,10 @@ class CoreDataFeedImageStoreTests: XCTestCase {
 
         insertImage(sut, feed: [local], timestamp: Date())
         saveImage(sut, in: local.url, data: firstData)
-        expect(sut, toCompleteRetrieveWith: .found(firstData), from: local.url)
+        XCTAssertEqual(try sut.retrieve(from: local.url), firstData)
 
         saveImage(sut, in: local.url, data: lastData)
-        expect(sut, toCompleteRetrieveWith: .found(lastData), from: local.url)
+        XCTAssertEqual(try sut.retrieve(from: local.url), lastData)
     }
 
     func test_insert_updatesOnlyFeedImageDataWithProvidedURL() {
@@ -85,8 +88,8 @@ class CoreDataFeedImageStoreTests: XCTestCase {
         insertImage(sut, feed: [local1, local2], timestamp: Date())
         saveImage(sut, in: local1.url, data: data)
 
-        expect(sut, toCompleteRetrieveWith: .found(data), from: local1.url)
-        expect(sut, toCompleteRetrieveWith: .empty, from: local2.url)
+        XCTAssertEqual(try sut.retrieve(from: local1.url), data)
+        XCTAssertEqual(try sut.retrieve(from: local2.url), nil)
     }
 
     func test_insert_hasNoSideEffectsOnFailure() {
@@ -99,7 +102,7 @@ class CoreDataFeedImageStoreTests: XCTestCase {
         insertImage(sut, feed: [local], timestamp: Date())
         saveImage(sut, in: makeURL(), data: makeData())
 
-        expect(sut, toCompleteRetrieveWith: .empty, from: local.url)
+        XCTAssertEqual(try sut.retrieve(from: local.url), nil)
     }
 
     private func makeSUT(file: StaticString = #filePath, line: UInt = #line) -> CoreDataFeedStore {
@@ -109,29 +112,6 @@ class CoreDataFeedImageStoreTests: XCTestCase {
         testMemoryLeak(store, file: file, line: line)
 
         return store
-    }
-
-    func expect(_ sut: CoreDataFeedStore, toCompleteRetrieveTwiceWith expectedResult: CacheImageRetrieveResult, from url: URL, file: StaticString = #filePath, line: UInt = #line) {
-        expect(sut, toCompleteRetrieveWith: expectedResult, from: url)
-        expect(sut, toCompleteRetrieveWith: expectedResult, from: url)
-    }
-
-    func expect(_ sut: CoreDataFeedStore, toCompleteRetrieveWith expectedResult: CacheImageRetrieveResult, from url: URL, file: StaticString = #filePath, line: UInt = #line) {
-        do {
-            let receivedResult = try sut.retrieve(from: url)
-            switch (receivedResult, expectedResult) {
-            case (.empty, .empty):
-                break
-
-            case (.found(let cachedData), .found(let expectedData)):
-                XCTAssertEqual(cachedData, expectedData, "Expected retrieve to deliver \(expectedData), instead got \(cachedData)", file: file, line: line)
-
-            default:
-                XCTFail("Expected received and expected results to match, instead got \(receivedResult) and \(expectedResult)", file: file, line: line)
-            }
-        } catch {
-            XCTFail("Expected retrieve to not fail, got \(error)")
-        }
     }
 
     @discardableResult

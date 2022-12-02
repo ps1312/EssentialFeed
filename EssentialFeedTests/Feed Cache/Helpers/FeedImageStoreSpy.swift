@@ -7,16 +7,14 @@ final class FeedImageStoreSpy: FeedImageStore {
         case insert(URL, Data)
     }
     var messages = [Message]()
-    var retrievalCompletions = [RetrievalCompletion]()
-    var insertCompletions = [InsertCompletion]()
     var insertResult: Error?
-    var retrieveResult: Result<CacheImageRetrieveResult, Error>?
+    var retrieveResult: Result<Data?, Error>?
 
-    func retrieve(from url: URL) throws -> CacheImageRetrieveResult {
+    func retrieve(from url: URL) throws -> Data? {
         messages.append(.retrieve(from: url))
-        guard let retrieveResult = try retrieveResult?.get() else { return .empty }
 
-        return retrieveResult
+        let result = try retrieveResult?.get()
+        return result
     }
 
     func completeRetrieve(with error: Error, at index: Int = 0) {
@@ -24,11 +22,11 @@ final class FeedImageStoreSpy: FeedImageStore {
     }
 
     func completeRetrieve(with data: Data, at index: Int = 0) {
-        retrieveResult = .success(.found(data))
+        retrieveResult = .success(data)
     }
 
     func completeRetrieveWithEmpty(at index: Int = 0) {
-        retrieveResult = .success(.empty)
+        retrieveResult = .success(nil)
     }
 
     func insert(url: URL, with data: Data) throws {

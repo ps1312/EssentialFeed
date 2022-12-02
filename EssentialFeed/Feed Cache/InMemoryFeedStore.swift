@@ -32,16 +32,13 @@ public class InMemoryFeedStore: FeedStore & FeedImageStore {
 }
 
 extension InMemoryFeedStore {
-    public func retrieve(from url: URL) throws -> CacheImageRetrieveResult {
+    public func retrieve(from url: URL) throws -> Data? {
         if let image = images[url] {
-            return .found(image)
+            return image
         } else {
-            return .empty
+            return nil
         }
     }
-
-    public func retrieve(from url: URL, completion: @escaping FeedImageStore.RetrievalCompletion) {}
-    public func insert(url: URL, with data: Data, completion: @escaping FeedImageStore.InsertCompletion) {}
 
     public func insert(url: URL, with data: Data) throws {
         images[url] = data

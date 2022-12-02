@@ -16,9 +16,10 @@ extension LocalFeedImageLoader: FeedImageLoader {
 
     public func load(from url: URL) throws -> Data {
         do {
-            if case let .found(imageData) = try store.retrieve(from: url) {
+            if let imageData = try store.retrieve(from: url) {
                 return imageData
             }
+
         } catch {
             throw LoadError.failed
         }
